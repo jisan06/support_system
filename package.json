@@ -1,0 +1,25 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "zip": "vite build && node scripts/build-zip.mjs"
+    },
+    "devDependencies": {
+        "@tailwindcss/forms": "^0.5.2",
+        "alpinejs": "^3.4.2",
+        "archiver": "^7.0.1",
+        "autoprefixer": "^10.4.2",
+        "axios": "^1.6.4",
+        "laravel-echo": "^2.3.1",
+        "laravel-vite-plugin": "^1.0.0",
+        "postcss": "^8.4.31",
+        "pusher-js": "^8.4.0",
+        "tailwindcss": "^3.1.0",
+        "vite": "^5.0.0"
+    },
+    "dependencies": {
+        "laravel-datatables-vite": "^0.6.2"
+    }
+}

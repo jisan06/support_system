@@ -1,0 +1,127 @@
+/* Hide submenus until MetisMenu JS initializes */
+.sub-menu { display: none; }
+.mm-active > .sub-menu { display: block; }
+
+/* Close button */
+.alert-dismissible .btn-close {
+    opacity: 1;
+    &:focus {
+        box-shadow: unset;
+    }
+}
+
+/*Add/Edit form style*/
+form {
+    .card-header {
+        font-size: 16px;
+        background-color: #6c757d;
+        color: #fff;
+    }
+    .card-footer {
+        background-color: rgb(98 98 98 / 15%);
+    }
+    .select2-container .select2-selection--multiple {
+        min-height: 38px;
+    }
+}
+
+/*Item list table style*/
+.item-list-wrap .card-header {
+    background-color: #646a6f;
+    color: #fff;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.45);
+    a.add-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 10px;
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        &:hover {
+            border-color: #00ffc2 !important;
+            color: #00ffc2 !important;
+        }
+    }
+    .title {
+        border-right: 1px solid #bdbdbdde;
+    }
+    .right-section {
+        border-left: 1px solid #bdbdbdde;
+    }
+    .nav-link {
+        padding-bottom: 4px;
+        &.active {
+            color: #00ffc2;
+            border-bottom: 1px solid #00ffc2;
+        }
+        &:hover {
+            color: #00ffc2;
+        }
+    }
+}
+.list-item-types {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 16px;
+
+    .list-item-type {
+        cursor: pointer;
+        background: #292929d9;
+        padding: 6px 10px;
+        color: #ffffff;
+        border-radius: 4px;
+
+        &.trash {
+            background: #e33e3ee3;
+        }
+    }
+}
+
+#toast-container {
+    &>div {
+        opacity: 1 !important;
+    }
+    .toast-success {
+        background-color: rgb(52 195 143 / 96%) !important;
+    }
+    .toast-message {
+        font-size: 16px;
+    }
+    &.toast-middle-center {
+        top: 30%;
+        left: 50%;
+        right: unset;
+    }
+}
+
+.dt-length label {
+    display: none;
+}
+#bulk-action-wrapper {
+    margin-left: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    #bulk-action-select {
+        width: auto;
+    }
+}
+.dataTable  {
+    thead {
+        border-top-color: var(--bs-border-color) !Important;
+    }
+    th, td {
+        vertical-align: middle;
+    }
+    input#select_all, .action-checkbox {
+        transform: scale(1.4);
+        cursor: pointer;
+    }
+}
+
+.navbar-brand-box {
+    .logo-lg img {
+        height: 100%;
+        width: 100%;
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "name": "the-admin",
+    "excludeDirs": [
+        ".git",
+        "node_modules",
+        ".phpunit.cache",
+        ".idea",
+        ".vscode",
+        ".fleet",
+        ".claude",
+        "scripts",
+        "public/storage"
+    ],
+    "excludeFiles": [
+        ".env",
+        ".env.backup",
+        ".env.production",
+        ".phpunit.result.cache",
+        "composer.phar",
+        "zip.config.json",
+        "storage/installed",
+        "public/hot"
+    ],
+    "cleanDirs": [
+        "storage/framework/views",
+        "storage/framework/sessions",
+        "storage/framework/cache/data",
+        "storage/framework/testing/disks",
+        "storage/logs",
+        "storage/app/backup",
+        "storage/app/backup-temp",
+        "storage/app/public/media"
+    ]
+}
