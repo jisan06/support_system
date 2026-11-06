@@ -18,7 +18,17 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     public function getActive()
     {
-        return $this->model->where('status', 'Active')->select('id', 'name')->get();
+        return $this->getActiveAdmins();
+    }
+
+    public function getActiveAdmins()
+    {
+        return $this->model->isAdmin()->where('status', 'Active')->select('id', 'name')->get();
+    }
+
+    public function getActiveCustomers()
+    {
+        return $this->model->isCustomer()->where('status', 'Active')->select('id', 'name')->get();
     }
 
     /**
@@ -30,6 +40,9 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     public function create(array $data)
     {
         $created_by = auth()->id();
+        // default to admin account type for internal user repository operations
+        $data['account_type'] = $data['account_type'] ?? User::TYPE_ADMIN;
+
         // extract roles from payload if present
         $roles = $data['role_ids'] ?? null;
         unset($data['role_ids']);

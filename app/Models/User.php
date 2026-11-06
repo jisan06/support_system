@@ -12,11 +12,16 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\Traits\HasMedia;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Enums\AccountType;
+use Illuminate\Database\Eloquent\Builder;
 use Spatie\Translatable\HasTranslations;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasTranslations, SoftDeletes, HasMedia, LogsActivity;
+
+    public const TYPE_ADMIN = AccountType::ADMIN->value;
+    public const TYPE_CUSTOMER = AccountType::CUSTOMER->value;
 
     protected $guarded = ['id'];
     public array $translatable = ['name'];
@@ -36,16 +41,49 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'account_type' => AccountType::class,
         ];
     }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'email', 'status'])
+            ->logOnly(['name', 'email', 'status', 'account_type'])
             ->logOnlyDirty()
             ->setDescriptionForEvent(fn (string $eventName) => "User {$this->name} was {$eventName}")
             ->useLogName('user');
+    }
+
+    /**
+     * Scope query to internal admin/staff accounts.
+     */
+    public function scopeIsAdmin(Builder $query): Builder
+    {
+        return $query->where('account_type', AccountType::ADMIN->value);
+    }
+
+    /**
+     * Scope query to customer accounts.
+     */
+    public function scopeIsCustomer(Builder $query): Builder
+    {
+        return $query->where('account_type', AccountType::CUSTOMER->value);
+    }
+
+    /**
+     * Check if the account is an internal admin/staff account.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->account_type === AccountType::ADMIN || $this->account_type === AccountType::ADMIN->value;
+    }
+
+    /**
+     * Check if the account is a customer account.
+     */
+    public function isCustomer(): bool
+    {
+        return $this->account_type === AccountType::CUSTOMER || $this->account_type === AccountType::CUSTOMER->value;
     }
 
     /**

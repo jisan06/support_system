@@ -166,6 +166,7 @@ class DemoSeeder extends Seeder
                 'id' => $userId,
                 'name' => json_encode(['en' => $userData['name']]),
                 'email' => $userData['email'],
+                'account_type' => 'admin',
                 'password' => $password,
                 'status' => $index < 8 ? 'Active' : 'Inactive',
                 'email_verified_at' => $now,

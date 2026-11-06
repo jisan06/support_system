@@ -10,6 +10,11 @@ return [
     "edit_user" => "Edit User",
     "delete_user" => "Delete User",
 
+    "view_customer" => "View Customer",
+    "create_customer" => "Create Customer",
+    "edit_customer" => "Edit Customer",
+    "delete_customer" => "Delete Customer",
+
     "view_role" => "View Role",
     "create_role" => "Create Role",
     "edit_role" => "Edit Role",

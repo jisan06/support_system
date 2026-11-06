@@ -24,7 +24,7 @@
             </ul>
         </div>
 
-        <a href="{{ url('/login') }}" class="btn btn-install btn-lg px-5">
+        <a href="{{ route('login') }}" class="btn btn-install btn-lg px-5">
             <i class="bx bx-log-in-circle me-1"></i> Go to Login
         </a>
     </div>

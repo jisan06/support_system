@@ -69,6 +69,39 @@ use App\Services\BreadcrumbsManager;
  */
 
 /*
+ * Customer Breadcrumb
+ */
+    // Customers index (hidden)
+    BreadcrumbsManager::for('customers.index', [
+        ['label' => trans_choice('customer.customers', 2), 'route' => 'customers.index', 'show' => false],
+    ]);
+
+    // Customers create
+    BreadcrumbsManager::for('customers.create', [
+        ['label' => trans_choice('customer.customers', 2), 'route' => 'customers.index'],
+        ['label' => trans('customer.add_new'), 'route' => null],
+    ]);
+
+    // Customers show (dynamic)
+    BreadcrumbsManager::for('customers.show', function ($customer) {
+        return [
+            ['label' => trans_choice('customer.customers', 2), 'route' => 'customers.index'],
+            ['label' => $customer->name, 'route' => null],
+        ];
+    });
+
+    // Customers edit (dynamic)
+    BreadcrumbsManager::for('customers.edit', function ($customer) {
+        return [
+            ['label' => trans_choice('customer.customers', 2), 'route' => 'customers.index'],
+            ['label' => trans('common.edit') . ": {$customer->name}", 'route' => null],
+        ];
+    });
+/*
+ * Customer Breadcrumb End
+ */
+
+/*
  * Activity Log Breadcrumb
  */
     // Activity Log index

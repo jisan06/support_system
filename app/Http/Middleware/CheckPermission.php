@@ -29,6 +29,21 @@ class CheckPermission
         'users.force-delete'   => 'delete_user',
         'users.bulk_force_delete' => 'delete_user',
 
+        // Customers
+        'customers.index'          => 'view_customer',
+        'customers.trash'          => 'view_customer',
+        'customers.create'         => 'create_customer',
+        'customers.store'          => 'create_customer',
+        'customers.show'           => 'view_customer',
+        'customers.edit'           => 'edit_customer',
+        'customers.update'         => 'edit_customer',
+        'customers.destroy'        => 'delete_customer',
+        'customers.bulk_delete'    => 'delete_customer',
+        'customers.restore'        => 'delete_customer',
+        'customers.bulk_restore'   => 'delete_customer',
+        'customers.force-delete'   => 'delete_customer',
+        'customers.bulk_force_delete' => 'delete_customer',
+
         // Roles
         'roles.index'          => 'view_role',
         'roles.trash'          => 'view_role',
@@ -91,6 +106,11 @@ class CheckPermission
 
     public function handle(Request $request, Closure $next): Response
     {
+        // Enforce account_type: Only internal admin/staff accounts can access the admin panel
+        if ($request->user() && !$request->user()->isAdmin()) {
+            return $this->denyAccess($request);
+        }
+
         $routeName = $request->route()?->getName();
 
         if (!$routeName) {

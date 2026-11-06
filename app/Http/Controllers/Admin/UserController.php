@@ -25,6 +25,11 @@ class UserController extends Controller
 
     protected function authorizeUserAccess(User $user): void
     {
+        // Enforce account_type: User management strictly handles internal accounts
+        if (!$user->isAdmin()) {
+            abort(404, 'User not found in internal accounts.');
+        }
+
         $user->loadMissing('roles');
         if ($user->roleLevel() < auth()->user()->roleLevel()) {
             abort(403);
@@ -83,7 +88,10 @@ class UserController extends Controller
      */
     public function store(UserRequest $request)
     {
-        $this->service->create($request->validated());
+        $data = $request->validated();
+        $data['account_type'] = User::TYPE_ADMIN;
+
+        $this->service->create($data);
         return redirect()->route('users.index')
             ->with('success', __('user.user_created'));
     }
@@ -122,7 +130,11 @@ class UserController extends Controller
         if ($this->isRootAdmin($user) && auth()->id() !== 1) {
             abort(403);
         }
-        $this->service->update($user->id, $request->validated());
+
+        $data = $request->validated();
+        unset($data['account_type']); // Prevent unauthorized account_type mutation
+
+        $this->service->update($user->id, $data);
         return redirect()->route('users.index')
             ->with('success', __('user.user_updated'));
     }
@@ -190,12 +202,15 @@ class UserController extends Controller
 
     protected function filterAccessibleUserIds(array $ids): array
     {
-        // Always protect root admin
+        // Always protect root admin and restrict to admin account_type
         $ids = array_values(array_diff($ids, [1]));
 
         $myLevel = auth()->user()->roleLevel();
         $protectedIds = User::whereIn('id', $ids)
-            ->whereHas('roles', fn ($q) => $q->where('level', '<', $myLevel))
+            ->where(function ($q) use ($myLevel) {
+                $q->where('account_type', '!=', User::TYPE_ADMIN)
+                  ->orWhereHas('roles', fn ($r) => $r->where('level', '<', $myLevel));
+            })
             ->pluck('id')
             ->toArray();
 

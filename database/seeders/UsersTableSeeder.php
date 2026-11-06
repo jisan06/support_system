@@ -25,6 +25,7 @@ class UsersTableSeeder extends Seeder
                 'created_by' => NULL,
                 'name' => '{"en": "Super Admin"}',
                 'email' => 'super_admin@gmail.com',
+                'account_type' => 'admin',
                 'status' => 'Active',
                 'email_verified_at' => NULL,
                 'password' => '$2y$12$3Fkk.VtPVPnF0XPZzwQefOozYN8eJtwwD5FCxtSlSAZqq3oLr4g5i',

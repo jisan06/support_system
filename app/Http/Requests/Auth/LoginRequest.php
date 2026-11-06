@@ -67,6 +67,16 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Enforce account_type: Admin portal login strictly permits internal admin/staff accounts
+        if (! Auth::user()->isAdmin()) {
+            Auth::guard('web')->logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Access denied. This login is for internal staff accounts only.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

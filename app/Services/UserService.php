@@ -14,4 +14,14 @@ class UserService extends BaseService
     {
         parent::__construct($repository);
     }
+
+    public function getActiveAdmins()
+    {
+        return $this->repository->getActiveAdmins();
+    }
+
+    public function getActiveCustomers()
+    {
+        return $this->repository->getActiveCustomers();
+    }
 }

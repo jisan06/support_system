@@ -199,9 +199,10 @@ class InstallController extends Controller
         try {
             $user = \App\Models\User::first();
             $user->update([
-                'name'     => ['en' => $request->name],
-                'email'    => $request->email,
-                'password' => Hash::make($request->password),
+                'name'         => ['en' => $request->name],
+                'email'        => $request->email,
+                'account_type' => \App\Models\User::TYPE_ADMIN,
+                'password'     => Hash::make($request->password),
             ]);
 
             \App\Models\Setting::where('group', 'general')

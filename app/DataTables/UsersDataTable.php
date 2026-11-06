@@ -112,9 +112,10 @@ class UsersDataTable extends DataTable
         $routeName = Route::currentRouteName();
         $myLevel = auth()->user()->roleLevel();
 
+        // Admin User Management strictly lists internal staff/admin accounts
         $query = (!empty($routeName) && $routeName === 'users.trash')
-            ? $model->onlyTrashed()
-            : $model->newQuery();
+            ? $model->onlyTrashed()->isAdmin()
+            : $model->newQuery()->isAdmin();
 
         return $query
             ->with('roles:id,name')

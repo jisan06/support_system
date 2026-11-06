@@ -23,6 +23,15 @@ return [
                     'delete_role' => 'permission.delete_role',
                 ],
             ],
+            [
+                'label' => 'Customer',
+                'permissions' => [
+                    'view_customer'   => 'permission.view_customer',
+                    'create_customer' => 'permission.create_customer',
+                    'edit_customer'   => 'permission.edit_customer',
+                    'delete_customer' => 'permission.delete_customer',
+                ],
+            ],
         ],
     ],
 

@@ -28,6 +28,14 @@ $menus = [
                 'icon' => 'bx bx-slider-alt',
                 'permission' => 'view_role',
             ],
+            [
+                'key' => 'customers',
+                'title' => 'menu.customer',
+                'route' => 'customers.index',
+                'slug' => 'customers',
+                'icon' => 'bx bx-user-pin',
+                'permission' => 'view_customer',
+            ],
         ]
     ],
     [

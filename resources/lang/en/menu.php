@@ -5,6 +5,7 @@ return [
     "administration" => "Administration",
     "user" => "User|Users",
     "role" => "Role|Roles",
+    "customer" => "Customer|Customers",
 
     "media" => "Media",
 

@@ -4,11 +4,13 @@ namespace App\Providers;
 
 use App\Listeners\SecurityNotificationListener;
 use App\Repositories\Contracts\ActivityLogRepositoryInterface;
+use App\Repositories\Contracts\CustomerRepositoryInterface;
 use App\Repositories\Contracts\MediaRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
 use App\Repositories\Contracts\SettingRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\ActivityLogRepository;
+use App\Repositories\CustomerRepository;
 use App\Repositories\MediaRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\SettingRepository;
@@ -25,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(ActivityLogRepositoryInterface::class, ActivityLogRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
+        $this->app->bind(CustomerRepositoryInterface::class, CustomerRepository::class);
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->bind(MediaRepositoryInterface::class, MediaRepository::class);
         $this->app->bind(SettingRepositoryInterface::class, SettingRepository::class);

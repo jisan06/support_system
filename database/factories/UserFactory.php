@@ -26,10 +26,32 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'account_type' => \App\Models\User::TYPE_CUSTOMER,
+            'status' => 'Active',
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * Indicate that the user is an internal admin/staff account.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn () => [
+            'account_type' => \App\Models\User::TYPE_ADMIN,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a customer account.
+     */
+    public function customer(): static
+    {
+        return $this->state(fn () => [
+            'account_type' => \App\Models\User::TYPE_CUSTOMER,
+        ]);
     }
 
     /**

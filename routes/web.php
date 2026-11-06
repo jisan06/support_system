@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\SystemMonitoringController;
@@ -37,6 +38,7 @@ Route::middleware(['auth', 'demo', 'permission'])
         Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
         Route::resourceWithTrash('users', UserController::class);
+        Route::resourceWithTrash('customers', CustomerController::class);
 
         Route::get('roles/{role}/permission', [RoleController::class, 'permission'])->name('roles.permission');
         Route::post('roles/{role}/permission', [RoleController::class, 'updatePermission'])->name('roles.permission_update');
