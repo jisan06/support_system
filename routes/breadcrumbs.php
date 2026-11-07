@@ -102,6 +102,37 @@ use App\Services\BreadcrumbsManager;
  */
 
 /*
+ * Ticket Breadcrumb
+ */
+    // Tickets index (hidden)
+    BreadcrumbsManager::for('tickets.index', [
+        ['label' => trans('menu.admin_dashboard', [], null) !== 'menu.admin_dashboard' ? trans('menu.admin_dashboard') : 'Admin Dashboard', 'route' => 'admin.dashboard'],
+        ['label' => trans('menu.support'), 'route' => null],
+        ['label' => trans_choice('menu.ticket', 2), 'route' => 'tickets.index', 'show' => false],
+    ]);
+
+    // Tickets create
+    BreadcrumbsManager::for('tickets.create', [
+        ['label' => trans('menu.admin_dashboard', [], null) !== 'menu.admin_dashboard' ? trans('menu.admin_dashboard') : 'Admin Dashboard', 'route' => 'admin.dashboard'],
+        ['label' => trans('menu.support'), 'route' => null],
+        ['label' => trans_choice('menu.ticket', 2), 'route' => 'tickets.index'],
+        ['label' => trans('permission.create_ticket'), 'route' => null],
+    ]);
+
+    // Tickets show (dynamic)
+    BreadcrumbsManager::for('tickets.show', function ($ticket) {
+        return [
+            ['label' => trans('menu.admin_dashboard', [], null) !== 'menu.admin_dashboard' ? trans('menu.admin_dashboard') : 'Admin Dashboard', 'route' => 'admin.dashboard'],
+            ['label' => trans('menu.support'), 'route' => null],
+            ['label' => trans_choice('menu.ticket', 2), 'route' => 'tickets.index'],
+            ['label' => is_object($ticket) ? "#{$ticket->ticket_number}" : "#{$ticket}", 'route' => null],
+        ];
+    });
+/*
+ * Ticket Breadcrumb End
+ */
+
+/*
  * Activity Log Breadcrumb
  */
     // Activity Log index

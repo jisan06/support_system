@@ -46,7 +46,7 @@ class MediaController extends Controller
                     'mime_type' => $item->mime_type,
                     'size'      => $item->size,
                     'collection'=> $item->collection,
-                    'url'       => Storage::disk($item->disk)->url($item->path),
+                    'url'       => $item->disk === 'public' ? asset('storage/' . $item->path) : Storage::disk($item->disk)->url($item->path),
                     'is_image'  => str_starts_with($item->mime_type, 'image/'),
                 ];
             });
@@ -89,7 +89,7 @@ class MediaController extends Controller
             'mime_type' => $media->mime_type,
             'size'      => $media->size,
             'collection'=> $media->collection,
-            'url'       => Storage::disk($media->disk)->url($media->path),
+            'url'       => $media->disk === 'public' ? asset('storage/' . $media->path) : Storage::disk($media->disk)->url($media->path),
             'is_image'  => str_starts_with($media->mime_type, 'image/'),
         ], __('media.media_uploaded'));
     }

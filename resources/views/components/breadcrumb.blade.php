@@ -15,8 +15,10 @@
             @foreach($visibleCrumbs as $crumb)
                 @if(!empty($crumb['route']))
                     <li class="breadcrumb-item"><a href="{{ route($crumb['route']) }}">{{ $crumb['label'] }}</a></li>
-                @else
+                @elseif($loop->last)
                     <li class="breadcrumb-item active">{{ $crumb['label'] }}</li>
+                @else
+                    <li class="breadcrumb-item">{{ $crumb['label'] }}</li>
                 @endif
             @endforeach
         </ol>

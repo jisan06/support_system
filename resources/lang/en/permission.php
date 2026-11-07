@@ -16,6 +16,7 @@ return [
     "delete_customer" => "Delete Customer",
 
     "view_ticket" => "View Ticket",
+    "create_ticket" => "Create Ticket",
     "reply_ticket" => "Reply Ticket",
     "internal_note_ticket" => "Internal Note",
 

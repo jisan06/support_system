@@ -51,14 +51,15 @@ class TicketMessageService extends BaseService
      * Add a public reply to the ticket with optional attachments.
      *
      * @param array<UploadedFile> $attachments
+     * @param array<int> $mediaIds
      * @throws AuthorizationException
      * @throws Throwable
      */
-    public function addReply(Ticket $ticket, User $sender, string $content, array $attachments = []): TicketMessage
+    public function addReply(Ticket $ticket, User $sender, string $content, array $attachments = [], array $mediaIds = []): TicketMessage
     {
         $this->authorizeTicketAccess($ticket, $sender);
 
-        return $this->transaction(function () use ($ticket, $sender, $content, $attachments) {
+        return $this->transaction(function () use ($ticket, $sender, $content, $attachments, $mediaIds) {
             $message = $this->repository->createMessage($ticket, [
                 'user_id' => $sender->id,
                 'type'    => TicketMessageType::REPLY->value,
@@ -67,6 +68,10 @@ class TicketMessageService extends BaseService
 
             if (!empty($attachments)) {
                 $this->storeAttachments($message, $attachments, $sender);
+            }
+
+            if (!empty($mediaIds)) {
+                $this->attachMediaIds($message, $mediaIds, $sender);
             }
 
             $ticket->update(['last_reply_at' => now()]);
@@ -80,17 +85,18 @@ class TicketMessageService extends BaseService
      * Customers are strictly prohibited from creating internal notes.
      *
      * @param array<UploadedFile> $attachments
+     * @param array<int> $mediaIds
      * @throws AuthorizationException
      * @throws Throwable
      */
-    public function addInternalNote(Ticket $ticket, User $sender, string $content, array $attachments = []): TicketMessage
+    public function addInternalNote(Ticket $ticket, User $sender, string $content, array $attachments = [], array $mediaIds = []): TicketMessage
     {
         // Enforce account_type: Only internal staff can add internal notes
         if (!$sender->isAdmin()) {
             throw new AuthorizationException('Customers are not permitted to create internal notes.');
         }
 
-        return $this->transaction(function () use ($ticket, $sender, $content, $attachments) {
+        return $this->transaction(function () use ($ticket, $sender, $content, $attachments, $mediaIds) {
             $message = $this->repository->createMessage($ticket, [
                 'user_id' => $sender->id,
                 'type'    => TicketMessageType::INTERNAL_NOTE->value,
@@ -99,6 +105,10 @@ class TicketMessageService extends BaseService
 
             if (!empty($attachments)) {
                 $this->storeAttachments($message, $attachments, $sender);
+            }
+
+            if (!empty($mediaIds)) {
+                $this->attachMediaIds($message, $mediaIds, $sender);
             }
 
             return $message;
@@ -143,7 +153,53 @@ class TicketMessageService extends BaseService
     }
 
     /**
-     * Securely download an attachment associated with a ticket message.
+     * Attach media library items to a ticket message.
+     * Creates a dedicated private attachment record on the non-public disk
+     * while preserving the original item in the Media Library.
+     *
+     * @param array<int> $mediaIds
+     */
+    protected function attachMediaIds(TicketMessage $message, array $mediaIds, User $sender): void
+    {
+        $privateDisk = config('ticket.attachments.disk', 'local');
+        $collection = config('ticket.attachments.collection', 'ticket_attachments');
+        $allowedExtensions = config('ticket.attachments.allowed_extensions', ['jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'zip']);
+
+        $mediaItems = Media::whereIn('id', $mediaIds)->get();
+
+        foreach ($mediaItems as $media) {
+            $ext = strtolower(pathinfo($media->file_name, PATHINFO_EXTENSION));
+            if (!in_array($ext, $allowedExtensions, true)) {
+                continue;
+            }
+
+            // Copy file to the private non-public disk under ticket_attachments collection
+            $securePath = config('media.path_prefix', 'media') . '/' . $collection . '/' . \Illuminate\Support\Str::random(40) . '.' . $ext;
+            if (Storage::disk($media->disk)->exists($media->path)) {
+                Storage::disk($privateDisk)->put($securePath, Storage::disk($media->disk)->get($media->path));
+            } else {
+                $securePath = $media->path;
+            }
+
+            // Create private attachment record for this ticket message
+            // Original Media Library record and its public file remain completely intact!
+            Media::create([
+                'mediable_type' => TicketMessage::class,
+                'mediable_id'   => $message->id,
+                'collection'    => $collection,
+                'file_name'     => $media->file_name,
+                'disk'          => $privateDisk,
+                'path'          => $securePath,
+                'mime_type'     => $media->mime_type,
+                'size'          => $media->size,
+                'sort_order'    => 0,
+                'created_by'    => $sender->id,
+            ]);
+        }
+    }
+
+    /**
+     * Securely download or view an attachment associated with a ticket message.
      *
      * @throws AuthorizationException
      */
@@ -177,7 +233,14 @@ class TicketMessageService extends BaseService
             abort(404, 'Attachment file not found.');
         }
 
-        // 5. Secure streamed download response
+        // 5. Secure streamed response: view inline in browser for images/PDFs, download for other files
+        if (str_starts_with($media->mime_type, 'image/') || $media->mime_type === 'application/pdf') {
+            return Storage::disk($disk)->response($media->path, $media->file_name, [
+                'Content-Type' => $media->mime_type,
+                'Content-Disposition' => 'inline; filename="' . $media->file_name . '"',
+            ]);
+        }
+
         return Storage::disk($disk)->download($media->path, $media->file_name);
     }
 

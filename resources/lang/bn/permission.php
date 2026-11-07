@@ -15,6 +15,7 @@ return [
     "delete_customer" => "গ্রাহক মুছুন",
 
     "view_ticket" => "টিকেট দেখুন",
+    "create_ticket" => "টিকেট তৈরি",
     "reply_ticket" => "টিকেটে রিপ্লাই দিন",
     "internal_note_ticket" => "ইন্টারনাল নোট দিন",
     "view_role" => "ভূমিকা দেখুন",

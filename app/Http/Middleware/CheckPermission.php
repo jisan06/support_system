@@ -62,6 +62,8 @@ class CheckPermission
 
         // Tickets
         'tickets.index'            => 'view_ticket',
+        'tickets.create'           => 'create_ticket',
+        'tickets.store'            => 'create_ticket',
         'tickets.show'             => 'view_ticket',
         'tickets.reply'            => 'reply_ticket',
         'tickets.internal_note'    => 'internal_note_ticket',

@@ -162,15 +162,36 @@
                                                 $formattedSize = $media->size >= 1048576
                                                     ? round($media->size / 1048576, 2) . ' MB'
                                                     : round($media->size / 1024, 1) . ' KB';
+                                                $isImage = str_starts_with($media->mime_type, 'image/');
+                                                $downloadUrl = route('tickets.attachments.download', [$ticket->id, $msg->id, $media->id]);
                                             @endphp
-                                            <a href="{{ route('tickets.attachments.download', [$ticket->id, $msg->id, $media->id]) }}"
-                                               class="btn btn-sm {{ $isInternal ? 'btn-outline-warning text-dark' : 'btn-outline-secondary' }} d-inline-flex align-items-center"
-                                               title="Download {{ $media->file_name }}">
-                                                <i class="bx bx-file me-1"></i>
-                                                <span class="text-truncate" style="max-width: 220px;">{{ $media->file_name }}</span>
-                                                <span class="badge bg-light text-muted ms-2 font-size-11">{{ $formattedSize }}</span>
-                                                <i class="bx bx-download ms-2 text-primary font-size-14"></i>
-                                            </a>
+                                            @if($isImage)
+                                                <a href="{{ $downloadUrl }}"
+                                                   target="_blank"
+                                                   rel="noopener noreferrer"
+                                                   class="attachment-image-card text-decoration-none border rounded p-1 d-inline-flex flex-column align-items-center bg-white shadow-sm {{ $isInternal ? 'border-warning' : 'border-light-subtle' }}"
+                                                   style="width: 140px;"
+                                                   title="Click to view {{ $media->file_name }} in new tab">
+                                                    <div class="attachment-thumb rounded bg-light d-flex align-items-center justify-content-center overflow-hidden mb-1" style="width: 100%; height: 90px;">
+                                                        <img src="{{ $downloadUrl }}" alt="{{ $media->file_name }}" style="max-width: 100%; max-height: 100%; object-fit: cover;" loading="lazy">
+                                                    </div>
+                                                    <div class="w-100 text-truncate font-size-12 px-1 text-dark fw-medium text-center" title="{{ $media->file_name }}">
+                                                        {{ $media->file_name }}
+                                                    </div>
+                                                    <small class="text-muted font-size-10">{{ $formattedSize }} <i class="bx bx-link-external ms-1 text-primary"></i></small>
+                                                </a>
+                                            @else
+                                                <a href="{{ $downloadUrl }}"
+                                                   target="_blank"
+                                                   rel="noopener noreferrer"
+                                                   class="btn btn-sm {{ $isInternal ? 'btn-outline-warning text-dark' : 'btn-outline-secondary' }} d-inline-flex align-items-center"
+                                                   title="Download {{ $media->file_name }}">
+                                                    <i class="bx bx-file me-1"></i>
+                                                    <span class="text-truncate" style="max-width: 220px;">{{ $media->file_name }}</span>
+                                                    <span class="badge bg-light text-muted ms-2 font-size-11">{{ $formattedSize }}</span>
+                                                    <i class="bx bx-download ms-2 text-primary font-size-14"></i>
+                                                </a>
+                                            @endif
                                         @endforeach
                                     </div>
                                 </div>
@@ -219,14 +240,18 @@
                                 <textarea name="content" rows="4" class="form-control" placeholder="Write your public reply here..." required minlength="2"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label text-muted small">
-                                    <i class="bx bx-paperclip me-1"></i> Attachments <span class="text-muted font-size-11">(Max {{ config('ticket.attachments.max_files', 5) }} files, up to {{ round(config('ticket.attachments.max_size_kb', 10240) / 1024) }}MB each)</span>
+                                <label class="form-label text-muted small d-block">
+                                    <i class="bx bx-paperclip me-1"></i> Attachments <span class="text-muted font-size-11">(Max {{ config('ticket.attachments.max_files', 5) }} files)</span>
                                 </label>
-                                <input type="file" name="attachments[]" class="form-control" multiple
-                                       accept="{{ implode(',', array_map(fn($ext) => '.' . $ext, config('ticket.attachments.allowed_extensions', ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'zip']))) }}">
-                                <div class="form-text text-muted font-size-12">
-                                    Allowed formats: {{ strtoupper(implode(', ', config('ticket.attachments.allowed_extensions', ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'zip']))) }}
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="replyMediaPickBtn">
+                                        <i class="bx bx-image-add me-1"></i> Choose from Media Library
+                                    </button>
+                                    <span class="text-muted font-size-12" id="replyAttachmentCountText">
+                                        0 of {{ config('ticket.attachments.max_files', 5) }} selected
+                                    </span>
                                 </div>
+                                <div id="replyAttachmentsList" class="d-flex flex-wrap gap-2 mt-2"></div>
                             </div>
                             <div class="d-flex justify-content-end">
                                 <button type="submit" class="btn btn-primary">
@@ -247,12 +272,19 @@
                                 <textarea name="content" rows="4" class="form-control bg-warning bg-opacity-10 border-warning" placeholder="Write your internal staff note here..." required minlength="2"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label text-muted small">
+                                <label class="form-label text-muted small d-block">
                                     <i class="bx bx-paperclip me-1"></i> Note Attachments <span class="badge bg-warning text-dark font-size-11 ms-1"><i class="bx bx-lock-alt"></i> Internal Only</span>
                                 </label>
-                                <input type="file" name="attachments[]" class="form-control bg-warning bg-opacity-10 border-warning" multiple
-                                       accept="{{ implode(',', array_map(fn($ext) => '.' . $ext, config('ticket.attachments.allowed_extensions', ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'zip']))) }}">
-                                <div class="form-text text-muted font-size-12">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <button type="button" class="btn btn-outline-warning btn-sm text-dark" id="noteMediaPickBtn">
+                                        <i class="bx bx-image-add me-1"></i> Choose from Media Library
+                                    </button>
+                                    <span class="text-muted font-size-12" id="noteAttachmentCountText">
+                                        0 of {{ config('ticket.attachments.max_files', 5) }} selected
+                                    </span>
+                                </div>
+                                <div id="noteAttachmentsList" class="d-flex flex-wrap gap-2 mt-2"></div>
+                                <div class="form-text text-muted font-size-12 mt-1">
                                     Attachments added here remain strictly confidential and internal to staff.
                                 </div>
                             </div>
@@ -268,4 +300,92 @@
         </div>
     </div>
 </div>
+@include('components.media.picker-modal')
 @endsection
+
+@push('css_links')
+    <link rel="stylesheet" href="{{ admin_asset('libs/toastr/build/toastr.min.css') }}">
+    @vite(['resources/css/media-picker.css'])
+@endpush
+
+@push('script_links')
+<script src="{{ asset('backend/assets/js/media-picker.js') }}"></script>
+<script>
+$(function () {
+    var maxFiles = {{ config('ticket.attachments.max_files', 5) }};
+
+    function setupMediaPicker(btnId, listId, countId) {
+        var selectedIds = new Set();
+
+        $('#' + btnId).on('click', function () {
+            if (selectedIds.size >= maxFiles) {
+                toastr.warning('Maximum ' + maxFiles + ' attachments allowed.');
+                return;
+            }
+
+            MediaPicker.open(function (media) {
+                if (!media || !media.id) return;
+                if (selectedIds.has(media.id)) {
+                    toastr.info('This item is already attached.');
+                    return;
+                }
+                if (selectedIds.size >= maxFiles) {
+                    toastr.warning('Maximum ' + maxFiles + ' attachments allowed.');
+                    return;
+                }
+
+                selectedIds.add(media.id);
+                $('#' + countId).text(selectedIds.size + ' of ' + maxFiles + ' selected');
+
+                var sizeText = media.size ? formatFileSize(media.size) : '';
+                var previewThumb = media.url
+                    ? '<img src="' + media.url + '" alt="' + escapeHtml(media.file_name) + '" style="width:100%;height:100%;object-fit:cover;">'
+                    : '<i class="fas fa-file text-muted font-size-18"></i>';
+
+                var itemHtml = `
+                    <div class="selected-media-item d-flex align-items-center p-2 border rounded bg-white shadow-sm" data-id="${media.id}" style="width: calc(50% - 6px); min-width: 220px;">
+                        <div class="me-2 d-flex align-items-center justify-content-center bg-light rounded" style="width: 38px; height: 38px; overflow: hidden; flex-shrink: 0;">
+                            ${previewThumb}
+                        </div>
+                        <div class="flex-grow-1 text-truncate me-2">
+                            <div class="font-size-12 text-truncate fw-medium" title="${escapeHtml(media.file_name)}">${escapeHtml(media.file_name)}</div>
+                            <small class="text-muted font-size-10">${sizeText}</small>
+                        </div>
+                        <input type="hidden" name="media_ids[]" value="${media.id}">
+                        <button type="button" class="btn btn-sm btn-link text-danger p-0 remove-item-btn" title="Remove attachment">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+
+                $('#' + listId).append(itemHtml);
+            });
+        });
+
+        $('#' + listId).on('click', '.remove-item-btn', function () {
+            var item = $(this).closest('.selected-media-item');
+            var id = item.data('id');
+            selectedIds.delete(id);
+            item.remove();
+            $('#' + countId).text(selectedIds.size + ' of ' + maxFiles + ' selected');
+        });
+    }
+
+    setupMediaPicker('replyMediaPickBtn', 'replyAttachmentsList', 'replyAttachmentCountText');
+    setupMediaPicker('noteMediaPickBtn', 'noteAttachmentsList', 'noteAttachmentCountText');
+
+    function formatFileSize(bytes) {
+        if (!bytes) return '';
+        if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' MB';
+        if (bytes >= 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return bytes + ' B';
+    }
+
+    function escapeHtml(str) {
+        var d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+});
+</script>
+@endpush

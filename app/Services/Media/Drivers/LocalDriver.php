@@ -27,6 +27,10 @@ class LocalDriver implements MediaDriverInterface
 
     public function url(string $path): string
     {
+        if ($this->disk === 'public') {
+            return asset('storage/' . $path);
+        }
+
         return Storage::disk($this->disk)->url($path);
     }
 

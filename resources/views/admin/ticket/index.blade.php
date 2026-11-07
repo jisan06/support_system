@@ -2,14 +2,14 @@
 @section('title', trans_choice('menu.ticket', 2))
 
 @section('content')
-<div class="row">
+<div class="row item-list-wrap">
     <div class="col-12">
         <div class="card">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                <h5 class="card-title mb-0">
-                    <i class="bx bx-support me-1 text-primary"></i> {{ trans_choice('menu.ticket', 2) }}
-                </h5>
-            </div>
+            <x-table.header
+                :title="trans_choice('menu.ticket', 2)"
+                icon="bx bx-support"
+                :add-button="['label'=> __('permission.create_ticket'), 'route'=>'tickets.create', 'icon'=>'fas fa-plus-circle', 'permission' => 'create_ticket']"
+            />
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">

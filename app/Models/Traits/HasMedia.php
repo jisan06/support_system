@@ -27,6 +27,14 @@ trait HasMedia
     {
         $media = $this->getFirstMedia($collection);
 
-        return $media ? Storage::disk($media->disk)->url($media->path) : null;
+        if (!$media) {
+            return null;
+        }
+
+        if ($media->disk === 'public') {
+            return asset('storage/' . $media->path);
+        }
+
+        return Storage::disk($media->disk)->url($media->path);
     }
 }

@@ -86,6 +86,94 @@ class TicketAttachmentTest extends TestCase
     }
 
     /**
+     * Test: Public reply with media library item attachment.
+     */
+    public function test_public_reply_with_media_library_item(): void
+    {
+        $agent = $this->createUserWithPermissions(['view_ticket', 'reply_ticket']);
+
+        $publicDisk = 'public';
+        Storage::fake($publicDisk);
+        Storage::disk($publicDisk)->put('media/default/doc.png', 'fake image bytes');
+
+        $media = Media::create([
+            'mediable_type' => Media::class,
+            'mediable_id'   => 0,
+            'collection'    => 'default',
+            'file_name'     => 'doc.png',
+            'disk'          => $publicDisk,
+            'path'          => 'media/default/doc.png',
+            'mime_type'     => 'image/png',
+            'size'          => 2048,
+            'created_by'    => $agent->id,
+        ]);
+
+        $response = $this->actingAs($agent)
+            ->post(route('tickets.reply', $this->ticket->id), [
+                'content'   => 'Attaching document from media library.',
+                'media_ids' => [$media->id],
+            ]);
+
+        $response->assertRedirect(route('tickets.show', $this->ticket->id));
+
+        $message = TicketMessage::where('ticket_id', $this->ticket->id)
+            ->where('type', TicketMessageType::REPLY->value)
+            ->latest('id')
+            ->first();
+
+        $this->assertCount(1, $message->media);
+        $attached = $message->media->first();
+        $this->assertEquals('ticket_attachments', $attached->collection);
+        $this->assertEquals($this->disk, $attached->disk);
+        Storage::disk($this->disk)->assertExists($attached->path);
+
+        // Original media in library remains untouched
+        $this->assertEquals('default', $media->fresh()->collection);
+    }
+
+    /**
+     * Test: Internal note with media library item attachment.
+     */
+    public function test_internal_note_with_media_library_item(): void
+    {
+        $agent = $this->createUserWithPermissions(['view_ticket', 'internal_note_ticket']);
+
+        $publicDisk = 'public';
+        Storage::fake($publicDisk);
+        Storage::disk($publicDisk)->put('media/default/log.txt', 'error trace content');
+
+        $media = Media::create([
+            'mediable_type' => Media::class,
+            'mediable_id'   => 0,
+            'collection'    => 'default',
+            'file_name'     => 'log.txt',
+            'disk'          => $publicDisk,
+            'path'          => 'media/default/log.txt',
+            'mime_type'     => 'text/plain',
+            'size'          => 512,
+            'created_by'    => $agent->id,
+        ]);
+
+        $response = $this->actingAs($agent)
+            ->post(route('tickets.internal_note', $this->ticket->id), [
+                'content'   => 'Attaching log from media library.',
+                'media_ids' => [$media->id],
+            ]);
+
+        $response->assertRedirect(route('tickets.show', $this->ticket->id));
+
+        $message = TicketMessage::where('ticket_id', $this->ticket->id)
+            ->where('type', TicketMessageType::INTERNAL_NOTE->value)
+            ->latest('id')
+            ->first();
+
+        $this->assertCount(1, $message->media);
+        $attached = $message->media->first();
+        $this->assertEquals('ticket_attachments', $attached->collection);
+        $this->assertEquals($this->disk, $attached->disk);
+    }
+
+    /**
      * Test: Valid attachment upload on internal note.
      */
     public function test_valid_attachment_upload_on_internal_note(): void
@@ -211,6 +299,43 @@ class TicketAttachmentTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertTrue($response->headers->get('content-disposition') !== null);
+    }
+
+    /**
+     * Test: Image attachments return inline content-disposition for viewing in new tab.
+     */
+    public function test_image_attachment_can_be_viewed_inline_in_new_tab(): void
+    {
+        $agent = $this->createUserWithPermissions(['view_ticket']);
+
+        $message = TicketMessage::create([
+            'ticket_id' => $this->ticket->id,
+            'user_id'   => $this->customer->id,
+            'type'      => TicketMessageType::REPLY,
+            'content'   => 'Here is the bug screenshot.',
+        ]);
+
+        $path = 'ticket_attachments/bug.png';
+        Storage::disk($this->disk)->put($path, 'fake png content');
+
+        $media = Media::create([
+            'mediable_type' => TicketMessage::class,
+            'mediable_id'   => $message->id,
+            'collection'    => 'ticket_attachments',
+            'file_name'     => 'bug.png',
+            'disk'          => $this->disk,
+            'path'          => $path,
+            'mime_type'     => 'image/png',
+            'size'          => 4567,
+            'created_by'    => $this->customer->id,
+        ]);
+
+        $response = $this->actingAs($agent)
+            ->get(route('tickets.attachments.download', [$this->ticket->id, $message->id, $media->id]));
+
+        $response->assertStatus(200);
+        $this->assertStringContainsString('inline', (string) $response->headers->get('content-disposition'));
+        $this->assertEquals('image/png', $response->headers->get('content-type'));
     }
 
     /**

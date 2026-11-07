@@ -28,6 +28,8 @@ class TicketReplyRequest extends FormRequest
                 'mimes:' . $allowedExtensions,
                 'mimetypes:' . $allowedMimes,
             ],
+            'media_ids'     => ['nullable', 'array', 'max:' . $maxFiles],
+            'media_ids.*'   => ['integer', 'exists:media,id'],
         ];
     }
 

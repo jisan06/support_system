@@ -15,6 +15,7 @@ return [
     "delete_customer" => "حذف العميل",
 
     "view_ticket" => "عرض التذكرة",
+    "create_ticket" => "إنشاء تذكرة",
     "reply_ticket" => "الرد على التذكرة",
     "internal_note_ticket" => "ملاحظة داخلية للتذكرة",
     "view_role" => "عرض الدور",

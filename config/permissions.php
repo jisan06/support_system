@@ -42,6 +42,7 @@ return [
                 'label' => 'Ticket',
                 'permissions' => [
                     'view_ticket'          => 'permission.view_ticket',
+                    'create_ticket'        => 'permission.create_ticket',
                     'reply_ticket'         => 'permission.reply_ticket',
                     'internal_note_ticket' => 'permission.internal_note_ticket',
                 ],
