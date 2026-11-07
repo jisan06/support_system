@@ -32,14 +32,35 @@ class TicketRepository extends BaseRepository implements TicketRepositoryInterfa
     }
 
     /**
-     * Get paginated tickets for user.
+     * Get paginated tickets for user with optional filters.
      */
-    public function getTicketsForUser(User $user, int $perPage = 15): LengthAwarePaginator
+    public function getTicketsForUser(User $user, array|int $filters = [], int $perPage = 15): LengthAwarePaginator
     {
+        if (is_int($filters)) {
+            $perPage = $filters;
+            $filters = [];
+        }
+
         $query = $this->model->newQuery()->with(['customer', 'assignedTo']);
 
         if ($user->isCustomer()) {
             $query->where('customer_id', $user->id);
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['priority'])) {
+            $query->where('priority', $filters['priority']);
+        }
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('ticket_number', 'like', "%{$search}%")
+                  ->orWhere('subject', 'like', "%{$search}%");
+            });
         }
 
         return $query->latest('last_reply_at')->latest('id')->paginate($perPage);

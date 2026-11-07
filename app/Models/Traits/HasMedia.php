@@ -20,6 +20,10 @@ trait HasMedia
 
     public function getFirstMedia(string $collection = 'default'): ?Media
     {
+        if ($this->relationLoaded('media')) {
+            return $this->media->firstWhere('collection', $collection);
+        }
+
         return $this->mediaByCollection($collection)->first();
     }
 

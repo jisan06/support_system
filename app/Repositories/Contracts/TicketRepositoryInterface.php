@@ -14,9 +14,11 @@ interface TicketRepositoryInterface extends BaseRepositoryInterface
     public function findForUser(int|string $id, User $user): Ticket;
 
     /**
-     * Get tickets for user (scoped to customer if customer account).
+     * Get tickets for user (scoped to customer if customer account) with optional filters.
+     *
+     * @param array|int $filters
      */
-    public function getTicketsForUser(User $user, int $perPage = 15): LengthAwarePaginator;
+    public function getTicketsForUser(User $user, array|int $filters = [], int $perPage = 15): LengthAwarePaginator;
 
     /**
      * Get ticket summary counts for a customer (Total, Open, Resolved).

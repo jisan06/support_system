@@ -111,7 +111,7 @@ class CustomerTicketCreationTest extends TestCase
         $this->assertCount(1, $ticket->messages);
         $initialMessage = $ticket->messages->first();
         $this->assertEquals($this->customer->id, $initialMessage->user_id);
-        $this->assertEquals(TicketMessageType::REPLY->value, $initialMessage->type);
+        $this->assertEquals(TicketMessageType::REPLY, $initialMessage->type);
         $this->assertEquals('I am unable to see my latest invoice in the portal. Please assist.', $initialMessage->content);
     }
 

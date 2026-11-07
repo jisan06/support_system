@@ -19,6 +19,8 @@
     <link href="{{ admin_asset('css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ admin_asset('css/app.min.css') }}" rel="stylesheet" type="text/css" />
 
+    @stack('styles')
+
     <style>
         body {
             background-color: #f8f9fa;
@@ -82,10 +84,10 @@
                         <a href="{{ route('customer.dashboard') }}" class="nav-link px-3 py-2 rounded {{ request()->routeIs('customer.dashboard') ? 'text-primary fw-semibold bg-light' : 'text-dark' }}">
                             <i class="bx bx-home-circle me-1 align-middle"></i> Dashboard
                         </a>
-                        <a href="#" class="nav-link px-3 py-2 text-muted" title="My Tickets">
+                        <a href="{{ route('customer.tickets.index') }}" class="nav-link px-3 py-2 rounded {{ request()->routeIs('customer.tickets.index', 'customer.tickets.show') ? 'text-primary fw-semibold bg-light' : 'text-dark' }}" title="My Tickets">
                             <i class="bx bx-receipt me-1 align-middle"></i> My Tickets
                         </a>
-                        <a href="{{ route('customer.tickets.create') }}" class="nav-link px-3 py-2 rounded {{ request()->routeIs('customer.tickets.*') ? 'text-primary fw-semibold bg-light' : 'text-dark' }}" title="Create Ticket">
+                        <a href="{{ route('customer.tickets.create') }}" class="nav-link px-3 py-2 rounded {{ request()->routeIs('customer.tickets.create') ? 'text-primary fw-semibold bg-light' : 'text-dark' }}" title="Create Ticket">
                             <i class="bx bx-plus-circle me-1 align-middle"></i> Create Ticket
                         </a>
                     </nav>
@@ -94,9 +96,16 @@
                 {{-- Customer Account Info & Logout --}}
                 <div class="d-flex align-items-center mt-2 mt-md-0">
                     <div class="d-flex align-items-center me-3 border-end pe-3">
-                        <div class="avatar-sm me-2" style="width: 32px; height: 32px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center;">
-                            <i class="bx bx-user text-muted font-size-18"></i>
-                        </div>
+                        @php
+                            $userAvatarUrl = auth()->user()->getFirstMediaUrl('avatar');
+                        @endphp
+                        @if($userAvatarUrl)
+                            <img src="{{ $userAvatarUrl }}" alt="{{ auth()->user()->name }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                        @else
+                            <div class="avatar-sm me-2" style="width: 32px; height: 32px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center;">
+                                <i class="bx bx-user text-muted font-size-18"></i>
+                            </div>
+                        @endif
                         <div class="text-start">
                             <div class="fw-semibold font-size-13 text-dark text-truncate" style="max-width: 160px;">{{ auth()->user()->name }}</div>
                             <small class="text-muted font-size-11 text-truncate d-block" style="max-width: 160px;">{{ auth()->user()->email }}</small>
@@ -143,6 +152,7 @@
         </div>
     </footer>
 
+    @stack('scripts')
 </body>
 </html>
 

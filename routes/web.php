@@ -47,9 +47,14 @@ Route::middleware(['auth', 'customer'])
         Route::get('/', fn () => redirect()->route('customer.dashboard'));
         Route::get('dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
 
-        // Customer Ticket Creation
+        // Customer Tickets
+        Route::get('tickets', [CustomerTicketController::class, 'index'])->name('tickets.index');
         Route::get('tickets/create', [CustomerTicketController::class, 'create'])->name('tickets.create');
         Route::post('tickets', [CustomerTicketController::class, 'store'])->name('tickets.store');
+        Route::get('tickets/{ticket}', [CustomerTicketController::class, 'show'])->name('tickets.show');
+        Route::post('tickets/{ticket}/reply', [CustomerTicketController::class, 'reply'])->name('tickets.reply');
+        Route::get('tickets/{ticket}/messages/{message}/attachments/{media}', [CustomerTicketController::class, 'downloadAttachment'])->name('tickets.attachments.show');
+        Route::get('tickets/{ticket}/messages/{message}/attachments/{media}/download', [CustomerTicketController::class, 'downloadAttachment'])->name('tickets.attachments.download');
     });
 
 // Legacy portal redirect for backwards compatibility

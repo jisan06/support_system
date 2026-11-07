@@ -31,9 +31,9 @@ class TicketService extends BaseService
         return $this->repository->findForUser($id, $user);
     }
 
-    public function getTicketsForUser(User $user, int $perPage = 15): LengthAwarePaginator
+    public function getTicketsForUser(User $user, array|int $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        return $this->repository->getTicketsForUser($user, $perPage);
+        return $this->repository->getTicketsForUser($user, $filters, $perPage);
     }
 
     /**
