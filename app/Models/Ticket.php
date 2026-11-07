@@ -27,13 +27,14 @@ class Ticket extends Model
             'resolution_due_at'      => 'datetime',
             'first_responded_at'     => 'datetime',
             'resolved_at'            => 'datetime',
+            'last_escalated_at'      => 'datetime',
         ];
     }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['ticket_number', 'customer_id', 'assigned_to', 'subject', 'status', 'priority'])
+            ->logOnly(['ticket_number', 'customer_id', 'assigned_to', 'subject', 'status', 'priority', 'escalation_level'])
             ->logOnlyDirty()
             ->setDescriptionForEvent(fn (string $eventName) => "Ticket {$this->ticket_number} was {$eventName}")
             ->useLogName('ticket');
@@ -62,6 +63,11 @@ class Ticket extends Model
     public function internalNotes(): HasMany
     {
         return $this->messages()->where('type', TicketMessageType::INTERNAL_NOTE->value);
+    }
+
+    public function escalations(): HasMany
+    {
+        return $this->hasMany(TicketEscalation::class, 'ticket_id')->orderBy('level', 'asc');
     }
 
     /**

@@ -68,6 +68,12 @@
                         <span class="text-muted">SLA Status</span>
                         <span class="badge {{ $ticket->sla_status->badgeClass() }}">{{ $ticket->sla_status->label() }}</span>
                     </li>
+                    @if($ticket->escalation_level > 0)
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="text-muted">Escalation Level</span>
+                            <span class="badge bg-danger">Level {{ $ticket->escalation_level }}</span>
+                        </li>
+                    @endif
                     <li class="list-group-item px-0">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-muted">First Response</span>
@@ -99,6 +105,26 @@
                         </div>
                     </li>
                 </ul>
+
+                @if($ticket->escalations && $ticket->escalations->isNotEmpty())
+                    <div class="mt-3 pt-3 border-top">
+                        <h6 class="font-size-13 text-muted mb-2"><i class="bx bx-error-circle text-danger me-1"></i> Escalation History</h6>
+                        <ul class="list-unstyled mb-0 font-size-12">
+                            @foreach($ticket->escalations as $esc)
+                                <li class="mb-2 pb-1 border-bottom">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-semibold text-danger">Level {{ $esc->level }}</span>
+                                        <small class="text-muted">{{ $esc->created_at->format('M d, H:i') }}</small>
+                                    </div>
+                                    <div class="text-muted">{{ ucwords(str_replace('_', ' ', $esc->trigger_reason)) }}</div>
+                                    @if($esc->new_assigned_to && $esc->new_assigned_to !== $esc->previous_assigned_to)
+                                        <div class="text-primary font-size-11">Reassigned to {{ $esc->newAssignee?->name }}</div>
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 <div class="mt-3">
                     <a href="{{ route('tickets.index') }}" class="btn btn-sm btn-outline-secondary w-100">

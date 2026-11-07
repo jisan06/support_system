@@ -2,6 +2,9 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('ticket:escalate-sla')->everyFiveMinutes()->withoutOverlapping();
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());

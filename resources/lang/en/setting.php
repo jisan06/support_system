@@ -92,6 +92,11 @@ return [
     'sla_medium_resolution' => 'Medium: Resolution Target (Minutes)',
     'sla_low_first_response' => 'Low: First Response Target (Minutes)',
     'sla_low_resolution' => 'Low: Resolution Target (Minutes)',
+    'sla_escalation_enabled' => 'Automatic SLA Escalation',
+    'sla_escalation_level_1_action' => 'Level 1 Action',
+    'sla_escalation_level_2_action' => 'Level 2 Action',
+    'sla_escalation_level_1_minutes' => 'Level 1 Threshold: Minutes After Breach (0 = Immediate)',
+    'sla_escalation_level_2_minutes' => 'Level 2 Threshold: Minutes After Breach',
 
     // Image actions
     'choose_image' => 'Choose Image',

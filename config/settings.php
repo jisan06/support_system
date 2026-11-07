@@ -419,6 +419,56 @@ return [
                 'default' => 2880,
                 'col' => 3,
             ],
+            // Automatic Escalation Configuration
+            'sla_escalation_enabled' => [
+                'type' => 'select',
+                'label' => 'setting.sla_escalation_enabled',
+                'rules' => 'nullable|string|in:1,0',
+                'options' => [
+                    '1' => 'Enabled',
+                    '0' => 'Disabled',
+                ],
+                'default' => '1',
+                'col' => 4,
+            ],
+            'sla_escalation_level_1_action' => [
+                'type' => 'select',
+                'label' => 'setting.sla_escalation_level_1_action',
+                'rules' => 'nullable|string|in:notify,reassign,notify_and_reassign',
+                'options' => [
+                    'notify' => 'Notify Assigned Staff',
+                    'reassign' => 'Reassign to Higher-Level Staff',
+                    'notify_and_reassign' => 'Notify & Reassign',
+                ],
+                'default' => 'notify',
+                'col' => 4,
+            ],
+            'sla_escalation_level_2_action' => [
+                'type' => 'select',
+                'label' => 'setting.sla_escalation_level_2_action',
+                'rules' => 'nullable|string|in:notify,reassign,notify_and_reassign',
+                'options' => [
+                    'notify' => 'Notify Assigned Staff',
+                    'reassign' => 'Reassign to Higher-Level Staff',
+                    'notify_and_reassign' => 'Notify & Reassign',
+                ],
+                'default' => 'notify_and_reassign',
+                'col' => 4,
+            ],
+            'sla_escalation_level_1_minutes' => [
+                'type' => 'number',
+                'label' => 'setting.sla_escalation_level_1_minutes',
+                'rules' => 'nullable|integer|min:0',
+                'default' => 0,
+                'col' => 6,
+            ],
+            'sla_escalation_level_2_minutes' => [
+                'type' => 'number',
+                'label' => 'setting.sla_escalation_level_2_minutes',
+                'rules' => 'nullable|integer|min:1',
+                'default' => 60,
+                'col' => 6,
+            ],
         ],
     ],
 
