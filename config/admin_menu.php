@@ -28,6 +28,13 @@ $menus = [
                 'icon' => 'bx bx-slider-alt',
                 'permission' => 'view_role',
             ],
+        ]
+    ],
+    [
+        'key' => 'support',
+        'title' => 'menu.support',
+        'icon' => 'bx bx-support',
+        'sub_menu' => [
             [
                 'key' => 'customers',
                 'title' => 'menu.customer',
@@ -35,6 +42,14 @@ $menus = [
                 'slug' => 'customers',
                 'icon' => 'bx bx-user-pin',
                 'permission' => 'view_customer',
+            ],
+            [
+                'key' => 'tickets',
+                'title' => 'menu.ticket',
+                'route' => 'tickets.index',
+                'slug' => 'tickets',
+                'icon' => 'bx bx-conversation',
+                'permission' => 'view_ticket',
             ],
         ]
     ],

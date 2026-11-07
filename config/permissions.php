@@ -23,6 +23,12 @@ return [
                     'delete_role' => 'permission.delete_role',
                 ],
             ],
+        ],
+    ],
+
+    [
+        'label' => 'Support',
+        'modules' => [
             [
                 'label' => 'Customer',
                 'permissions' => [
@@ -30,6 +36,14 @@ return [
                     'create_customer' => 'permission.create_customer',
                     'edit_customer'   => 'permission.edit_customer',
                     'delete_customer' => 'permission.delete_customer',
+                ],
+            ],
+            [
+                'label' => 'Ticket',
+                'permissions' => [
+                    'view_ticket'          => 'permission.view_ticket',
+                    'reply_ticket'         => 'permission.reply_ticket',
+                    'internal_note_ticket' => 'permission.internal_note_ticket',
                 ],
             ],
         ],

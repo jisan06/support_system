@@ -25,7 +25,7 @@ trait CreatesAdminUser
             ]);
         }
 
-        $this->admin = User::factory()->create(['status' => 'Active']);
+        $this->admin = User::factory()->admin()->create(['status' => 'Active']);
         $this->admin->roles()->attach($this->adminRole->id, ['created_by' => $this->admin->id]);
 
         return $this->admin;

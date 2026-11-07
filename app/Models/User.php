@@ -87,6 +87,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Tickets owned by this user (customer tickets).
+     */
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'customer_id');
+    }
+
+    /**
+     * Tickets assigned to this user (staff/agent).
+     */
+    public function assignedTickets()
+    {
+        return $this->hasMany(Ticket::class, 'assigned_to');
+    }
+
+    /**
+     * Messages sent by this user in ticket conversations.
+     */
+    public function ticketMessages()
+    {
+        return $this->hasMany(TicketMessage::class, 'user_id');
+    }
+
+    /**
      * User can have many roles.
      */
     public function roles()

@@ -5,6 +5,9 @@ return [
     "trash" => "Trash",
     "view" => "View",
     "edit" => "Edit",
+    "status" => "Status",
+    "created_at" => "Created At",
+    "action" => "Action",
     "permission" => "Permission",
     'select_all' => 'Select All',
 

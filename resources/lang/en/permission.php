@@ -15,6 +15,10 @@ return [
     "edit_customer" => "Edit Customer",
     "delete_customer" => "Delete Customer",
 
+    "view_ticket" => "View Ticket",
+    "reply_ticket" => "Reply Ticket",
+    "internal_note_ticket" => "Internal Note",
+
     "view_role" => "View Role",
     "create_role" => "Create Role",
     "edit_role" => "Edit Role",

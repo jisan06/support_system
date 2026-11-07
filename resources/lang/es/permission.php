@@ -8,6 +8,15 @@ return [
     "create_user" => "Crear Usuario",
     "edit_user" => "Editar Usuario",
     "delete_user" => "Eliminar Usuario",
+
+    "view_customer" => "Ver Cliente",
+    "create_customer" => "Crear Cliente",
+    "edit_customer" => "Editar Cliente",
+    "delete_customer" => "Eliminar Cliente",
+
+    "view_ticket" => "Ver Ticket",
+    "reply_ticket" => "Responder Ticket",
+    "internal_note_ticket" => "Nota Interna",
     "view_role" => "Ver Rol",
     "create_role" => "Crear Rol",
     "edit_role" => "Editar Rol",

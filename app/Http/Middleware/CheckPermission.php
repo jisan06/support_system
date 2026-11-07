@@ -60,6 +60,12 @@ class CheckPermission
         'roles.permission'     => 'edit_role',
         'roles.permission_update' => 'edit_role',
 
+        // Tickets
+        'tickets.index'            => 'view_ticket',
+        'tickets.show'             => 'view_ticket',
+        'tickets.reply'            => 'reply_ticket',
+        'tickets.internal_note'    => 'internal_note_ticket',
+
         // Media
         'media.index'          => 'view_media',
         'media.store'          => 'create_media',

@@ -8,6 +8,15 @@ return [
     "create_user" => "ব্যবহারকারী তৈরি",
     "edit_user" => "ব্যবহারকারী সম্পাদনা",
     "delete_user" => "ব্যবহারকারী মুছুন",
+
+    "view_customer" => "গ্রাহক দেখুন",
+    "create_customer" => "গ্রাহক তৈরি",
+    "edit_customer" => "গ্রাহক সম্পাদনা",
+    "delete_customer" => "গ্রাহক মুছুন",
+
+    "view_ticket" => "টিকেট দেখুন",
+    "reply_ticket" => "টিকেটে রিপ্লাই দিন",
+    "internal_note_ticket" => "ইন্টারনাল নোট দিন",
     "view_role" => "ভূমিকা দেখুন",
     "create_role" => "ভূমিকা তৈরি",
     "edit_role" => "ভূমিকা সম্পাদনা",

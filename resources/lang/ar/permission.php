@@ -8,6 +8,15 @@ return [
     "create_user" => "إنشاء مستخدم",
     "edit_user" => "تعديل مستخدم",
     "delete_user" => "حذف مستخدم",
+
+    "view_customer" => "عرض العميل",
+    "create_customer" => "إنشاء عميل",
+    "edit_customer" => "تعديل العميل",
+    "delete_customer" => "حذف العميل",
+
+    "view_ticket" => "عرض التذكرة",
+    "reply_ticket" => "الرد على التذكرة",
+    "internal_note_ticket" => "ملاحظة داخلية للتذكرة",
     "view_role" => "عرض الدور",
     "create_role" => "إنشاء دور",
     "edit_role" => "تعديل دور",

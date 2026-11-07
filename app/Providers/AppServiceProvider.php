@@ -8,12 +8,16 @@ use App\Repositories\Contracts\CustomerRepositoryInterface;
 use App\Repositories\Contracts\MediaRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
 use App\Repositories\Contracts\SettingRepositoryInterface;
+use App\Repositories\Contracts\TicketMessageRepositoryInterface;
+use App\Repositories\Contracts\TicketRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\ActivityLogRepository;
 use App\Repositories\CustomerRepository;
 use App\Repositories\MediaRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\SettingRepository;
+use App\Repositories\TicketMessageRepository;
+use App\Repositories\TicketRepository;
 use App\Repositories\UserRepository;
 use App\Services\Media\MediaDriverManager;
 use Illuminate\Auth\Events\Lockout;
@@ -31,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->bind(MediaRepositoryInterface::class, MediaRepository::class);
         $this->app->bind(SettingRepositoryInterface::class, SettingRepository::class);
+        $this->app->bind(TicketRepositoryInterface::class, TicketRepository::class);
+        $this->app->bind(TicketMessageRepositoryInterface::class, TicketMessageRepository::class);
         $this->app->singleton(MediaDriverManager::class);
     }
 

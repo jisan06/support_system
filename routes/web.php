@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\TicketController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,6 +40,12 @@ Route::middleware(['auth', 'demo', 'permission'])
 
         Route::resourceWithTrash('users', UserController::class);
         Route::resourceWithTrash('customers', CustomerController::class);
+
+        // Tickets (Support Module)
+        Route::get('tickets', [TicketController::class, 'index'])->name('tickets.index');
+        Route::get('tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+        Route::post('tickets/{ticket}/reply', [TicketController::class, 'storeReply'])->name('tickets.reply');
+        Route::post('tickets/{ticket}/internal-note', [TicketController::class, 'storeInternalNote'])->name('tickets.internal_note');
 
         Route::get('roles/{role}/permission', [RoleController::class, 'permission'])->name('roles.permission');
         Route::post('roles/{role}/permission', [RoleController::class, 'updatePermission'])->name('roles.permission_update');
@@ -85,6 +92,7 @@ Route::middleware(['auth', 'demo', 'permission'])
         Route::delete('activity-logs-bulk', [ActivityLogController::class, 'bulkDestroy'])->name('activity-logs.bulk_delete');
         Route::delete('activity-logs-clear', [ActivityLogController::class, 'clear'])->name('activity-logs.clear');
     });
+
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/install.php';
