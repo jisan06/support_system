@@ -25,5 +25,11 @@ return [
         ],
         'collection' => 'ticket_attachments',
     ],
+    'categories' => [
+        'Technical Support',
+        'Billing & Payments',
+        'Account & Access',
+        'General Inquiry',
+    ],
 ];
 

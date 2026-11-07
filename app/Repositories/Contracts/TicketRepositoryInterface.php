@@ -26,5 +26,19 @@ interface TicketRepositoryInterface extends BaseRepositoryInterface
      * @return array{total: int, open: int, in_progress: int, resolved: int, closed: int}
      */
     public function getCustomerTicketCounts(User $customer): array;
+
+    /**
+     * Get available ticket categories for creation and validation.
+     *
+     * @return array<int, string>
+     */
+    public function getAvailableCategories(): array;
+
+    /**
+     * Get all ticket categories including configured and any existing values in database.
+     *
+     * @return array<int, string>
+     */
+    public function getAllCategories(): array;
 }
 

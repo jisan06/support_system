@@ -89,7 +89,7 @@ class AdminTicketCreationTest extends TestCase
             'customer_id' => $this->customer->id,
             'assigned_to' => $this->agent->id,
             'subject' => 'Payment gateway integration failed',
-            'department' => 'Billing',
+            'department' => 'Billing & Payments',
             'priority' => 'high',
             'description' => 'The customer cannot complete checkout using Stripe payment gateway.',
         ];
@@ -101,7 +101,7 @@ class AdminTicketCreationTest extends TestCase
         $this->assertNotNull($ticket);
         $this->assertEquals($this->customer->id, $ticket->customer_id);
         $this->assertEquals($this->agent->id, $ticket->assigned_to);
-        $this->assertEquals('Billing', $ticket->department);
+        $this->assertEquals('Billing & Payments', $ticket->department);
         $this->assertEquals('high', $ticket->priority);
         $this->assertEquals('open', $ticket->status);
         $this->assertStringStartsWith('TCK-', $ticket->ticket_number);

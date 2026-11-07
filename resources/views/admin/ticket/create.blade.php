@@ -81,14 +81,18 @@
                                 <label class="form-label" for="department">
                                     Category / Department <span class="text-muted font-size-12">(Optional)</span>
                                 </label>
-                                <input type="text"
+                                <select
                                     name="department"
                                     id="department"
-                                    value="{{ old('department') }}"
-                                    class="form-control @error('department') is-invalid @enderror"
-                                    placeholder="e.g. Billing, Technical Support, Account..."
-                                    maxlength="100"
+                                    class="form-select @error('department') is-invalid @enderror"
                                 >
+                                    <option value="">Select a Category</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category }}" {{ old('department') == $category ? 'selected' : '' }}>
+                                            {{ $category }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 @error('department')
                                     <span class="error invalid-feedback">{{ $message }}</span>
                                 @enderror

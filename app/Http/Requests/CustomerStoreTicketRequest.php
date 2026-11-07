@@ -17,10 +17,26 @@ class CustomerStoreTicketRequest extends FormRequest
     }
 
     /**
+     * Prepare data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('category') && !$this->has('department')) {
+            $this->merge(['department' => $this->input('category')]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array
     {
+        $categories = config('ticket.categories', [
+            'Technical Support',
+            'Billing & Payments',
+            'Account & Access',
+            'General Inquiry',
+        ]);
         $maxFiles = config('ticket.attachments.max_files', 5);
         $maxSizeKb = config('ticket.attachments.max_size_kb', 10240);
         $allowedExtensions = implode(',', config('ticket.attachments.allowed_extensions', ['jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'zip']));
@@ -35,7 +51,7 @@ class CustomerStoreTicketRequest extends FormRequest
 
         return [
             'subject'       => ['required', 'string', 'max:255'],
-            'department'    => ['nullable', 'string', 'max:100'],
+            'department'    => ['nullable', 'string', Rule::in($categories)],
             'priority'      => ['required', Rule::in(['low', 'medium', 'high', 'urgent'])],
             'description'   => ['required', 'string', 'min:2'],
             'attachments'   => ['nullable', 'array', 'max:' . $maxFiles],
@@ -60,6 +76,7 @@ class CustomerStoreTicketRequest extends FormRequest
         $maxSizeMb = round(config('ticket.attachments.max_size_kb', 10240) / 1024);
 
         return [
+            'department.in'           => 'The selected category is invalid.',
             'subject.required'        => 'Please provide a ticket subject.',
             'priority.required'       => 'Please select a ticket priority.',
             'description.required'    => 'Please describe your request or issue.',

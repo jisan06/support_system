@@ -29,13 +29,59 @@ class TicketController extends Controller
     }
 
     /**
-     * Display a listing of tickets in the admin panel.
+     * Display a listing of tickets in the admin panel with search and filtering.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $tickets = $this->ticketService->getTicketsForUser(auth()->user(), 15);
+        $filters = [
+            'search'      => $request->query('search'),
+            'status'      => $request->query('status'),
+            'priority'    => $request->query('priority'),
+            'category'    => $request->query('category') ?? $request->query('department'),
+            'assigned_to' => $request->query('assigned_to'),
+            'customer_id' => $request->query('customer_id'),
+            'sla_status'  => $request->query('sla_status'),
+            'date_from'   => $request->query('date_from'),
+            'date_to'     => $request->query('date_to'),
+        ];
 
-        return view('admin.ticket.index', compact('tickets'));
+        $tickets = $this->ticketService->getTicketsForUser(auth()->user(), $filters, 15);
+
+        $categories = $this->ticketService->getAllCategories();
+        $customers = User::where('account_type', User::TYPE_CUSTOMER)->orderBy('name')->get(['id', 'name', 'email']);
+        $agents = User::where('account_type', User::TYPE_ADMIN)->where('status', 'Active')->orderBy('name')->get(['id', 'name', 'email']);
+
+        $statuses = [
+            'open'        => 'Open',
+            'in_progress' => 'In Progress',
+            'resolved'    => 'Resolved',
+            'closed'      => 'Closed',
+        ];
+
+        $priorities = [
+            'low'    => 'Low',
+            'medium' => 'Medium',
+            'high'   => 'High',
+            'urgent' => 'Urgent',
+        ];
+
+        $slaStatuses = [
+            'on_track'           => 'On Track',
+            'approaching_breach' => 'Approaching Breach',
+            'breached'           => 'Breached',
+            'completed'          => 'Completed',
+        ];
+
+        return view('admin.ticket.index', compact(
+            'tickets',
+            'filters',
+            'categories',
+            'customers',
+            'agents',
+            'statuses',
+            'priorities',
+            'slaStatuses'
+        ));
     }
 
     /**
@@ -45,8 +91,9 @@ class TicketController extends Controller
     {
         $customers = User::where('account_type', User::TYPE_CUSTOMER)->where('status', 'Active')->orderBy('name')->get(['id', 'name', 'email']);
         $agents = User::where('account_type', User::TYPE_ADMIN)->where('status', 'Active')->orderBy('name')->get(['id', 'name', 'email']);
+        $categories = $this->ticketService->getAvailableCategories();
 
-        return view('admin.ticket.create', compact('customers', 'agents'));
+        return view('admin.ticket.create', compact('customers', 'agents', 'categories'));
     }
 
     /**

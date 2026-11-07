@@ -105,12 +105,7 @@ class TicketController extends Controller
      */
     public function create(): View
     {
-        $departments = [
-            'Technical Support',
-            'Billing & Payments',
-            'Account & Access',
-            'General Inquiry',
-        ];
+        $departments = $this->ticketService->getAvailableCategories();
 
         $priorities = [
             'low'    => 'Low',

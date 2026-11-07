@@ -37,6 +37,26 @@ class TicketService extends BaseService
     }
 
     /**
+     * Get configured ticket categories for creation and validation.
+     *
+     * @return array<int, string>
+     */
+    public function getAvailableCategories(): array
+    {
+        return $this->repository->getAvailableCategories();
+    }
+
+    /**
+     * Get all ticket categories including configured and existing values in database.
+     *
+     * @return array<int, string>
+     */
+    public function getAllCategories(): array
+    {
+        return $this->repository->getAllCategories();
+    }
+
+    /**
      * Create a ticket with an initial message and optional attachments.
      * Reuses existing conversation and attachment pipeline.
      */
