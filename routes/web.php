@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
 use App\Http\Controllers\Customer\TicketController as CustomerTicketController;
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +56,10 @@ Route::middleware(['auth', 'customer'])
         Route::post('tickets/{ticket}/reply', [CustomerTicketController::class, 'reply'])->name('tickets.reply');
         Route::get('tickets/{ticket}/messages/{message}/attachments/{media}', [CustomerTicketController::class, 'downloadAttachment'])->name('tickets.attachments.show');
         Route::get('tickets/{ticket}/messages/{message}/attachments/{media}/download', [CustomerTicketController::class, 'downloadAttachment'])->name('tickets.attachments.download');
+
+        // Customer Profile
+        Route::get('profile', [CustomerProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('profile', [CustomerProfileController::class, 'update'])->name('profile.update');
     });
 
 // Legacy portal redirect for backwards compatibility

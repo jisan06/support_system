@@ -90,12 +90,15 @@
                         <a href="{{ route('customer.tickets.create') }}" class="nav-link px-3 py-2 rounded {{ request()->routeIs('customer.tickets.create') ? 'text-primary fw-semibold bg-light' : 'text-dark' }}" title="Create Ticket">
                             <i class="bx bx-plus-circle me-1 align-middle"></i> Create Ticket
                         </a>
+                        <a href="{{ route('customer.profile.edit') }}" class="nav-link px-3 py-2 rounded {{ request()->routeIs('customer.profile.*') ? 'text-primary fw-semibold bg-light' : 'text-dark' }}" title="Profile">
+                            <i class="bx bx-user me-1 align-middle"></i> Profile
+                        </a>
                     </nav>
                 </div>
 
                 {{-- Customer Account Info & Logout --}}
                 <div class="d-flex align-items-center mt-2 mt-md-0">
-                    <div class="d-flex align-items-center me-3 border-end pe-3">
+                    <a href="{{ route('customer.profile.edit') }}" class="d-flex align-items-center me-3 border-end pe-3 text-decoration-none text-reset" title="My Profile">
                         @php
                             $userAvatarUrl = auth()->user()->getFirstMediaUrl('avatar');
                         @endphp
@@ -110,7 +113,7 @@
                             <div class="fw-semibold font-size-13 text-dark text-truncate" style="max-width: 160px;">{{ auth()->user()->name }}</div>
                             <small class="text-muted font-size-11 text-truncate d-block" style="max-width: 160px;">{{ auth()->user()->email }}</small>
                         </div>
-                    </div>
+                    </a>
 
                     {{-- Logout (Standard HTML POST Form) --}}
                     <form action="{{ route('logout') }}" method="POST" class="m-0">
