@@ -93,6 +93,15 @@
                         <a href="{{ route('customer.profile.edit') }}" class="nav-link px-3 py-2 rounded {{ request()->routeIs('customer.profile.*') ? 'text-primary fw-semibold bg-light' : 'text-dark' }}" title="Profile">
                             <i class="bx bx-user me-1 align-middle"></i> Profile
                         </a>
+                        <a href="{{ route('customer.notifications.index') }}" class="nav-link px-3 py-2 rounded position-relative {{ request()->routeIs('customer.notifications.*') ? 'text-primary fw-semibold bg-light' : 'text-dark' }}" title="Notifications">
+                            <i class="bx bx-bell me-1 align-middle"></i> Notifications
+                            @php
+                                $unreadHeaderCount = auth()->check() ? auth()->user()->unreadNotifications()->count() : 0;
+                            @endphp
+                            @if($unreadHeaderCount > 0)
+                                <span class="badge bg-danger rounded-pill font-size-11 align-middle ms-1">{{ $unreadHeaderCount > 99 ? '99+' : $unreadHeaderCount }}</span>
+                            @endif
+                        </a>
                     </nav>
                 </div>
 

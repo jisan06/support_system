@@ -73,8 +73,58 @@ class TicketService extends BaseService
     public function updateStatus(Ticket $ticket, string $status): Ticket
     {
         return $this->transaction(function () use ($ticket, $status) {
-            return $this->slaService->handleStatusChange($ticket, $status);
+            $oldStatus = $ticket->status;
+            $updatedTicket = $this->slaService->handleStatusChange($ticket, $status);
+
+            if ($oldStatus !== $status) {
+                $this->notifyCustomerOnStatusChange($updatedTicket, $status);
+            }
+
+            return $updatedTicket;
         });
+    }
+
+    /**
+     * Notify the ticket owner when ticket status changes.
+     */
+    protected function notifyCustomerOnStatusChange(Ticket $ticket, string $newStatus): void
+    {
+        $customer = $ticket->customer ?? User::find($ticket->customer_id);
+
+        if (!$customer) {
+            return;
+        }
+
+        $statusLabels = [
+            'open'        => 'Open',
+            'in_progress' => 'In Progress',
+            'resolved'    => 'Resolved',
+            'closed'      => 'Closed',
+        ];
+
+        $label = $statusLabels[$newStatus] ?? ucfirst($newStatus);
+
+        if ($newStatus === 'resolved') {
+            $title = "Ticket #{$ticket->ticket_number} Resolved";
+            $message = "Your ticket \"{$ticket->subject}\" has been marked as resolved.";
+            $type = 'success';
+        } elseif ($newStatus === 'closed') {
+            $title = "Ticket #{$ticket->ticket_number} Closed";
+            $message = "Your ticket \"{$ticket->subject}\" has been closed.";
+            $type = 'info';
+        } else {
+            $title = "Ticket #{$ticket->ticket_number} Status Updated";
+            $message = "Your ticket \"{$ticket->subject}\" status was updated to {$label}.";
+            $type = 'info';
+        }
+
+        notify(
+            $customer,
+            $title,
+            $message,
+            $type,
+            route('customer.tickets.show', $ticket)
+        );
     }
 
     /**

@@ -84,6 +84,20 @@ class TicketMessageService extends BaseService
 
             if (!$isInitial) {
                 app(SlaService::class)->recordFirstResponse($ticket, $sender);
+
+                // Notify customer when an Admin/Agent posts a public reply
+                if ($sender->isAdmin() && $ticket->customer_id !== $sender->id) {
+                    $customer = $ticket->customer ?? User::find($ticket->customer_id);
+                    if ($customer) {
+                        notify(
+                            $customer,
+                            "Support Reply on #{$ticket->ticket_number}",
+                            "Support agent {$sender->name} replied to your ticket.",
+                            'info',
+                            route('customer.tickets.show', $ticket)
+                        );
+                    }
+                }
             }
 
             return $message;

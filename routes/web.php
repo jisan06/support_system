@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Customer\NotificationController as CustomerNotificationController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
 use App\Http\Controllers\Customer\TicketController as CustomerTicketController;
 use Illuminate\Support\Facades\Route;
@@ -60,6 +61,12 @@ Route::middleware(['auth', 'customer'])
         // Customer Profile
         Route::get('profile', [CustomerProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('profile', [CustomerProfileController::class, 'update'])->name('profile.update');
+
+        // Customer Notifications
+        Route::get('notifications', [CustomerNotificationController::class, 'index'])->name('notifications.index');
+        Route::patch('notifications/{notification}/read', [CustomerNotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('notifications/mark-all-read', [CustomerNotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+        Route::get('notifications/{notification}/open', [CustomerNotificationController::class, 'open'])->name('notifications.open');
     });
 
 // Legacy portal redirect for backwards compatibility
