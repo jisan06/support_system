@@ -164,6 +164,7 @@ $menus = [
                 'route' => 'menu-sort.index',
                 'slug' => 'menu-sort',
                 'icon' => 'bx bx-sort',
+                'permission' => 'edit_setting_general',
             ],
         ],
     ],

@@ -12,6 +12,8 @@
 
                         // For items with sub_menu, filter children by permission
                         if (!empty($menu['sub_menu'])) {
+                            if (!empty($menu['permission']) && !auth()->user()->hasPermissionTo($menu['permission'])) continue;
+
                             $visibleChildren = collect($menu['sub_menu'])->filter(function ($sub) {
                                 return empty($sub['permission']) || auth()->user()->hasPermissionTo($sub['permission']);
                             })->values()->all();

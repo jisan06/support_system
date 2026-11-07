@@ -115,8 +115,10 @@ class CheckPermission
         'notifications.send_test'      => 'view_notification',
 
         // Settings
-        'settings.index'  => null, // handled dynamically by group
-        'settings.update' => null, // handled dynamically by group
+        'settings.index'   => null, // handled dynamically by group
+        'settings.update'  => null, // handled dynamically by group
+        'menu-sort.index'  => 'edit_setting_general',
+        'menu-sort.update' => 'edit_setting_general',
     ];
 
     public function handle(Request $request, Closure $next): Response
@@ -135,7 +137,7 @@ class CheckPermission
         // Skip routes that don't need permission checks
         $skipRoutes = [
             'admin.dashboard', 'profile.index', 'profile.update', 'profile.password',
-            'menu-sort.index', 'menu-sort.update', 'lang.switch', 'logout',
+            'lang.switch', 'logout',
         ];
 
         if (in_array($routeName, $skipRoutes)) {
