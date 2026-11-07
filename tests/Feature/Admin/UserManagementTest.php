@@ -136,7 +136,7 @@ class UserManagementTest extends TestCase
     public function test_can_access_edit_form(): void
     {
         $this->createAllPermissionsAdmin();
-        $user = User::factory()->create(['status' => 'Active']);
+        $user = User::factory()->admin()->create(['status' => 'Active']);
 
         $response = $this->actingAs($this->admin)->get(route('users.edit', $user));
 
@@ -146,7 +146,7 @@ class UserManagementTest extends TestCase
     public function test_can_update_user(): void
     {
         $this->createAllPermissionsAdmin();
-        $user = User::factory()->create(['status' => 'Active']);
+        $user = User::factory()->admin()->create(['status' => 'Active']);
         $user->roles()->attach($this->adminRole->id, ['created_by' => $this->admin->id]);
 
         $response = $this->actingAs($this->admin)->put(route('users.update', $user), [
@@ -164,7 +164,7 @@ class UserManagementTest extends TestCase
     public function test_can_soft_delete_user(): void
     {
         $this->createAllPermissionsAdmin();
-        $user = User::factory()->create(['status' => 'Active']);
+        $user = User::factory()->admin()->create(['status' => 'Active']);
 
         $response = $this->actingAs($this->admin)
             ->deleteJson(route('users.destroy', $user));
@@ -177,7 +177,7 @@ class UserManagementTest extends TestCase
     public function test_user_without_delete_permission_cannot_delete(): void
     {
         $this->createUserWithPermissions(['view_user', 'create_user', 'edit_user']);
-        $user = User::factory()->create(['status' => 'Active']);
+        $user = User::factory()->admin()->create(['status' => 'Active']);
 
         $response = $this->actingAs($this->admin)
             ->deleteJson(route('users.destroy', $user));
@@ -201,7 +201,7 @@ class UserManagementTest extends TestCase
     public function test_can_restore_soft_deleted_user(): void
     {
         $this->createAllPermissionsAdmin();
-        $user = User::factory()->create(['status' => 'Active']);
+        $user = User::factory()->admin()->create(['status' => 'Active']);
         $user->delete();
 
         $response = $this->actingAs($this->admin)

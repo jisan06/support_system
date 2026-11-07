@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Models\Media;
@@ -6,6 +7,7 @@ use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Traits\BulkActionTrait;
 use App\Repositories\Traits\SoftDeleteTrait;
+use Illuminate\Database\Eloquent\Collection;
 
 class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
@@ -21,102 +23,134 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         return $this->getActiveAdmins();
     }
 
-    public function getActiveAdmins()
+    public function getActiveAdmins(): Collection
     {
-        return $this->model->isAdmin()->where('status', 'Active')->select('id', 'name')->get();
+        return $this->model->newQuery()
+            ->where('account_type', User::TYPE_ADMIN)
+            ->where('status', 'Active')
+            ->select('id', 'name')
+            ->get();
     }
 
-    public function getActiveCustomers()
+    public function getActiveCustomers(): Collection
     {
-        return $this->model->newQuery()->where('account_type', User::TYPE_CUSTOMER)->where('status', 'Active')->select('id', 'name')->get();
+        return $this->model->newQuery()
+            ->where('account_type', User::TYPE_CUSTOMER)
+            ->where('status', 'Active')
+            ->select('id', 'name', 'email')
+            ->get();
+    }
+
+    public function findAdmin(int|string $id): User
+    {
+        return $this->model->newQuery()
+            ->where('account_type', User::TYPE_ADMIN)
+            ->findOrFail($id);
+    }
+
+    public function findCustomer(int|string $id): User
+    {
+        return $this->model->newQuery()
+            ->where('account_type', User::TYPE_CUSTOMER)
+            ->findOrFail($id);
     }
 
     /**
-     * Create a new record.
+     * Create a new user (admin or customer).
      *
      * @param  array  $data
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return User
      */
     public function create(array $data)
     {
         $created_by = auth()->id();
-        // default to admin account type for internal user repository operations
-        $data['account_type'] = $data['account_type'] ?? User::TYPE_ADMIN;
+        $accountType = $data['account_type'] ?? User::TYPE_ADMIN;
+        $data['account_type'] = $accountType;
+        $data['created_by'] = $created_by;
 
-        // extract roles from payload if present
+        // Extract and unset roles
         $roles = $data['role_ids'] ?? null;
         unset($data['role_ids']);
 
-        // extract avatar media id
+        // Extract and unset avatar
         $avatarMediaId = $data['avatar_media_id'] ?? null;
         unset($data['avatar_media_id']);
 
-        // create user
-        $data['created_by'] = $created_by;
+        // Clean up confirm password field
+        unset($data['password_confirm']);
+
+        // Create user
         $user = $this->model->create($data);
 
-        // attach roles if provided
-        if ($roles !== null) {
+        // Attach roles strictly for internal admin users
+        if ($roles !== null && $user->isAdmin()) {
             $user->roles()->attach($roles, [
                 'created_by' => $created_by,
             ]);
         }
 
-        // attach avatar media
+        // Attach avatar media
         $this->syncAvatar($user, $avatarMediaId);
 
         return $user;
     }
 
     /**
-     * Update a record by ID.
+     * Update an existing user (admin or customer).
      *
-     * @param  int    $id
+     * @param  int|string  $id
      * @param  array  $data
-     * @return \Illuminate\Database\Eloquent\Model
-     *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @return User
      */
     public function update($id, array $data)
     {
         $user = $this->find($id);
 
-        // extract roles from payload if present
+        // Prevent unauthorized account_type mutation
+        unset($data['account_type']);
+
+        // Clean up confirm password field
+        unset($data['password_confirm']);
+
+        // Extract and unset roles
         $roles = $data['role_ids'] ?? null;
         unset($data['role_ids']);
 
-        // extract avatar media id
+        // Extract and unset avatar
         $avatarMediaId = $data['avatar_media_id'] ?? null;
         unset($data['avatar_media_id']);
 
-        // handle password: only update if provided
+        // Handle password: only update if provided
         if (empty($data['password'])) {
             unset($data['password']);
         }
 
-        // update user fields
+        // Update user fields
         $user->update($data);
 
-        // sync roles if provided
-        if ($roles !== null) {
+        // Sync roles strictly for internal admin users
+        if ($roles !== null && $user->isAdmin()) {
             $user->roles()->syncWithPivotValues($roles, ['created_by' => auth()->id()]);
         }
 
-        // sync avatar media
+        // Sync avatar media
         $this->syncAvatar($user, $avatarMediaId);
 
         return $user;
     }
 
+    /**
+     * Sync avatar media attachment via polymorphic relation.
+     */
     protected function syncAvatar(User $user, $avatarMediaId): void
     {
-        // detach old avatar
+        // Detach old avatar
         $user->mediaByCollection('avatar')->update([
             'mediable_type' => Media::class,
             'mediable_id'   => 0,
         ]);
 
-        // attach new avatar
+        // Attach new avatar
         if ($avatarMediaId) {
             Media::where('id', $avatarMediaId)->update([
                 'mediable_type' => User::class,

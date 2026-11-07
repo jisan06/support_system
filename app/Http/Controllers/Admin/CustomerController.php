@@ -8,14 +8,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\BulkActionRequest;
 use App\Http\Requests\CustomerRequest;
 use App\Models\User;
-use App\Services\CustomerService;
+use App\Services\UserService;
 use App\ViewModels\Admin\CustomerFormData;
 
 class CustomerController extends Controller
 {
-    protected CustomerService $service;
+    protected UserService $service;
 
-    public function __construct(CustomerService $service)
+    public function __construct(UserService $service)
     {
         $this->service = $service;
     }
@@ -76,7 +76,10 @@ class CustomerController extends Controller
      */
     public function store(CustomerRequest $request)
     {
-        $this->service->create($request->validated());
+        $data = $request->validated();
+        $data['account_type'] = User::TYPE_CUSTOMER;
+
+        $this->service->create($data);
 
         return redirect()->route('customers.index')
             ->with('success', __('customer.created', ['default' => 'Customer created successfully.']));
@@ -111,7 +114,10 @@ class CustomerController extends Controller
     {
         $this->authorizeCustomerAccess($customer);
 
-        $this->service->update($customer->id, $request->validated());
+        $data = $request->validated();
+        unset($data['account_type']);
+
+        $this->service->update($customer->id, $data);
 
         return redirect()->route('customers.index')
             ->with('success', __('customer.updated', ['default' => 'Customer updated successfully.']));

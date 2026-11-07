@@ -2,22 +2,23 @@
 
 namespace App\Services;
 
-use App\Repositories\Contracts\CustomerRepositoryInterface;
-use App\Services\Traits\BulkActionTrait;
-use App\Services\Traits\SoftDeleteTrait;
+use App\Repositories\Contracts\UserRepositoryInterface;
 
-class CustomerService extends BaseService
+/**
+ * CustomerService - Customer-specific domain service.
+ * Extends UserService to share consolidated user repository operations.
+ */
+class CustomerService extends UserService
 {
-    use SoftDeleteTrait, BulkActionTrait;
-
-    public function __construct(CustomerRepositoryInterface $repository)
+    public function __construct(UserRepositoryInterface $repository)
     {
         parent::__construct($repository);
     }
 
     public function getActive()
     {
-        return $this->repository->getActive();
+        return $this->getActiveCustomers();
     }
 }
+
 

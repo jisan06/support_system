@@ -3,7 +3,8 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\User;
-use App\Repositories\Contracts\CustomerRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -16,7 +17,7 @@ class CustomerManagementTest extends TestCase
 
     protected User $adminUser;
     protected User $customer;
-    protected CustomerRepositoryInterface $customerRepository;
+    protected UserRepositoryInterface $userRepository;
 
     protected function setUp(): void
     {
@@ -33,18 +34,44 @@ class CustomerManagementTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        $this->customerRepository = app(CustomerRepositoryInterface::class);
+        $this->userRepository = app(UserRepositoryInterface::class);
     }
 
     /**
-     * Test: CustomerRepository find($id) works without calling findOrFail on false.
+     * Test: Consolidated UserRepository findCustomer and findAdmin enforce account-type isolation.
      */
-    public function test_customer_repository_find_returns_customer(): void
+    public function test_shared_repository_enforces_account_type_isolation(): void
     {
-        $found = $this->customerRepository->find($this->customer->id);
+        $foundCustomer = $this->userRepository->findCustomer($this->customer->id);
+        $this->assertInstanceOf(User::class, $foundCustomer);
+        $this->assertEquals($this->customer->id, $foundCustomer->id);
 
-        $this->assertInstanceOf(User::class, $found);
-        $this->assertEquals($this->customer->id, $found->id);
+        $foundAdmin = $this->userRepository->findAdmin($this->adminUser->id);
+        $this->assertInstanceOf(User::class, $foundAdmin);
+        $this->assertEquals($this->adminUser->id, $foundAdmin->id);
+
+        // Attempting to find an admin via findCustomer must fail
+        $this->expectException(ModelNotFoundException::class);
+        $this->userRepository->findCustomer($this->adminUser->id);
+    }
+
+    /**
+     * Test: Attempting to find a customer via findAdmin must fail.
+     */
+    public function test_shared_repository_find_admin_rejects_customer(): void
+    {
+        $this->expectException(ModelNotFoundException::class);
+        $this->userRepository->findAdmin($this->customer->id);
+    }
+
+    /**
+     * Test: Admin can view customer listing.
+     */
+    public function test_admin_can_view_customers_index(): void
+    {
+        $response = $this->actingAs($this->adminUser)->get(route('customers.index'));
+
+        $response->assertStatus(200);
     }
 
     /**
@@ -56,6 +83,31 @@ class CustomerManagementTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee($this->customer->email);
+    }
+
+    /**
+     * Test: Admin can create customer through consolidated service, strictly enforcing account_type = customer.
+     */
+    public function test_admin_can_create_customer(): void
+    {
+        $email = 'new_customer_' . Str::random(8) . '@example.com';
+
+        $response = $this->actingAs($this->adminUser)->post(route('customers.store'), [
+            'name'             => 'Brand New Customer',
+            'email'            => $email,
+            'status'           => 'Active',
+            'password'         => 'Password123!',
+            'password_confirm' => 'Password123!',
+            'role_ids'         => [1], // Even if submitted, roles must never be attached to customer
+        ]);
+
+        $response->assertRedirect(route('customers.index'));
+        $response->assertSessionHas('success');
+
+        $created = User::where('email', $email)->first();
+        $this->assertNotNull($created);
+        $this->assertTrue($created->isCustomer());
+        $this->assertCount(0, $created->roles);
     }
 
     /**
@@ -71,6 +123,7 @@ class CustomerManagementTest extends TestCase
             'status'           => 'Active',
             'password'         => '',
             'password_confirm' => '',
+            'account_type'     => User::TYPE_ADMIN, // Tampering attempt must be rejected/ignored
         ]);
 
         $response->assertRedirect(route('customers.index'));
@@ -79,6 +132,7 @@ class CustomerManagementTest extends TestCase
         $this->customer->refresh();
         $this->assertEquals('Updated Customer Name', $this->customer->name);
         $this->assertEquals($originalHash, $this->customer->password);
+        $this->assertTrue($this->customer->isCustomer()); // Account type preserved
     }
 
     /**
@@ -100,5 +154,22 @@ class CustomerManagementTest extends TestCase
         $this->customer->refresh();
         $this->assertTrue(Hash::check('NewSecretPassword123!', $this->customer->password));
     }
+
+    /**
+     * Test: Admin can delete and restore customer.
+     */
+    public function test_admin_can_delete_and_restore_customer(): void
+    {
+        // Delete
+        $deleteResponse = $this->actingAs($this->adminUser)->delete(route('customers.destroy', $this->customer->id));
+        $deleteResponse->assertStatus(200);
+        $this->assertSoftDeleted('users', ['id' => $this->customer->id]);
+
+        // Restore
+        $restoreResponse = $this->actingAs($this->adminUser)->post(route('customers.restore', $this->customer->id));
+        $restoreResponse->assertStatus(200);
+        $this->assertNotSoftDeleted('users', ['id' => $this->customer->id]);
+    }
 }
+
 
