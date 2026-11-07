@@ -1,5 +1,134 @@
 @extends('admin.layouts.master')
 @section('title', 'Ticket #' . $ticket->ticket_number)
+
+@push('css_links')
+    <link rel="stylesheet" href="{{ admin_asset('libs/toastr/build/toastr.min.css') }}">
+    @vite(['resources/css/media-picker.css'])
+    <style>
+        /* ==========================================================================
+           Admin Ticket Conversation - Clean Compact Chat Layout
+           ========================================================================== */
+        .admin-chat-stream {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .admin-chat-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
+        }
+        .admin-chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: 600;
+            font-size: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            margin-top: 2px;
+        }
+        .admin-chat-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .admin-chat-content-wrap {
+            flex: 1;
+            min-width: 0;
+        }
+        .admin-chat-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-size: 12px;
+        }
+        .admin-chat-bubble {
+            display: inline-block;
+            width: fit-content;
+            max-width: 92%;
+            padding: 9px 14px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            border: 1px solid #e9ecef;
+        }
+        .admin-chat-text {
+            white-space: pre-line;
+            word-break: break-word;
+            margin-bottom: 0;
+        }
+
+        /* Message Type Accents */
+        /* 1. Customer Message */
+        .admin-msg-customer .admin-chat-bubble {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+            color: #1e293b;
+        }
+        .admin-msg-customer .admin-chat-avatar {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        /* 2. Staff Public Reply */
+        .admin-msg-staff .admin-chat-bubble {
+            background-color: #f0f7ff;
+            border-color: #cce3ff;
+            color: #1e293b;
+        }
+        .admin-msg-staff .admin-chat-avatar {
+            background-color: #e0f2fe;
+            color: #0284c7;
+        }
+
+        /* 3. Internal Staff Note */
+        .admin-msg-internal .admin-chat-bubble {
+            background-color: #fffdf0;
+            border-color: #fef08a;
+            color: #1e293b;
+        }
+        .admin-msg-internal .admin-chat-avatar {
+            background-color: #fef9c3;
+            color: #ca8a04;
+        }
+
+        /* Attachments in Chat */
+        .admin-chat-attachments {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        .admin-attachment-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 12px;
+            color: #1e293b;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+        .admin-attachment-chip:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #2563eb;
+        }
+    </style>
+@endpush
+
 @section('content')
 <div class="row">
     {{-- Ticket Information Header / Sidebar --}}
@@ -50,7 +179,15 @@
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                         <span class="text-muted">Customer</span>
-                        <span class="fw-semibold">{{ $ticket->customer?->name ?? 'Unknown' }}</span>
+                        <div class="d-flex align-items-center gap-2">
+                            @php
+                                $custAvatar = $ticket->customer?->getFirstMediaUrl('avatar');
+                            @endphp
+                            @if($custAvatar)
+                                <img src="{{ $custAvatar }}" alt="{{ $ticket->customer->name }}" class="rounded-circle" style="width: 22px; height: 22px; object-fit: cover;">
+                            @endif
+                            <span class="fw-semibold">{{ $ticket->customer?->name ?? 'Unknown' }}</span>
+                        </div>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                         <span class="text-muted">Customer Email</span>
@@ -58,7 +195,19 @@
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                         <span class="text-muted">Assigned To</span>
-                        <span>{{ $ticket->assignedTo?->name ?? 'Unassigned' }}</span>
+                        <div class="d-flex align-items-center gap-2">
+                            @if($ticket->assignedTo)
+                                @php
+                                    $assigneeAvatar = $ticket->assignedTo->getFirstMediaUrl('avatar');
+                                @endphp
+                                @if($assigneeAvatar)
+                                    <img src="{{ $assigneeAvatar }}" alt="{{ $ticket->assignedTo->name }}" class="rounded-circle" style="width: 22px; height: 22px; object-fit: cover;">
+                                @endif
+                                <span>{{ $ticket->assignedTo->name }}</span>
+                            @else
+                                <span class="text-muted">Unassigned</span>
+                            @endif
+                        </div>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                         <span class="text-muted">Created</span>
@@ -155,157 +304,152 @@
             </div>
         @endif
 
-        {{-- Conversation History --}}
+        {{-- Conversation History Card --}}
         <div class="card mb-4">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0"><i class="bx bx-conversation me-1"></i> Conversation History</h5>
-                <span class="badge bg-secondary font-size-12">{{ $messages->total() }} Messages</span>
+            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                <h5 class="card-title mb-0 font-size-14"><i class="bx bx-conversation me-1 text-primary"></i> Conversation History</h5>
+                <span class="badge bg-secondary font-size-11">{{ $messages->total() }} {{ \Illuminate\Support\Str::plural('message', $messages->total()) }}</span>
             </div>
-            <div class="card-body p-4" style="background: #fdfdfd;">
-                @forelse($messages as $msg)
-                    @php
-                        $isInternal = $msg->isInternalNote();
-                        $isStaffSender = $msg->user?->isAdmin();
-                    @endphp
+            <div class="card-body p-3" style="background: #fafbfc;">
+                <div class="admin-chat-stream">
+                    @forelse($messages as $msg)
+                        @php
+                            $isInternal = $msg->isInternalNote();
+                            $isStaffSender = $msg->user?->isAdmin();
+                            $avatarUrl = $msg->user ? $msg->user->getFirstMediaUrl('avatar') : null;
+                            $senderName = $msg->user?->name ?? 'System';
+                            $msgTypeClass = $isInternal ? 'admin-msg-internal' : ($isStaffSender ? 'admin-msg-staff' : 'admin-msg-customer');
+                        @endphp
 
-                    <div class="card mb-3 shadow-none border {{ $isInternal ? 'border-warning' : 'border-light-subtle' }}"
-                         style="{{ $isInternal ? 'background-color: #fff9e6;' : ($isStaffSender ? 'background-color: #f7f9ff;' : 'background-color: #ffffff;') }}">
-                        <div class="card-body p-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-xs me-2">
-                                        <span class="avatar-title rounded-circle {{ $isInternal ? 'bg-warning text-dark' : ($isStaffSender ? 'bg-primary text-white' : 'bg-success text-white') }} font-size-13">
-                                            <i class="{{ $isInternal ? 'bx bx-lock-alt' : ($isStaffSender ? 'bx bx-user-check' : 'bx bx-user') }}"></i>
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <span class="fw-bold">{{ $msg->user?->name ?? 'System' }}</span>
-                                        @if($isInternal)
-                                            <span class="badge bg-warning text-dark ms-1">
-                                                <i class="bx bx-lock-alt me-1"></i> Internal Note
-                                            </span>
-                                        @elseif($isStaffSender)
-                                            <span class="badge bg-primary text-white ms-1">Staff</span>
-                                        @else
-                                            <span class="badge bg-success text-white ms-1">Customer</span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <span class="text-muted font-size-12">
-                                    <i class="bx bx-time-five me-1"></i>{{ $msg->created_at->format('M d, Y h:i A') }}
-                                    <small>({{ $msg->created_at->diffForHumans() }})</small>
-                                </span>
+                        <div class="admin-chat-item {{ $msgTypeClass }}">
+                            {{-- Avatar --}}
+                            <div class="admin-chat-avatar" title="{{ $senderName }}">
+                                @if($avatarUrl)
+                                    <img src="{{ $avatarUrl }}" alt="{{ $senderName }}">
+                                @elseif($isInternal)
+                                    <i class="bx bx-lock-alt font-size-15"></i>
+                                @elseif($isStaffSender)
+                                    <i class="bx bx-user-check font-size-15"></i>
+                                @else
+                                    {{ strtoupper(substr($senderName, 0, 1)) }}
+                                @endif
                             </div>
 
-                            @if($isInternal)
-                                <div class="small text-warning-emphasis mb-2 fw-semibold">
-                                    <i class="bx bx-shield-quarter me-1"></i> Private internal note &mdash; visible only to authorized internal staff.
-                                </div>
-                            @endif
-
-                            <div class="message-content text-break" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">{{ $msg->content }}</div>
-
-                            {{-- Attachments Section --}}
-                            @if($msg->media->isNotEmpty())
-                                <div class="mt-3 pt-2 border-top {{ $isInternal ? 'border-warning border-opacity-25' : 'border-light-subtle' }}">
-                                    <div class="text-muted small fw-semibold mb-2">
-                                        <i class="bx bx-paperclip me-1"></i> Attachments ({{ $msg->media->count() }}):
+                            {{-- Message Content Wrap --}}
+                            <div class="admin-chat-content-wrap">
+                                {{-- Meta Line: Sender, Badge, Timestamp --}}
+                                <div class="admin-chat-meta">
+                                    <div class="d-flex align-items-center gap-1">
+                                        <span class="fw-bold font-size-13 text-dark">{{ $senderName }}</span>
                                         @if($isInternal)
-                                            <span class="badge bg-warning text-dark font-size-11 ms-1">
-                                                <i class="bx bx-lock-alt me-1"></i> Internal Only
+                                            <span class="badge bg-warning text-dark font-size-11">
+                                                <i class="bx bx-lock-alt me-1"></i>Internal Note
+                                            </span>
+                                        @elseif($isStaffSender)
+                                            <span class="badge bg-primary text-white font-size-11">
+                                                Staff
+                                            </span>
+                                        @else
+                                            <span class="badge bg-success text-white font-size-11">
+                                                Customer
                                             </span>
                                         @endif
                                     </div>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @foreach($msg->media as $media)
-                                            @php
-                                                $formattedSize = $media->size >= 1048576
-                                                    ? round($media->size / 1048576, 2) . ' MB'
-                                                    : round($media->size / 1024, 1) . ' KB';
-                                                $isImage = str_starts_with($media->mime_type, 'image/');
-                                                $downloadUrl = route('tickets.attachments.download', [$ticket->id, $msg->id, $media->id]);
-                                            @endphp
-                                            @if($isImage)
-                                                <a href="{{ $downloadUrl }}"
-                                                   target="_blank"
-                                                   rel="noopener noreferrer"
-                                                   class="attachment-image-card text-decoration-none border rounded p-1 d-inline-flex flex-column align-items-center bg-white shadow-sm {{ $isInternal ? 'border-warning' : 'border-light-subtle' }}"
-                                                   style="width: 140px;"
-                                                   title="Click to view {{ $media->file_name }} in new tab">
-                                                    <div class="attachment-thumb rounded bg-light d-flex align-items-center justify-content-center overflow-hidden mb-1" style="width: 100%; height: 90px;">
-                                                        <img src="{{ $downloadUrl }}" alt="{{ $media->file_name }}" style="max-width: 100%; max-height: 100%; object-fit: cover;" loading="lazy">
-                                                    </div>
-                                                    <div class="w-100 text-truncate font-size-12 px-1 text-dark fw-medium text-center" title="{{ $media->file_name }}">
-                                                        {{ $media->file_name }}
-                                                    </div>
-                                                    <small class="text-muted font-size-10">{{ $formattedSize }} <i class="bx bx-link-external ms-1 text-primary"></i></small>
-                                                </a>
-                                            @else
-                                                <a href="{{ $downloadUrl }}"
-                                                   target="_blank"
-                                                   rel="noopener noreferrer"
-                                                   class="btn btn-sm {{ $isInternal ? 'btn-outline-warning text-dark' : 'btn-outline-secondary' }} d-inline-flex align-items-center"
-                                                   title="Download {{ $media->file_name }}">
-                                                    <i class="bx bx-file me-1"></i>
-                                                    <span class="text-truncate" style="max-width: 220px;">{{ $media->file_name }}</span>
-                                                    <span class="badge bg-light text-muted ms-2 font-size-11">{{ $formattedSize }}</span>
-                                                    <i class="bx bx-download ms-2 text-primary font-size-14"></i>
-                                                </a>
-                                            @endif
-                                        @endforeach
-                                    </div>
+                                    <span class="text-muted font-size-11">
+                                        <i class="bx bx-time-five me-1"></i>{{ $msg->created_at->format('M d, Y h:i A') }}
+                                        <small>({{ $msg->created_at->diffForHumans() }})</small>
+                                    </span>
                                 </div>
-                            @endif
-                        </div>
-                    </div>
-                @empty
-                    <div class="text-center py-4 text-muted">
-                        <i class="bx bx-chat display-4 d-block mb-2 text-muted"></i>
-                        No conversation messages yet.
-                    </div>
-                @endforelse
 
-                <div class="d-flex justify-content-center mt-3">
-                    {{ $messages->links() }}
+                                {{-- Compact Chat Bubble --}}
+                                <div class="admin-chat-bubble">
+                                    @if($isInternal)
+                                        <div class="small fw-semibold text-warning-emphasis mb-1 font-size-11">
+                                            <i class="bx bx-shield-quarter me-1"></i>Private internal note &mdash; staff only
+                                        </div>
+                                    @endif
+
+                                    <p class="admin-chat-text">{{ trim($msg->content) }}</p>
+
+                                    {{-- Attachments Section --}}
+                                    @if($msg->media->isNotEmpty())
+                                        <div class="admin-chat-attachments">
+                                            @foreach($msg->media as $media)
+                                                @php
+                                                    $formattedSize = $media->size >= 1048576
+                                                        ? round($media->size / 1048576, 2) . ' MB'
+                                                        : round($media->size / 1024, 1) . ' KB';
+                                                    $isImage = str_starts_with($media->mime_type, 'image/');
+                                                    $downloadUrl = route('tickets.attachments.download', [$ticket->id, $msg->id, $media->id]);
+                                                @endphp
+                                                <a href="{{ $downloadUrl }}"
+                                                   target="_blank"
+                                                   rel="noopener noreferrer"
+                                                   class="admin-attachment-chip"
+                                                   title="Click to view/download {{ $media->file_name }}">
+                                                    @if($isImage)
+                                                        <i class="bx bxs-file-image text-primary font-size-14"></i>
+                                                    @else
+                                                        <i class="bx bx-file text-secondary font-size-14"></i>
+                                                    @endif
+                                                    <span class="text-truncate" style="max-width: 180px;">{{ $media->file_name }}</span>
+                                                    <small class="text-muted">({{ $formattedSize }})</small>
+                                                    <i class="bx bx-download text-muted ms-1 font-size-12"></i>
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-4 text-muted">
+                            <i class="bx bx-chat display-4 d-block mb-2 text-muted"></i>
+                            No conversation messages yet.
+                        </div>
+                    @endforelse
                 </div>
+
+                @if($messages->hasPages())
+                    <div class="d-flex justify-content-center mt-3 pt-2 border-top">
+                        {{ $messages->links() }}
+                    </div>
+                @endif
             </div>
         </div>
 
-        {{-- Reply & Internal Note Composer Tabs --}}
-        <div class="card">
-            <div class="card-header bg-light">
+        {{-- Reply & Internal Note Composer Card --}}
+        <div class="card shadow-sm border-light">
+            <div class="card-header bg-light py-2">
                 <ul class="nav nav-tabs card-header-tabs" id="replyTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="public-reply-tab" data-bs-toggle="tab" data-bs-target="#public-reply" type="button" role="tab" aria-controls="public-reply" aria-selected="true">
+                        <button class="nav-link active font-size-13 py-2 px-3 fw-medium" id="public-reply-tab" data-bs-toggle="tab" data-bs-target="#public-reply" type="button" role="tab" aria-controls="public-reply" aria-selected="true">
                             <i class="bx bx-reply me-1"></i> Public Reply
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link text-warning-emphasis" id="internal-note-tab" data-bs-toggle="tab" data-bs-target="#internal-note" type="button" role="tab" aria-controls="internal-note" aria-selected="false">
+                        <button class="nav-link text-warning-emphasis font-size-13 py-2 px-3 fw-medium" id="internal-note-tab" data-bs-toggle="tab" data-bs-target="#internal-note" type="button" role="tab" aria-controls="internal-note" aria-selected="false">
                             <i class="bx bx-lock-alt me-1"></i> Internal Note
                         </button>
                     </li>
                 </ul>
             </div>
-            <div class="card-body">
+            <div class="card-body p-3">
                 <div class="tab-content" id="replyTabsContent">
                     {{-- Public Reply Form --}}
                     <div class="tab-pane fade show active" id="public-reply" role="tabpanel" aria-labelledby="public-reply-tab">
                         <form action="{{ route('tickets.reply', $ticket->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
-                            <p class="text-muted small mb-2">
-                                <i class="bx bx-globe me-1"></i> This message will be sent as a public response and visible to the customer.
+                            <p class="text-muted font-size-12 mb-2">
+                                <i class="bx bx-globe me-1 text-primary"></i> Public response visible to the customer.
                             </p>
                             <div class="mb-3">
-                                <textarea name="content" rows="4" class="form-control" placeholder="Write your public reply here..." required minlength="2"></textarea>
+                                <textarea name="content" rows="3" class="form-control font-size-13" placeholder="Write your public reply here..." required minlength="2"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label text-muted small d-block">
-                                    <i class="bx bx-paperclip me-1"></i> Attachments <span class="text-muted font-size-11">(Max {{ config('ticket.attachments.max_files', 5) }} files)</span>
-                                </label>
                                 <div class="d-flex align-items-center gap-2 mb-2">
-                                    <button type="button" class="btn btn-outline-primary btn-sm" id="replyMediaPickBtn">
-                                        <i class="bx bx-image-add me-1"></i> Choose from Media Library
+                                    <button type="button" class="btn btn-outline-secondary btn-sm font-size-12" id="replyMediaPickBtn">
+                                        <i class="bx bx-paperclip me-1"></i> Attach Media
                                     </button>
                                     <span class="text-muted font-size-12" id="replyAttachmentCountText">
                                         0 of {{ config('ticket.attachments.max_files', 5) }} selected
@@ -314,7 +458,7 @@
                                 <div id="replyAttachmentsList" class="d-flex flex-wrap gap-2 mt-2"></div>
                             </div>
                             <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary btn-sm px-4">
                                     <i class="bx bx-send me-1"></i> Send Public Reply
                                 </button>
                             </div>
@@ -325,31 +469,25 @@
                     <div class="tab-pane fade" id="internal-note" role="tabpanel" aria-labelledby="internal-note-tab">
                         <form action="{{ route('tickets.internal_note', $ticket->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
-                            <div class="alert alert-warning py-2 mb-3 font-size-13">
-                                <i class="bx bx-lock-alt me-1"></i> <strong>Confidential:</strong> Internal notes and their attachments are strictly visible to staff/agents. Customers will never see them.
+                            <div class="alert alert-warning py-1 px-3 mb-2 font-size-12">
+                                <i class="bx bx-lock-alt me-1"></i> <strong>Confidential:</strong> Visible strictly to internal staff. Customers cannot view this.
                             </div>
                             <div class="mb-3">
-                                <textarea name="content" rows="4" class="form-control bg-warning bg-opacity-10 border-warning" placeholder="Write your internal staff note here..." required minlength="2"></textarea>
+                                <textarea name="content" rows="3" class="form-control font-size-13 border-warning bg-warning bg-opacity-10" placeholder="Write internal note for staff..." required minlength="2"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label text-muted small d-block">
-                                    <i class="bx bx-paperclip me-1"></i> Note Attachments <span class="badge bg-warning text-dark font-size-11 ms-1"><i class="bx bx-lock-alt"></i> Internal Only</span>
-                                </label>
                                 <div class="d-flex align-items-center gap-2 mb-2">
-                                    <button type="button" class="btn btn-outline-warning btn-sm text-dark" id="noteMediaPickBtn">
-                                        <i class="bx bx-image-add me-1"></i> Choose from Media Library
+                                    <button type="button" class="btn btn-outline-warning btn-sm text-dark font-size-12" id="noteMediaPickBtn">
+                                        <i class="bx bx-paperclip me-1"></i> Attach Media
                                     </button>
                                     <span class="text-muted font-size-12" id="noteAttachmentCountText">
                                         0 of {{ config('ticket.attachments.max_files', 5) }} selected
                                     </span>
                                 </div>
                                 <div id="noteAttachmentsList" class="d-flex flex-wrap gap-2 mt-2"></div>
-                                <div class="form-text text-muted font-size-12 mt-1">
-                                    Attachments added here remain strictly confidential and internal to staff.
-                                </div>
                             </div>
                             <div class="d-flex justify-content-end">
-                                <button type="submit" class="btn btn-warning text-dark fw-semibold">
+                                <button type="submit" class="btn btn-warning btn-sm text-dark fw-semibold px-4">
                                     <i class="bx bx-lock-alt me-1"></i> Save Internal Note
                                 </button>
                             </div>
@@ -362,11 +500,6 @@
 </div>
 @include('components.media.picker-modal')
 @endsection
-
-@push('css_links')
-    <link rel="stylesheet" href="{{ admin_asset('libs/toastr/build/toastr.min.css') }}">
-    @vite(['resources/css/media-picker.css'])
-@endpush
 
 @push('script_links')
 <script src="{{ asset('backend/assets/js/media-picker.js') }}"></script>

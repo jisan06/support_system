@@ -70,7 +70,7 @@ class TicketController extends Controller
      */
     public function show(Ticket $ticket): View
     {
-        $ticket->load(['customer', 'assignedTo']);
+        $ticket->load(['customer', 'customer.media', 'assignedTo', 'assignedTo.media']);
         $messages = $this->messageService->getConversation($ticket, auth()->user(), 25);
 
         return view('admin.ticket.show', compact('ticket', 'messages'));
