@@ -21,81 +21,498 @@
 </div>
 @endif
 
-{{-- Stat Widgets --}}
-<div class="row">
-    @foreach($widgets as $widget)
-        <div class="col-xl-3 col-md-6">
-            <div class="card mini-stats-wid">
-                <div class="card-body">
-                    <div class="d-flex">
-                        <div class="flex-grow-1">
-                            <p class="text-muted fw-medium mb-2">{{ $widget['label'] }}</p>
-                            <h4 class="mb-0">{{ number_format($widget['value']) }}</h4>
-                        </div>
-                        <div class="mini-stat-icon avatar-sm rounded-circle bg-{{ $widget['color'] }} align-self-center">
-                            <span class="avatar-title">
-                                <i class="{{ $widget['icon'] }} font-size-24"></i>
-                            </span>
-                        </div>
+@if(!empty($canViewTickets) && !empty($ticketStats))
+{{-- Support Ticket Reporting Header & Date Filter --}}
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card mb-2">
+            <div class="card-body py-3">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div>
+                        <h5 class="card-title mb-1"><i class="bx bx-support text-primary me-1"></i> Support Ticket Overview &amp; Reporting</h5>
+                        <p class="text-muted font-size-12 mb-0">Real-time ticket volume, status breakdown, agent workload, and SLA performance.</p>
                     </div>
-                    <div class="mt-2">
-                        <a href="{{ route($widget['route']) }}" class="text-{{ $widget['color'] }} font-size-12">
-                            View All <i class="mdi mdi-arrow-right ms-1"></i>
-                        </a>
-                    </div>
+                    {{-- Date Range Filter Form --}}
+                    <form action="{{ route('admin.dashboard') }}" method="GET" class="d-flex flex-wrap align-items-center gap-2 m-0">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="{{ route('admin.dashboard', ['range' => 'all']) }}" class="btn {{ $dateFilter['range'] === 'all' ? 'btn-primary' : 'btn-outline-secondary' }}">All Time</a>
+                            <a href="{{ route('admin.dashboard', ['range' => 'today']) }}" class="btn {{ $dateFilter['range'] === 'today' ? 'btn-primary' : 'btn-outline-secondary' }}">Today</a>
+                            <a href="{{ route('admin.dashboard', ['range' => '7days']) }}" class="btn {{ $dateFilter['range'] === '7days' ? 'btn-primary' : 'btn-outline-secondary' }}">Last 7 Days</a>
+                            <a href="{{ route('admin.dashboard', ['range' => '30days']) }}" class="btn {{ $dateFilter['range'] === '30days' ? 'btn-primary' : 'btn-outline-secondary' }}">Last 30 Days</a>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-1">
+                            <input type="hidden" name="range" value="custom">
+                            <input type="date" name="start_date" value="{{ $dateFilter['start_date'] ?? '' }}" class="form-control form-control-sm" style="max-width: 135px;" placeholder="From">
+                            <span class="text-muted">-</span>
+                            <input type="date" name="end_date" value="{{ $dateFilter['end_date'] ?? '' }}" class="form-control form-control-sm" style="max-width: 135px;" placeholder="To">
+                            <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+                            @if($dateFilter['range'] !== 'all')
+                                <a href="{{ route('admin.dashboard') }}" class="btn btn-sm btn-outline-danger" title="Clear Filter"><i class="bx bx-x"></i></a>
+                            @endif
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    @endforeach
-</div>
-
-{{-- Charts Row 1: Line + Donut --}}
-<div class="row">
-    <div class="col-xl-8">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0"><i class="bx bx-line-chart me-1"></i> User Registrations (Last 12 Months)</h4>
-            </div>
-            <div class="card-body">
-                <div id="userRegistrationChart" style="height: 320px;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-4">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0"><i class="bx bx-pie-chart-alt-2 me-1"></i> Users by Status</h4>
-            </div>
-            <div class="card-body">
-                <div id="userStatusChart" style="height: 320px;"></div>
-            </div>
-        </div>
     </div>
 </div>
 
-{{-- Charts Row 2: Area + Bar --}}
+{{-- Ticket Stat Widgets Row 1 --}}
 <div class="row">
-    <div class="col-xl-8">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0"><i class="bx bx-trending-up me-1"></i> Activity Trend (Last 30 Days)</h4>
-            </div>
+    {{-- Total Tickets --}}
+    <div class="col-xl-3 col-md-6">
+        <div class="card mini-stats-wid">
             <div class="card-body">
-                <div id="activityTrendChart" style="height: 300px;"></div>
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-muted fw-medium mb-2">Total Tickets</p>
+                        <h4 class="mb-0">{{ number_format($ticketStats['total']) }}</h4>
+                    </div>
+                    <div class="mini-stat-icon avatar-sm rounded-circle bg-primary align-self-center">
+                        <span class="avatar-title"><i class="bx bx-conversation font-size-24"></i></span>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="{{ route('tickets.index') }}" class="text-primary font-size-12">
+                        View Tickets <i class="mdi mdi-arrow-right ms-1"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-xl-4">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0"><i class="bx bx-bar-chart me-1"></i> Activities by Event</h4>
-            </div>
+
+    {{-- Open Tickets --}}
+    <div class="col-xl-3 col-md-6">
+        <div class="card mini-stats-wid">
             <div class="card-body">
-                <div id="activityEventChart" style="height: 300px;"></div>
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-muted fw-medium mb-2">Open Tickets</p>
+                        <h4 class="mb-0 text-warning">{{ number_format($ticketStats['open']) }}</h4>
+                    </div>
+                    <div class="mini-stat-icon avatar-sm rounded-circle bg-warning align-self-center">
+                        <span class="avatar-title"><i class="bx bx-envelope-open font-size-24"></i></span>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="{{ route('tickets.index', ['status' => 'open']) }}" class="text-warning font-size-12">
+                        View Open <i class="mdi mdi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- In Progress Tickets --}}
+    <div class="col-xl-3 col-md-6">
+        <div class="card mini-stats-wid">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-muted fw-medium mb-2">In Progress</p>
+                        <h4 class="mb-0 text-info">{{ number_format($ticketStats['in_progress']) }}</h4>
+                    </div>
+                    <div class="mini-stat-icon avatar-sm rounded-circle bg-info align-self-center">
+                        <span class="avatar-title"><i class="bx bx-loader-circle font-size-24"></i></span>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="{{ route('tickets.index', ['status' => 'in_progress']) }}" class="text-info font-size-12">
+                        View In Progress <i class="mdi mdi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Resolved Tickets --}}
+    <div class="col-xl-3 col-md-6">
+        <div class="card mini-stats-wid">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-muted fw-medium mb-2">Resolved Tickets</p>
+                        <h4 class="mb-0 text-success">{{ number_format($ticketStats['resolved']) }}</h4>
+                    </div>
+                    <div class="mini-stat-icon avatar-sm rounded-circle bg-success align-self-center">
+                        <span class="avatar-title"><i class="bx bx-check-circle font-size-24"></i></span>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="{{ route('tickets.index', ['status' => 'resolved']) }}" class="text-success font-size-12">
+                        View Resolved <i class="mdi mdi-arrow-right ms-1"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+{{-- Ticket Stat Widgets Row 2 --}}
+<div class="row">
+    {{-- Closed Tickets --}}
+    <div class="col-xl-3 col-md-6">
+        <div class="card mini-stats-wid">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-muted fw-medium mb-2">Closed Tickets</p>
+                        <h4 class="mb-0 text-secondary">{{ number_format($ticketStats['closed']) }}</h4>
+                    </div>
+                    <div class="mini-stat-icon avatar-sm rounded-circle bg-secondary align-self-center">
+                        <span class="avatar-title"><i class="bx bx-archive font-size-24"></i></span>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="{{ route('tickets.index', ['status' => 'closed']) }}" class="text-secondary font-size-12">
+                        View Closed <i class="mdi mdi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Unassigned Tickets --}}
+    <div class="col-xl-3 col-md-6">
+        <div class="card mini-stats-wid">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-muted fw-medium mb-2">Unassigned Tickets</p>
+                        <h4 class="mb-0 {{ $ticketStats['unassigned'] > 0 ? 'text-danger' : 'text-dark' }}">{{ number_format($ticketStats['unassigned']) }}</h4>
+                    </div>
+                    <div class="mini-stat-icon avatar-sm rounded-circle bg-{{ $ticketStats['unassigned'] > 0 ? 'danger' : 'light' }} align-self-center">
+                        <span class="avatar-title {{ $ticketStats['unassigned'] > 0 ? 'text-white' : 'text-muted' }}"><i class="bx bx-user-x font-size-24"></i></span>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="font-size-12 text-muted">Awaiting assignment</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- SLA Approaching --}}
+    <div class="col-xl-3 col-md-6">
+        <div class="card mini-stats-wid">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-muted fw-medium mb-2">SLA Approaching</p>
+                        <h4 class="mb-0 text-warning">{{ number_format($ticketStats['sla_approaching']) }}</h4>
+                    </div>
+                    <div class="mini-stat-icon avatar-sm rounded-circle bg-warning align-self-center">
+                        <span class="avatar-title"><i class="bx bx-alarm-exclamation font-size-24"></i></span>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="font-size-12 text-muted">Near deadline warning</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- SLA Breached --}}
+    <div class="col-xl-3 col-md-6">
+        <div class="card mini-stats-wid">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-muted fw-medium mb-2">SLA Breached</p>
+                        <h4 class="mb-0 text-danger">{{ number_format($ticketStats['sla_breached']) }}</h4>
+                    </div>
+                    <div class="mini-stat-icon avatar-sm rounded-circle bg-danger align-self-center">
+                        <span class="avatar-title"><i class="bx bx-error-circle font-size-24"></i></span>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="font-size-12 text-danger">Exceeded resolution targets</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if(!empty($ticketInsights))
+{{-- Ticket Insights: Volume by Status and Priority --}}
+<div class="row">
+    {{-- Volume by Status --}}
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0"><i class="bx bx-pie-chart-alt me-1"></i> Ticket Volume by Status</h4>
+            </div>
+            <div class="card-body">
+                @foreach($ticketInsights['volume_by_status'] as $sKey => $sData)
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-medium font-size-13 text-capitalize">{{ $sData['label'] }}</span>
+                            <span class="font-size-13 text-muted">{{ number_format($sData['count']) }} ({{ $sData['percentage'] }}%)</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-{{ $sData['color'] }}" role="progressbar" style="width: {{ $sData['percentage'] }}%;" aria-valuenow="{{ $sData['percentage'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    {{-- Volume by Priority --}}
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0"><i class="bx bx-bar-chart-alt-2 me-1"></i> Ticket Volume by Priority</h4>
+            </div>
+            <div class="card-body">
+                @foreach($ticketInsights['volume_by_priority'] as $pKey => $pData)
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div>
+                                <span class="badge bg-{{ $pData['color'] }} bg-opacity-10 text-{{ $pData['color'] }} me-1 text-capitalize">{{ $pData['label'] }}</span>
+                            </div>
+                            <span class="font-size-13 text-muted">{{ number_format($pData['count']) }} ({{ $pData['percentage'] }}%)</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-{{ $pData['color'] }}" role="progressbar" style="width: {{ $pData['percentage'] }}%;" aria-valuenow="{{ $pData['percentage'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Departments & Agent Workload --}}
+<div class="row">
+    {{-- Tickets Grouped by Department --}}
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0"><i class="bx bx-buildings me-1"></i> Tickets Grouped by Department</h4>
+            </div>
+            <div class="card-body p-0">
+                @if(count($ticketInsights['by_department']) > 0)
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light font-size-12">
+                                <tr>
+                                    <th class="ps-3">Department</th>
+                                    <th class="text-center">Tickets</th>
+                                    <th class="text-end pe-3">Share</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($ticketInsights['by_department'] as $dept)
+                                    <tr>
+                                        <td class="ps-3 fw-medium font-size-13">{{ $dept['name'] }}</td>
+                                        <td class="text-center"><span class="badge bg-primary rounded-pill font-size-12 px-2 py-1">{{ $dept['count'] }}</span></td>
+                                        <td class="text-end pe-3">
+                                            <div class="d-flex align-items-center justify-content-end gap-2">
+                                                <div class="progress flex-grow-1" style="height: 6px; max-width: 80px;">
+                                                    <div class="progress-bar bg-primary" style="width: {{ $dept['percentage'] }}%;"></div>
+                                                </div>
+                                                <span class="font-size-12 text-muted" style="min-width: 32px;">{{ $dept['percentage'] }}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="text-muted text-center py-4 mb-0">No department ticket data available.</p>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- Agent Workload Overview --}}
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0"><i class="bx bx-user-check me-1"></i> Agent Workload Overview</h4>
+            </div>
+            <div class="card-body p-0">
+                @if(count($ticketInsights['agent_workload']) > 0)
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light font-size-12">
+                                <tr>
+                                    <th class="ps-3">Agent</th>
+                                    <th class="text-center">Active (Open/Progress)</th>
+                                    <th class="text-center">Resolved</th>
+                                    <th class="text-end pe-3">Total Assigned</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($ticketInsights['agent_workload'] as $agent)
+                                    <tr>
+                                        <td class="ps-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-xs me-2">
+                                                    <span class="avatar-title rounded-circle bg-light text-primary fw-bold font-size-12">
+                                                        {{ strtoupper(substr($agent->name, 0, 1)) }}
+                                                    </span>
+                                                </div>
+                                                <span class="fw-medium font-size-13">{{ $agent->name }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge {{ $agent->open_assigned > 0 ? 'bg-warning text-dark' : 'bg-light text-muted' }} rounded-pill px-2 py-1 font-size-11">
+                                                {{ $agent->open_assigned }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge {{ $agent->resolved_assigned > 0 ? 'bg-success' : 'bg-light text-muted' }} rounded-pill px-2 py-1 font-size-11">
+                                                {{ $agent->resolved_assigned }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-3 fw-semibold font-size-13">
+                                            {{ $agent->total_assigned }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="text-muted text-center py-4 mb-0">No active support agents found.</p>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Recent Support Tickets & Recently Resolved --}}
+<div class="row">
+    {{-- Recent Tickets --}}
+    <div class="col-xl-7">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0"><i class="bx bx-list-ul me-1"></i> Recent Support Tickets</h4>
+                <a href="{{ route('tickets.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                @if(count($ticketInsights['recent_tickets']) > 0)
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light font-size-12">
+                                <tr>
+                                    <th class="ps-3">Ticket #</th>
+                                    <th>Subject</th>
+                                    <th>Status</th>
+                                    <th>Priority</th>
+                                    <th>Assigned To</th>
+                                    <th class="text-end pe-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($ticketInsights['recent_tickets'] as $rTicket)
+                                    <tr>
+                                        <td class="ps-3">
+                                            <a href="{{ route('tickets.show', $rTicket) }}" class="fw-semibold text-primary font-size-12">
+                                                #{{ $rTicket->ticket_number }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('tickets.show', $rTicket) }}" class="text-dark font-size-13 text-truncate d-block" style="max-width: 220px;" title="{{ $rTicket->subject }}">
+                                                {{ $rTicket->subject }}
+                                            </a>
+                                            <small class="text-muted font-size-11">{{ $rTicket->customer?->name }}</small>
+                                        </td>
+                                        <td>
+                                            @php
+                                                $sColor = match($rTicket->status) {
+                                                    'open' => 'warning', 'in_progress' => 'info',
+                                                    'resolved' => 'success', 'closed' => 'secondary',
+                                                    default => 'light'
+                                                };
+                                            @endphp
+                                            <span class="badge bg-{{ $sColor }} text-capitalize font-size-11">{{ str_replace('_', ' ', $rTicket->status) }}</span>
+                                        </td>
+                                        <td>
+                                            @php
+                                                $pColor = match($rTicket->priority) {
+                                                    'urgent' => 'danger', 'high' => 'warning',
+                                                    'medium' => 'primary', 'low' => 'secondary',
+                                                    default => 'muted'
+                                                };
+                                            @endphp
+                                            <span class="badge bg-{{ $pColor }} bg-opacity-10 text-{{ $pColor }} text-capitalize font-size-11">{{ $rTicket->priority }}</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ $rTicket->assignedTo?->name ?? 'Unassigned' }}</small>
+                                        </td>
+                                        <td class="text-end pe-3">
+                                            <a href="{{ route('tickets.show', $rTicket) }}" class="btn btn-sm btn-light py-0 px-2 font-size-12">
+                                                <i class="bx bx-show align-middle"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="text-muted text-center py-4 mb-0">No tickets found for this period.</p>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- Recently Resolved Tickets --}}
+    <div class="col-xl-5">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0"><i class="bx bx-check-double text-success me-1"></i> Recently Resolved Tickets</h4>
+                <a href="{{ route('tickets.index', ['status' => 'resolved']) }}" class="btn btn-sm btn-outline-success font-size-12">View Resolved</a>
+            </div>
+            <div class="card-body p-0">
+                @if(count($ticketInsights['recently_resolved']) > 0)
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light font-size-12">
+                                <tr>
+                                    <th class="ps-3">Ticket</th>
+                                    <th>Resolved</th>
+                                    <th class="text-end pe-3">Agent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($ticketInsights['recently_resolved'] as $resTicket)
+                                    <tr>
+                                        <td class="ps-3">
+                                            <a href="{{ route('tickets.show', $resTicket) }}" class="fw-semibold text-primary font-size-12 d-block">
+                                                #{{ $resTicket->ticket_number }}
+                                            </a>
+                                            <span class="text-dark font-size-12 text-truncate d-block" style="max-width: 170px;" title="{{ $resTicket->subject }}">
+                                                {{ $resTicket->subject }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted" title="{{ $resTicket->resolved_at ?? $resTicket->updated_at }}">
+                                                {{ ($resTicket->resolved_at ?? $resTicket->updated_at)->diffForHumans() }}
+                                            </small>
+                                        </td>
+                                        <td class="text-end pe-3">
+                                            <small class="text-muted">{{ $resTicket->assignedTo?->name ?? 'Unassigned' }}</small>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="text-muted text-center py-4 mb-0">No resolved tickets yet.</p>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+@endif
 
 {{-- Recent Activity --}}
 <div class="row">
@@ -155,119 +572,3 @@
 </div>
 
 @endsection
-
-@push('script_links')
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
-    var textColor = isDark ? '#a6b0cf' : '#495057';
-    var gridColor = isDark ? '#32394e' : '#f1f1f1';
-
-    // User Registration - Area Chart
-    new ApexCharts(document.querySelector("#userRegistrationChart"), {
-        series: [{
-            name: 'Users',
-            data: @json($userChart['data'])
-        }],
-        chart: { type: 'area', height: 320, toolbar: { show: false } },
-        colors: ['#556ee6'],
-        dataLabels: { enabled: false },
-        stroke: { curve: 'smooth', width: 2 },
-        fill: {
-            type: 'gradient',
-            gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.1 }
-        },
-        xaxis: {
-            categories: @json($userChart['labels']),
-            labels: { style: { colors: textColor } }
-        },
-        yaxis: {
-            labels: { style: { colors: textColor } },
-            min: 0
-        },
-        grid: { borderColor: gridColor },
-        tooltip: { theme: isDark ? 'dark' : 'light' }
-    }).render();
-
-    // Users by Status - Donut Chart
-    new ApexCharts(document.querySelector("#userStatusChart"), {
-        series: @json($userStatusChart['data']),
-        chart: { type: 'donut', height: 320 },
-        labels: @json($userStatusChart['labels']),
-        colors: ['#2ab57d', '#e74c3c', '#f1b44c', '#50a5f1'],
-        legend: {
-            position: 'bottom',
-            labels: { colors: textColor }
-        },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '60%',
-                    labels: {
-                        show: true,
-                        total: { show: true, label: 'Total', color: textColor }
-                    }
-                }
-            }
-        },
-        tooltip: { theme: isDark ? 'dark' : 'light' }
-    }).render();
-
-    // Activity Trend - Area Chart
-    new ApexCharts(document.querySelector("#activityTrendChart"), {
-        series: [{
-            name: 'Activities',
-            data: @json($activityTrend['data'])
-        }],
-        chart: { type: 'area', height: 300, toolbar: { show: false }, sparkline: { enabled: false } },
-        colors: ['#50a5f1'],
-        dataLabels: { enabled: false },
-        stroke: { curve: 'smooth', width: 2 },
-        fill: {
-            type: 'gradient',
-            gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05 }
-        },
-        xaxis: {
-            categories: @json($activityTrend['labels']),
-            labels: { style: { colors: textColor }, rotate: -45, rotateAlways: false },
-            tickAmount: 10
-        },
-        yaxis: {
-            labels: { style: { colors: textColor } },
-            min: 0
-        },
-        grid: { borderColor: gridColor },
-        tooltip: { theme: isDark ? 'dark' : 'light' }
-    }).render();
-
-    // Activities by Event - Bar Chart
-    new ApexCharts(document.querySelector("#activityEventChart"), {
-        series: [{
-            name: 'Count',
-            data: @json($activityEventChart['data'])
-        }],
-        chart: { type: 'bar', height: 300, toolbar: { show: false } },
-        colors: ['#556ee6', '#2ab57d', '#f1b44c', '#e74c3c', '#50a5f1', '#7b5ea7'],
-        plotOptions: {
-            bar: {
-                borderRadius: 4,
-                horizontal: true,
-                distributed: true
-            }
-        },
-        dataLabels: { enabled: true, style: { colors: ['#fff'] } },
-        xaxis: {
-            categories: @json($activityEventChart['labels']),
-            labels: { style: { colors: textColor } }
-        },
-        yaxis: {
-            labels: { style: { colors: textColor } }
-        },
-        legend: { show: false },
-        grid: { borderColor: gridColor },
-        tooltip: { theme: isDark ? 'dark' : 'light' }
-    }).render();
-});
-</script>
-@endpush
