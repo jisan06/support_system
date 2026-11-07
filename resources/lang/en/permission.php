@@ -47,6 +47,8 @@ return [
     "edit_setting_contact" => "Edit Contact",
     "view_setting_email" => "View Email",
     "edit_setting_email" => "Edit Email",
+    "view_setting_sla" => "View SLA & Business Hours",
+    "edit_setting_sla" => "Edit SLA & Business Hours",
 
     "view_notification" => "View Notification",
     "delete_notification" => "Delete Notification",

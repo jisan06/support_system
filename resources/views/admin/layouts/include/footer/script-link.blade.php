@@ -7,7 +7,7 @@
 
 <!-- App js -->
 <script src="{{ admin_asset('js/app.js') }}"></script>
-<script src="{{ admin_asset('js/password-strength.js') }}"></script>
+<script src="{{ admin_asset('js/password-strength.js') }}?v={{ file_exists(public_path('backend/assets/js/password-strength.js')) ? filemtime(public_path('backend/assets/js/password-strength.js')) : '1.0' }}"></script>
 @if(!empty($bulk_actions))
     @include('admin.layouts.include.others.bulk_action')
 @endif
@@ -46,20 +46,28 @@
         initTooltips();
 
         // Global Password Visibility Toggle
+        window.togglePasswordVisibility = function(target, btn) {
+            var $btn = $(btn);
+            var targetSelector = target || $btn.data('target');
+            var inputEl = targetSelector ? document.querySelector(targetSelector) : ($btn.closest('.input-group').find('input')[0]);
+            if (!inputEl) return;
+
+            var $icon = $btn.find('i');
+            if (inputEl.type === 'password') {
+                inputEl.type = 'text';
+                $icon.removeClass('bx-show').addClass('bx-hide');
+                $btn.attr('title', 'Hide password');
+            } else {
+                inputEl.type = 'password';
+                $icon.removeClass('bx-hide').addClass('bx-show');
+                $btn.attr('title', 'Show password');
+            }
+        };
+
         $(document).off('click', '.toggle-password-btn').on('click', '.toggle-password-btn', function (e) {
             e.preventDefault();
-            var $btn = $(this);
-            var targetSelector = $btn.data('target');
-            var $input = targetSelector ? $(targetSelector) : $btn.closest('.input-group').find('input');
-            var $icon = $btn.find('i');
-
-            if ($input.attr('type') === 'password') {
-                $input.attr('type', 'text');
-                $icon.removeClass('bx-show').addClass('bx-hide');
-            } else {
-                $input.attr('type', 'password');
-                $icon.removeClass('bx-hide').addClass('bx-show');
-            }
+            e.stopPropagation();
+            window.togglePasswordVisibility($(this).data('target'), this);
         });
     })
 </script>

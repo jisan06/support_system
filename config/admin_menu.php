@@ -51,6 +51,15 @@ $menus = [
                 'icon' => 'bx bx-conversation',
                 'permission' => 'view_ticket',
             ],
+            [
+                'key' => 'settings-sla',
+                'title' => 'menu.settings_sla',
+                'route' => 'settings.index',
+                'route_params' => ['sla'],
+                'slug' => 'settings',
+                'icon' => 'bx bx-time-five',
+                'permission' => 'view_setting_sla',
+            ],
         ]
     ],
     [

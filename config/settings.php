@@ -309,4 +309,117 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | SLA & Business Hours Settings
+    |--------------------------------------------------------------------------
+    */
+    'sla' => [
+        'label' => 'setting.sla',
+        'fields' => [
+            'business_timezone' => [
+                'type' => 'select',
+                'label' => 'setting.business_timezone',
+                'rules' => 'nullable|string|max:255',
+                'options' => 'timezones',
+                'default' => 'UTC',
+                'col' => 4,
+            ],
+            'business_working_days' => [
+                'type' => 'select',
+                'label' => 'setting.business_working_days',
+                'rules' => 'nullable|string|max:50',
+                'options' => [
+                    '1,2,3,4,5' => 'Monday - Friday',
+                    '0,1,2,3,4' => 'Sunday - Thursday',
+                    '1,2,3,4,5,6' => 'Monday - Saturday',
+                    '0,1,2,3,4,5,6' => 'Every Day (7 Days)',
+                ],
+                'default' => '1,2,3,4,5',
+                'col' => 4,
+            ],
+            'business_start_time' => [
+                'type' => 'time',
+                'label' => 'setting.business_start_time',
+                'rules' => 'nullable|string',
+                'default' => '09:00',
+                'col' => 2,
+            ],
+            'business_end_time' => [
+                'type' => 'time',
+                'label' => 'setting.business_end_time',
+                'rules' => 'nullable|string',
+                'default' => '17:00',
+                'col' => 2,
+            ],
+            'business_holidays' => [
+                'type' => 'textarea',
+                'label' => 'setting.business_holidays',
+                'placeholder' => 'setting.business_holidays_placeholder',
+                'rules' => 'nullable|string|max:2000',
+                'col' => 12,
+            ],
+            // Urgent Priority SLA Targets (minutes)
+            'sla_urgent_first_response' => [
+                'type' => 'number',
+                'label' => 'setting.sla_urgent_first_response',
+                'rules' => 'nullable|integer|min:1',
+                'default' => 60,
+                'col' => 3,
+            ],
+            'sla_urgent_resolution' => [
+                'type' => 'number',
+                'label' => 'setting.sla_urgent_resolution',
+                'rules' => 'nullable|integer|min:1',
+                'default' => 240,
+                'col' => 3,
+            ],
+            // High Priority SLA Targets (minutes)
+            'sla_high_first_response' => [
+                'type' => 'number',
+                'label' => 'setting.sla_high_first_response',
+                'rules' => 'nullable|integer|min:1',
+                'default' => 120,
+                'col' => 3,
+            ],
+            'sla_high_resolution' => [
+                'type' => 'number',
+                'label' => 'setting.sla_high_resolution',
+                'rules' => 'nullable|integer|min:1',
+                'default' => 480,
+                'col' => 3,
+            ],
+            // Medium Priority SLA Targets (minutes)
+            'sla_medium_first_response' => [
+                'type' => 'number',
+                'label' => 'setting.sla_medium_first_response',
+                'rules' => 'nullable|integer|min:1',
+                'default' => 240,
+                'col' => 3,
+            ],
+            'sla_medium_resolution' => [
+                'type' => 'number',
+                'label' => 'setting.sla_medium_resolution',
+                'rules' => 'nullable|integer|min:1',
+                'default' => 1440,
+                'col' => 3,
+            ],
+            // Low Priority SLA Targets (minutes)
+            'sla_low_first_response' => [
+                'type' => 'number',
+                'label' => 'setting.sla_low_first_response',
+                'rules' => 'nullable|integer|min:1',
+                'default' => 480,
+                'col' => 3,
+            ],
+            'sla_low_resolution' => [
+                'type' => 'number',
+                'label' => 'setting.sla_low_resolution',
+                'rules' => 'nullable|integer|min:1',
+                'default' => 2880,
+                'col' => 3,
+            ],
+        ],
+    ],
+
 ];

@@ -71,13 +71,32 @@
     }
 
     function createMeter(input) {
-        var rules = defaultRules;
+        if (!input) return;
+
+        var rules = Object.assign({}, defaultRules);
         if (input.dataset.strengthRules) {
-            try { rules = JSON.parse(input.dataset.strengthRules); } catch (e) {}
+            try {
+                var parsed = JSON.parse(input.dataset.strengthRules);
+                rules = Object.assign(rules, parsed);
+            } catch (e) {}
         }
 
-        var wrapper = document.createElement('div');
-        wrapper.className = 'password-strength-meter';
+        // Look for existing container in Blade or DOM
+        var formGroup = input.closest('.form-group');
+        var wrapper = formGroup ? formGroup.querySelector('.password-strength-meter') : document.getElementById('passwordStrengthMeter');
+
+        if (!wrapper) {
+            wrapper = document.createElement('div');
+            wrapper.className = 'password-strength-meter';
+            var container = input.closest('.input-group') || input;
+            container.parentNode.insertBefore(wrapper, container.nextSibling);
+        } else {
+            // Safety: if wrapper is somehow inside .input-group, move it outside
+            var inGroup = input.closest('.input-group');
+            if (inGroup && inGroup.contains(wrapper)) {
+                inGroup.parentNode.insertBefore(wrapper, inGroup.nextSibling);
+            }
+        }
 
         var barHtml = '<div class="strength-bar"><div class="strength-fill"></div></div>';
         var labelHtml = '<small class="strength-label"></small>';
@@ -91,18 +110,17 @@
         rulesHtml += '</ul>';
 
         wrapper.innerHTML = barHtml + labelHtml + rulesHtml;
-        var container = input.closest('.input-group') || input;
-        container.parentNode.insertBefore(wrapper, container.nextSibling);
 
         var fill = wrapper.querySelector('.strength-fill');
         var label = wrapper.querySelector('.strength-label');
         var ruleItems = wrapper.querySelectorAll('.strength-rules li');
 
         function updateStrength() {
-            var password = input.value;
+            var password = input.value || '';
 
             if (!password) {
                 wrapper.classList.remove('active');
+                wrapper.style.display = 'none';
                 fill.style.width = '0';
                 fill.className = 'strength-fill';
                 label.textContent = '';
@@ -112,6 +130,7 @@
             }
 
             wrapper.classList.add('active');
+            wrapper.style.display = 'block';
 
             var results = checkRules(password, rules);
             var strength = getStrength(results);
@@ -128,10 +147,38 @@
             });
         }
 
-        ['input', 'change', 'keyup'].forEach(function (evt) {
+        input._updateStrength = updateStrength;
+
+        ['input', 'change', 'keyup', 'paste', 'blur', 'focus'].forEach(function (evt) {
             input.addEventListener(evt, updateStrength);
         });
+
+        // Run immediately if input already has a value
+        if (input.value) {
+            updateStrength();
+        }
+
+        // Check for autofill shortly after load
+        setTimeout(function() {
+            if (input.value) {
+                updateStrength();
+            }
+        }, 300);
+        setTimeout(function() {
+            if (input.value) {
+                updateStrength();
+            }
+        }, 1000);
     }
+
+    window.checkPasswordStrength = function(input) {
+        if (!input) {
+            input = document.querySelector('[data-strength-meter]');
+        }
+        if (input && typeof input._updateStrength === 'function') {
+            input._updateStrength();
+        }
+    };
 
     function init() {
         var inputs = document.querySelectorAll('[data-strength-meter]');

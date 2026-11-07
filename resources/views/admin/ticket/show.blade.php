@@ -64,6 +64,40 @@
                         <span class="text-muted">Created</span>
                         <span>{{ $ticket->created_at->format('M d, Y h:i A') }}</span>
                     </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="text-muted">SLA Status</span>
+                        <span class="badge {{ $ticket->sla_status->badgeClass() }}">{{ $ticket->sla_status->label() }}</span>
+                    </li>
+                    <li class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted">First Response</span>
+                            <span class="badge {{ $ticket->first_response_sla_status->badgeClass() }}">{{ $ticket->first_response_sla_status->label() }}</span>
+                        </div>
+                        <div class="font-size-12 text-muted">
+                            @if($ticket->first_responded_at)
+                                <i class="bx bx-check me-1 text-success"></i> Responded {{ $ticket->first_responded_at->format('M d, Y h:i A') }}
+                            @elseif($ticket->first_response_due_at)
+                                <i class="bx bx-time-five me-1"></i> Due {{ $ticket->first_response_due_at->format('M d, Y h:i A') }}
+                            @else
+                                <span>No target</span>
+                            @endif
+                        </div>
+                    </li>
+                    <li class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted">Resolution</span>
+                            <span class="badge {{ $ticket->resolution_sla_status->badgeClass() }}">{{ $ticket->resolution_sla_status->label() }}</span>
+                        </div>
+                        <div class="font-size-12 text-muted">
+                            @if($ticket->resolved_at)
+                                <i class="bx bx-check me-1 text-success"></i> Resolved {{ $ticket->resolved_at->format('M d, Y h:i A') }}
+                            @elseif($ticket->resolution_due_at)
+                                <i class="bx bx-time-five me-1"></i> Due {{ $ticket->resolution_due_at->format('M d, Y h:i A') }}
+                            @else
+                                <span>No target</span>
+                            @endif
+                        </div>
+                    </li>
                 </ul>
 
                 <div class="mt-3">

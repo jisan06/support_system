@@ -120,6 +120,38 @@
                                                 :multiple="false"
                                             />
                                             @break
+
+                                        @case('number')
+                                            <div class="form-group">
+                                                <label class="form-label" for="{{ $key }}">{{ __($field['label']) }}</label>
+                                                <input type="number"
+                                                    name="{{ $key }}"
+                                                    id="{{ $key }}"
+                                                    value="{{ old($key, $values[$key] ?? ($field['default'] ?? '')) }}"
+                                                    class="form-control @error($key) is-invalid @enderror"
+                                                    min="{{ $field['min'] ?? 0 }}"
+                                                    step="{{ $field['step'] ?? 1 }}"
+                                                >
+                                                @error($key)
+                                                    <span class="error invalid-feedback">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                            @break
+
+                                        @case('time')
+                                            <div class="form-group">
+                                                <label class="form-label" for="{{ $key }}">{{ __($field['label']) }}</label>
+                                                <input type="time"
+                                                    name="{{ $key }}"
+                                                    id="{{ $key }}"
+                                                    value="{{ old($key, $values[$key] ?? ($field['default'] ?? '')) }}"
+                                                    class="form-control @error($key) is-invalid @enderror"
+                                                >
+                                                @error($key)
+                                                    <span class="error invalid-feedback">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                            @break
                                     @endswitch
                                 </div>
                             @endforeach

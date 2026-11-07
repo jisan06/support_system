@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\TicketMessageService;
 use App\Services\TicketService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -108,5 +109,35 @@ class TicketController extends Controller
     public function downloadAttachment(Ticket $ticket, TicketMessage $message, Media $media): StreamedResponse
     {
         return $this->messageService->downloadAttachment($ticket, $message, $media, auth()->user());
+    }
+
+    /**
+     * Update ticket status and trigger SLA resolution tracking.
+     */
+    public function updateStatus(Request $request, Ticket $ticket): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:open,in_progress,resolved,closed',
+        ]);
+
+        $this->ticketService->updateStatus($ticket, $validated['status']);
+
+        return redirect()->route('tickets.show', $ticket->id)
+            ->with('success', 'Ticket status updated successfully.');
+    }
+
+    /**
+     * Update ticket priority and recalculate pending SLA deadlines.
+     */
+    public function updatePriority(Request $request, Ticket $ticket): RedirectResponse
+    {
+        $validated = $request->validate([
+            'priority' => 'required|in:low,medium,high,urgent',
+        ]);
+
+        $this->ticketService->updatePriority($ticket, $validated['priority']);
+
+        return redirect()->route('tickets.show', $ticket->id)
+            ->with('success', 'Ticket priority updated and SLA recalculated.');
     }
 }

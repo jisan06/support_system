@@ -208,7 +208,10 @@ $(function() {
             passEl.type = 'text';
             passEl.dispatchEvent(new Event('input', { bubbles: true }));
             passEl.dispatchEvent(new Event('change', { bubbles: true }));
-            $('.toggle-password-btn[data-target="#password"] i').removeClass('bx-show').addClass('bx-hide');
+            if (window.checkPasswordStrength) {
+                window.checkPasswordStrength(passEl);
+            }
+            $('.toggle-password-btn[data-target="#password"]').attr('title', 'Hide password').find('i').removeClass('bx-show').addClass('bx-hide');
         }
 
         if (confirmEl) {
@@ -216,7 +219,7 @@ $(function() {
             confirmEl.type = 'text';
             confirmEl.dispatchEvent(new Event('input', { bubbles: true }));
             confirmEl.dispatchEvent(new Event('change', { bubbles: true }));
-            $('.toggle-password-btn[data-target="#password_confirm"] i').removeClass('bx-show').addClass('bx-hide');
+            $('.toggle-password-btn[data-target="#password_confirm"]').attr('title', 'Hide password').find('i').removeClass('bx-show').addClass('bx-hide');
         }
     });
 });

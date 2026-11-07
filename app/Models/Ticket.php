@@ -22,7 +22,11 @@ class Ticket extends Model
     protected function casts(): array
     {
         return [
-            'last_reply_at' => 'datetime',
+            'last_reply_at'          => 'datetime',
+            'first_response_due_at'  => 'datetime',
+            'resolution_due_at'      => 'datetime',
+            'first_responded_at'     => 'datetime',
+            'resolved_at'            => 'datetime',
         ];
     }
 
@@ -66,6 +70,30 @@ class Ticket extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->whereIn('status', ['open', 'in_progress']);
+    }
+
+    /**
+     * Get first response SLA status.
+     */
+    public function getFirstResponseSlaStatusAttribute(): \App\Enums\SlaStatus
+    {
+        return app(\App\Services\SlaService::class)->getFirstResponseStatus($this);
+    }
+
+    /**
+     * Get resolution SLA status.
+     */
+    public function getResolutionSlaStatusAttribute(): \App\Enums\SlaStatus
+    {
+        return app(\App\Services\SlaService::class)->getResolutionStatus($this);
+    }
+
+    /**
+     * Get overall ticket SLA status.
+     */
+    public function getSlaStatusAttribute(): \App\Enums\SlaStatus
+    {
+        return app(\App\Services\SlaService::class)->getOverallStatus($this);
     }
 }
 

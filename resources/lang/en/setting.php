@@ -75,6 +75,24 @@ return [
 
     'branding' => 'Site Logo & Favicon',
 
+    // SLA & Business Hours
+    'sla' => 'SLA & Business Hours',
+    'sla_business_hours' => 'SLA & Business Hours',
+    'business_timezone' => 'Business Timezone',
+    'business_working_days' => 'Working Days',
+    'business_start_time' => 'Working Hours Start',
+    'business_end_time' => 'Working Hours End',
+    'business_holidays' => 'Holidays & Non-working Days',
+    'business_holidays_placeholder' => "Enter holiday dates in YYYY-MM-DD format (one per line or comma-separated)\ne.g.\n2026-12-25\n2026-01-01",
+    'sla_urgent_first_response' => 'Urgent: First Response Target (Minutes)',
+    'sla_urgent_resolution' => 'Urgent: Resolution Target (Minutes)',
+    'sla_high_first_response' => 'High: First Response Target (Minutes)',
+    'sla_high_resolution' => 'High: Resolution Target (Minutes)',
+    'sla_medium_first_response' => 'Medium: First Response Target (Minutes)',
+    'sla_medium_resolution' => 'Medium: Resolution Target (Minutes)',
+    'sla_low_first_response' => 'Low: First Response Target (Minutes)',
+    'sla_low_resolution' => 'Low: Resolution Target (Minutes)',
+
     // Image actions
     'choose_image' => 'Choose Image',
     'remove' => 'Remove',

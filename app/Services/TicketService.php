@@ -14,13 +14,16 @@ class TicketService extends BaseService
     use SoftDeleteTrait;
 
     protected TicketMessageService $messageService;
+    protected SlaService $slaService;
 
     public function __construct(
         TicketRepositoryInterface $repository,
-        TicketMessageService $messageService
+        TicketMessageService $messageService,
+        SlaService $slaService
     ) {
         parent::__construct($repository);
         $this->messageService = $messageService;
+        $this->slaService = $slaService;
     }
 
     public function findForUser(int|string $id, User $user): Ticket
@@ -53,11 +56,34 @@ class TicketService extends BaseService
                 'last_reply_at' => now(),
             ]);
 
-            // Create opening message and store any attachments / media
+            // Apply SLA deadlines based on priority and business hours
+            $this->slaService->applySlaToTicket($ticket);
+
+            // Create opening message and store any attachments / media (mark as initial creation)
             $mediaIds = !empty($mediaIds) ? $mediaIds : ($data['media_ids'] ?? []);
-            $this->messageService->addReply($ticket, $creator, $data['description'], $attachments, $mediaIds);
+            $this->messageService->addReply($ticket, $creator, $data['description'], $attachments, $mediaIds, isInitial: true);
 
             return $ticket;
+        });
+    }
+
+    /**
+     * Update ticket status and handle SLA resolution milestone.
+     */
+    public function updateStatus(Ticket $ticket, string $status): Ticket
+    {
+        return $this->transaction(function () use ($ticket, $status) {
+            return $this->slaService->handleStatusChange($ticket, $status);
+        });
+    }
+
+    /**
+     * Update ticket priority and recalculate pending SLA deadlines.
+     */
+    public function updatePriority(Ticket $ticket, string $newPriority): Ticket
+    {
+        return $this->transaction(function () use ($ticket, $newPriority) {
+            return $this->slaService->recalculateSlaOnPriorityChange($ticket, $newPriority);
         });
     }
 

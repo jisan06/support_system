@@ -48,6 +48,8 @@ Route::middleware(['auth', 'demo', 'permission'])
         Route::get('tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
         Route::post('tickets/{ticket}/reply', [TicketController::class, 'storeReply'])->name('tickets.reply');
         Route::post('tickets/{ticket}/internal-note', [TicketController::class, 'storeInternalNote'])->name('tickets.internal_note');
+        Route::patch('tickets/{ticket}/status', [TicketController::class, 'updateStatus'])->name('tickets.update_status');
+        Route::patch('tickets/{ticket}/priority', [TicketController::class, 'updatePriority'])->name('tickets.update_priority');
         Route::get('tickets/{ticket}/messages/{message}/attachments/{media}/download', [TicketController::class, 'downloadAttachment'])->name('tickets.attachments.download');
 
         Route::get('roles/{role}/permission', [RoleController::class, 'permission'])->name('roles.permission');

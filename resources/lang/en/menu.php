@@ -22,6 +22,7 @@ return [
     "settings_seo" => "SEO|SEO",
     "settings_contact" => "Contact|Contact",
     "settings_email" => "Email|Email",
+    "settings_sla" => "SLA & Business Hours",
 
     "notification" => "Notification|Notifications",
     "update" => "Update",

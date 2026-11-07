@@ -130,6 +130,13 @@ return [
                     'edit_setting_email' => 'permission.edit_setting_email',
                 ],
             ],
+            [
+                'label' => 'SLA & Business Hours',
+                'permissions' => [
+                    'view_setting_sla' => 'permission.view_setting_sla',
+                    'edit_setting_sla' => 'permission.edit_setting_sla',
+                ],
+            ],
         ],
     ],
 

@@ -55,11 +55,17 @@ class TicketMessageService extends BaseService
      * @throws AuthorizationException
      * @throws Throwable
      */
-    public function addReply(Ticket $ticket, User $sender, string $content, array $attachments = [], array $mediaIds = []): TicketMessage
-    {
+    public function addReply(
+        Ticket $ticket,
+        User $sender,
+        string $content,
+        array $attachments = [],
+        array $mediaIds = [],
+        bool $isInitial = false
+    ): TicketMessage {
         $this->authorizeTicketAccess($ticket, $sender);
 
-        return $this->transaction(function () use ($ticket, $sender, $content, $attachments, $mediaIds) {
+        return $this->transaction(function () use ($ticket, $sender, $content, $attachments, $mediaIds, $isInitial) {
             $message = $this->repository->createMessage($ticket, [
                 'user_id' => $sender->id,
                 'type'    => TicketMessageType::REPLY->value,
@@ -75,6 +81,10 @@ class TicketMessageService extends BaseService
             }
 
             $ticket->update(['last_reply_at' => now()]);
+
+            if (!$isInitial) {
+                app(SlaService::class)->recordFirstResponse($ticket, $sender);
+            }
 
             return $message;
         });

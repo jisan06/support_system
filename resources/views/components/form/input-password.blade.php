@@ -18,6 +18,10 @@
         </button>
     </div>
 
+    @if($name === 'password')
+        <div class="password-strength-meter" id="passwordStrengthMeter"></div>
+    @endif
+
     @error($name)
     <span class="error invalid-feedback d-block">{{ $message }}</span>
     @enderror
