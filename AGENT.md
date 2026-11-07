@@ -107,12 +107,34 @@ When implementing any new feature, module, or entity, follow the established mul
   - `forceDelete($id)`: calls `$this->service->forceDelete($id)` -> returns `ResponseHelper::success(...)`.
   - `bulkForceDelete(BulkActionRequest $request)`: calls `$this->service->bulkForceDelete($ids)` -> returns `ResponseHelper::success(...)`.
 
-### 8. Routing & Route Macros (`routes/web.php` & `routes/macros.php`)
-- Use the custom macro for full CRUD + Trash support:
-  ```php
-  Route::resourceWithTrash('{resource}', {Model}Controller::class);
-  ```
-- Placed inside `Route::middleware(['auth', 'demo', 'permission'])->prefix('admin')->group(...)`.
+### 8. RESTful Routing Conventions (`routes/web.php` & `routes/macros.php`)
+- **Important:** Do not modify existing Admin Panel core features or refactor their legacy routes (users, roles, media, settings, backups, profile, menu-sort, system-monitoring, update, activity-logs).
+- **Mandatory RESTful Conventions for Specified Feature Modules & All Upcoming Features:**
+  All existing feature modules and upcoming new features MUST adhere strictly to RESTful resource conventions:
+  1. **Standard Resource Operations:**
+     - `GET /{resources}` (`{resources}.index`) - List resources
+     - `GET /{resources}/create` (`{resources}.create`) - Create form
+     - `POST /{resources}` (`{resources}.store`) - Store resource
+     - `GET /{resources}/{id}` (`{resources}.show`) - Show resource
+     - `GET /{resources}/{id}/edit` (`{resources}.edit`) - Edit form
+     - `PUT/PATCH /{resources}/{id}` (`{resources}.update`) - Update resource
+     - `DELETE /{resources}/{id}` (`{resources}.destroy`) - Delete resource
+     - Use `Route::resourceWithTrash('{resource}', ...)` when soft deletes & trash management are required.
+  2. **Sub-Resources, Transitions & Nesting:**
+     - **State Transitions:** Use `PATCH /{resources}/{id}/{attribute}` (e.g. `PATCH tickets/{ticket}/status`, `PATCH tickets/{ticket}/priority`).
+     - **Assignments:** Use `PATCH /{resources}/{id}/assign` (e.g. `PATCH tickets/{ticket}/assign`).
+     - **Nested Collections:** Use plural resource paths (e.g. `POST tickets/{ticket}/messages`, `POST tickets/{ticket}/internal-notes`).
+     - **Nested Attachments:** Use nested resource identifiers (e.g. `GET tickets/{ticket}/messages/{message}/attachments/{media}`).
+     - **Bulk Operations:** Standardize on `POST /{resources}/bulk-delete`, `POST /{resources}/bulk-restore`, `POST /{resources}/bulk-force-delete`.
+  3. **Module Reference:**
+     - **Ticket Management:** `tickets` (CRUD + state transitions `status`, `priority`).
+     - **Customer Management:** `customers` (full `resourceWithTrash`).
+     - **SLA, Business Hours & SLA Escalation:** RESTful settings resources under `settings/sla` (`GET`, `PUT`).
+     - **Ticket Assignment:** `PATCH tickets/{ticket}/assign`.
+     - **Ticket Conversations:** `POST tickets/{ticket}/messages`, `POST tickets/{ticket}/internal-notes`.
+     - **Ticket Attachments:** `GET tickets/{ticket}/messages/{message}/attachments/{media}`.
+     - **Notifications:** `GET notifications`, `GET notifications/poll`, `PATCH notifications/{notification}/read`, `POST notifications/mark-all-read`, `DELETE notifications/{notification}`, `POST notifications/bulk-delete`, `POST notifications/send-test`.
+     - **All Upcoming Features:** Must strictly follow these RESTful patterns.
 
 ### 9. RBAC & Permissions Integration
 When adding any feature/module:

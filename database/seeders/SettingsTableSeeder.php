@@ -94,10 +94,10 @@ class SettingsTableSeeder extends Seeder
                 'id' => 8,
                 'group' => 'general',
                 'key' => 'multi_language',
-                'value' => 'on',
+                'value' => 'off',
                 'created_by' => 1,
                 'created_at' => '2026-03-17 11:50:58',
-                'updated_at' => '2026-03-17 12:32:17',
+                'updated_at' => '2026-11-07 12:30:52',
             ),
             8 => 
             array (

@@ -61,12 +61,18 @@ class CheckPermission
         'roles.permission_update' => 'edit_role',
 
         // Tickets
-        'tickets.index'            => 'view_ticket',
-        'tickets.create'           => 'create_ticket',
-        'tickets.store'            => 'create_ticket',
-        'tickets.show'             => 'view_ticket',
-        'tickets.reply'            => 'reply_ticket',
-        'tickets.internal_note'    => 'internal_note_ticket',
+        'tickets.index'                => 'view_ticket',
+        'tickets.create'               => 'create_ticket',
+        'tickets.store'                => 'create_ticket',
+        'tickets.show'                 => 'view_ticket',
+        'tickets.reply'                => 'reply_ticket',
+        'tickets.internal_note'        => 'internal_note_ticket',
+        'tickets.messages.store'       => 'reply_ticket',
+        'tickets.internal_notes.store' => 'internal_note_ticket',
+        'tickets.assign'               => 'edit_ticket',
+        'tickets.update_status'        => 'edit_ticket',
+        'tickets.update_priority'      => 'edit_ticket',
+        'tickets.attachments.show'     => 'view_ticket',
         'tickets.attachments.download' => 'view_ticket',
 
         // Media

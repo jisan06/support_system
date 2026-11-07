@@ -85,7 +85,7 @@
                         <a href="#" class="nav-link px-3 py-2 text-muted" title="My Tickets">
                             <i class="bx bx-receipt me-1 align-middle"></i> My Tickets
                         </a>
-                        <a href="#" class="nav-link px-3 py-2 text-muted" title="Create Ticket">
+                        <a href="{{ route('customer.tickets.create') }}" class="nav-link px-3 py-2 rounded {{ request()->routeIs('customer.tickets.*') ? 'text-primary fw-semibold bg-light' : 'text-dark' }}" title="Create Ticket">
                             <i class="bx bx-plus-circle me-1 align-middle"></i> Create Ticket
                         </a>
                     </nav>
@@ -118,6 +118,20 @@
     {{-- Main Content Area --}}
     <main class="customer-main-content">
         <div class="container">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                    <i class="bx bx-check-circle me-1 align-middle font-size-16"></i>
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                    <i class="bx bx-error-circle me-1 align-middle font-size-16"></i>
+                    {{ session('error') }}
+                </div>
+            @endif
+
             @yield('content')
         </div>
     </main>

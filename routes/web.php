@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Customer\TicketController as CustomerTicketController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,13 +39,17 @@ Route::get('lang/{locale}', function (string $locale) {
     return redirect()->back();
 })->name('lang.switch');
 
-// Customer Dashboard (Customer Account Access Only)
+// Customer Dashboard & Portal (Customer Account Access Only)
 Route::middleware(['auth', 'customer'])
     ->prefix('customer')
     ->name('customer.')
     ->group(function () {
         Route::get('/', fn () => redirect()->route('customer.dashboard'));
         Route::get('dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
+
+        // Customer Ticket Creation
+        Route::get('tickets/create', [CustomerTicketController::class, 'create'])->name('tickets.create');
+        Route::post('tickets', [CustomerTicketController::class, 'store'])->name('tickets.store');
     });
 
 // Legacy portal redirect for backwards compatibility
@@ -59,15 +64,23 @@ Route::middleware(['auth', 'demo', 'permission'])
         Route::resourceWithTrash('users', UserController::class);
         Route::resourceWithTrash('customers', CustomerController::class);
 
-        // Tickets (Support Module)
+        // Tickets (Support Module - RESTful resource & sub-resources)
         Route::get('tickets', [TicketController::class, 'index'])->name('tickets.index');
         Route::get('tickets/create', [TicketController::class, 'create'])->name('tickets.create');
         Route::post('tickets', [TicketController::class, 'store'])->name('tickets.store');
         Route::get('tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
-        Route::post('tickets/{ticket}/reply', [TicketController::class, 'storeReply'])->name('tickets.reply');
-        Route::post('tickets/{ticket}/internal-note', [TicketController::class, 'storeInternalNote'])->name('tickets.internal_note');
         Route::patch('tickets/{ticket}/status', [TicketController::class, 'updateStatus'])->name('tickets.update_status');
         Route::patch('tickets/{ticket}/priority', [TicketController::class, 'updatePriority'])->name('tickets.update_priority');
+        Route::patch('tickets/{ticket}/assign', [TicketController::class, 'assign'])->name('tickets.assign');
+
+        // Ticket Conversations (Messages & Internal Notes)
+        Route::post('tickets/{ticket}/messages', [TicketController::class, 'storeReply'])->name('tickets.messages.store');
+        Route::post('tickets/{ticket}/reply', [TicketController::class, 'storeReply'])->name('tickets.reply');
+        Route::post('tickets/{ticket}/internal-notes', [TicketController::class, 'storeInternalNote'])->name('tickets.internal_notes.store');
+        Route::post('tickets/{ticket}/internal-note', [TicketController::class, 'storeInternalNote'])->name('tickets.internal_note');
+
+        // Ticket Attachments
+        Route::get('tickets/{ticket}/messages/{message}/attachments/{media}', [TicketController::class, 'downloadAttachment'])->name('tickets.attachments.show');
         Route::get('tickets/{ticket}/messages/{message}/attachments/{media}/download', [TicketController::class, 'downloadAttachment'])->name('tickets.attachments.download');
 
         Route::get('roles/{role}/permission', [RoleController::class, 'permission'])->name('roles.permission');
@@ -106,7 +119,8 @@ Route::middleware(['auth', 'demo', 'permission'])
         Route::patch('notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark_read');
         Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark_all_read');
         Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
-        Route::post('notifications-bulk', [NotificationController::class, 'bulkDestroy'])->name('notifications.bulk_delete');
+        Route::post('notifications/bulk-delete', [NotificationController::class, 'bulkDestroy'])->name('notifications.bulk_delete');
+        Route::post('notifications-bulk', [NotificationController::class, 'bulkDestroy']);
         Route::post('notifications/send-test', [NotificationController::class, 'sendTest'])->name('notifications.send_test');
 
         Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');

@@ -85,11 +85,14 @@
         <div class="card border-0 shadow-sm" style="border-radius: 8px;">
             <div class="card-body p-4 text-center text-muted">
                 <div class="py-3">
-                    <i class="bx bx-bell font-size-36 text-primary mb-2"></i>
-                    <h5 class="text-dark fw-semibold">Need Support?</h5>
-                    <p class="mb-0 text-muted font-size-14" style="max-width: 500px; margin: 0 auto;">
-                        Your support dashboard gives you a live overview of your tickets. Ticket submission and detailed conversation history will be available soon.
+                    <i class="bx bx-support font-size-36 text-primary mb-2"></i>
+                    <h5 class="text-dark fw-semibold">Have a Question or Need Help?</h5>
+                    <p class="mb-3 text-muted font-size-14" style="max-width: 550px; margin: 0 auto;">
+                        Submit a new support ticket and our dedicated team will respond promptly within our guaranteed business hours.
                     </p>
+                    <a href="{{ route('customer.tickets.create') }}" class="btn btn-primary px-4 py-2">
+                        <i class="bx bx-plus-circle me-1 align-middle"></i> Create Support Ticket
+                    </a>
                 </div>
             </div>
         </div>

@@ -140,4 +140,19 @@ class TicketController extends Controller
         return redirect()->route('tickets.show', $ticket->id)
             ->with('success', 'Ticket priority updated and SLA recalculated.');
     }
+
+    /**
+     * Update ticket assignment (RESTful assignment transition).
+     */
+    public function assign(Request $request, Ticket $ticket): RedirectResponse
+    {
+        $validated = $request->validate([
+            'assigned_to' => 'nullable|integer|exists:users,id',
+        ]);
+
+        $ticket->update(['assigned_to' => $validated['assigned_to']]);
+
+        return redirect()->route('tickets.show', $ticket->id)
+            ->with('success', 'Ticket assignment updated successfully.');
+    }
 }
