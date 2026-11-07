@@ -344,5 +344,242 @@ class CustomerTicketListingAndDetailsTest extends TestCase
             'content'   => 'Here is my additional information regarding the account.',
         ]);
     }
+
+    /**
+     * Test 10: Search by ticket number and subject.
+     */
+    public function test_listing_searches_by_ticket_number_and_subject(): void
+    {
+        $targetNumberTicket = Ticket::create([
+            'ticket_number' => 'TCK-SPECIAL-1234',
+            'customer_id'   => $this->customer->id,
+            'subject'       => 'Generic inquiry text',
+            'status'        => 'open',
+            'priority'      => 'medium',
+            'last_reply_at' => now(),
+        ]);
+
+        $targetSubjectTicket = Ticket::create([
+            'ticket_number' => 'TCK-GENERIC-5678',
+            'customer_id'   => $this->customer->id,
+            'subject'       => 'Quantum Database Corruption Incident',
+            'status'        => 'open',
+            'priority'      => 'high',
+            'last_reply_at' => now(),
+        ]);
+
+        $unrelatedTicket = Ticket::create([
+            'ticket_number' => 'TCK-NORMAL-9999',
+            'customer_id'   => $this->customer->id,
+            'subject'       => 'Normal Routine Ticket',
+            'status'        => 'open',
+            'priority'      => 'low',
+            'last_reply_at' => now(),
+        ]);
+
+        // 1. Search by ticket number
+        $searchByNumber = $this->actingAs($this->customer)->get(route('customer.tickets.index', ['search' => 'SPECIAL-1234']));
+        $searchByNumber->assertStatus(200);
+        $searchByNumber->assertSee('TCK-SPECIAL-1234');
+        $searchByNumber->assertDontSee('Quantum Database Corruption Incident');
+        $searchByNumber->assertDontSee('Normal Routine Ticket');
+
+        // 2. Search by subject keyword
+        $searchBySubject = $this->actingAs($this->customer)->get(route('customer.tickets.index', ['search' => 'Quantum Database']));
+        $searchBySubject->assertStatus(200);
+        $searchBySubject->assertSee('Quantum Database Corruption Incident');
+        $searchBySubject->assertDontSee('TCK-SPECIAL-1234');
+        $searchBySubject->assertDontSee('Normal Routine Ticket');
+    }
+
+    /**
+     * Test 11: Filter by department.
+     */
+    public function test_listing_filters_by_department(): void
+    {
+        $billingTicket = Ticket::create([
+            'ticket_number' => 'TCK-DEPT-BILL-' . strtoupper(Str::random(3)),
+            'customer_id'   => $this->customer->id,
+            'subject'       => 'Invoice Billing Query',
+            'department'    => 'Billing & Payments',
+            'status'        => 'open',
+            'priority'      => 'medium',
+            'last_reply_at' => now(),
+        ]);
+
+        $techTicket = Ticket::create([
+            'ticket_number' => 'TCK-DEPT-TECH-' . strtoupper(Str::random(3)),
+            'customer_id'   => $this->customer->id,
+            'subject'       => 'Server Error 500 Incident',
+            'department'    => 'Technical Support',
+            'status'        => 'open',
+            'priority'      => 'high',
+            'last_reply_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->customer)->get(route('customer.tickets.index', ['department' => 'Billing & Payments']));
+        $response->assertStatus(200);
+        $response->assertSee($billingTicket->ticket_number);
+        $response->assertSee('Invoice Billing Query');
+        $response->assertDontSee($techTicket->ticket_number);
+        $response->assertDontSee('Server Error 500 Incident');
+    }
+
+    /**
+     * Test 12: Filter by date range (date_from and date_to).
+     */
+    public function test_listing_filters_by_date_range(): void
+    {
+        $oldTicket = Ticket::create([
+            'ticket_number' => 'TCK-DATE-OLD-' . strtoupper(Str::random(3)),
+            'customer_id'   => $this->customer->id,
+            'subject'       => 'Old Past Month Ticket',
+            'status'        => 'resolved',
+            'priority'      => 'low',
+            'created_at'    => now()->subDays(20),
+            'last_reply_at' => now()->subDays(20),
+        ]);
+
+        $recentTicket = Ticket::create([
+            'ticket_number' => 'TCK-DATE-RECENT-' . strtoupper(Str::random(3)),
+            'customer_id'   => $this->customer->id,
+            'subject'       => 'Recent This Week Ticket',
+            'status'        => 'open',
+            'priority'      => 'medium',
+            'created_at'    => now()->subDays(2),
+            'last_reply_at' => now()->subDays(2),
+        ]);
+
+        $response = $this->actingAs($this->customer)->get(route('customer.tickets.index', [
+            'date_from' => now()->subDays(5)->toDateString(),
+            'date_to'   => now()->toDateString(),
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSee($recentTicket->ticket_number);
+        $response->assertSee('Recent This Week Ticket');
+        $response->assertDontSee($oldTicket->ticket_number);
+        $response->assertDontSee('Old Past Month Ticket');
+    }
+
+    /**
+     * Test 13: Pagination preserves active search and filter query parameters.
+     */
+    public function test_pagination_preserves_active_filter_and_search_parameters(): void
+    {
+        for ($i = 1; $i <= 15; $i++) {
+            Ticket::create([
+                'ticket_number' => sprintf('TCK-FLT-PAG-%02d', $i),
+                'customer_id'   => $this->customer->id,
+                'subject'       => "Filtered Pagination Item {$i}",
+                'department'    => 'Technical Support',
+                'status'        => 'open',
+                'priority'      => 'high',
+                'last_reply_at' => now()->subMinutes($i),
+            ]);
+        }
+
+        $response = $this->actingAs($this->customer)->get(route('customer.tickets.index', [
+            'department' => 'Technical Support',
+            'priority'   => 'high',
+            'search'     => 'FilteredPagination',
+            'page'       => 1,
+        ]));
+
+        $response->assertStatus(200);
+        // Verify page link includes preserved query string parameters
+        $response->assertSee('priority=high');
+        $response->assertSee('search=FilteredPagination');
+        $response->assertSee('department=Technical');
+    }
+
+    /**
+     * Test 14: Customer search never reveals other customers' tickets.
+     */
+    public function test_customer_search_cannot_find_other_customers_tickets(): void
+    {
+        $otherCustomerSecretTicket = Ticket::create([
+            'ticket_number' => 'TCK-SECRET-9999',
+            'customer_id'   => $this->otherCustomer->id,
+            'subject'       => 'Super Secret Confidential Keyword',
+            'department'    => 'Billing & Payments',
+            'status'        => 'open',
+            'priority'      => 'urgent',
+            'last_reply_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->customer)->get(route('customer.tickets.index', [
+            'search' => 'TCK-SECRET-9999',
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertDontSee('Super Secret Confidential Keyword');
+        $response->assertSee('No Support Tickets Found');
+    }
+
+    /**
+     * Test 15: Validation rejects date_from greater than date_to.
+     */
+    public function test_validation_rejects_date_from_greater_than_date_to(): void
+    {
+        $response = $this->actingAs($this->customer)->get(route('customer.tickets.index', [
+            'date_from' => '2026-12-01',
+            'date_to'   => '2026-11-01',
+        ]));
+
+        $response->assertRedirect(route('customer.tickets.index'));
+        $response->assertSessionHasErrors(['date_to']);
+    }
+
+    /**
+     * Test 16: Validation rejects malformed date strings.
+     */
+    public function test_validation_rejects_malformed_date_format(): void
+    {
+        $response = $this->actingAs($this->customer)->get(route('customer.tickets.index', [
+            'date_from' => 'not-a-valid-date',
+        ]));
+
+        $response->assertRedirect(route('customer.tickets.index'));
+        $response->assertSessionHasErrors(['date_from']);
+    }
+
+    /**
+     * Test 17: Validation rejects invalid status and priority parameters.
+     */
+    public function test_validation_rejects_invalid_status_and_priority(): void
+    {
+        $invalidStatus = $this->actingAs($this->customer)->get(route('customer.tickets.index', [
+            'status' => 'arbitrary_invalid_status',
+        ]));
+        $invalidStatus->assertRedirect(route('customer.tickets.index'));
+        $invalidStatus->assertSessionHasErrors(['status']);
+
+        $invalidPriority = $this->actingAs($this->customer)->get(route('customer.tickets.index', [
+            'priority' => 'hacked_priority',
+        ]));
+        $invalidPriority->assertRedirect(route('customer.tickets.index'));
+        $invalidPriority->assertSessionHasErrors(['priority']);
+    }
+
+    /**
+     * Test 18: Repository safely handles invalid filters and preserves admin caller behavior.
+     */
+    public function test_repository_defensive_querying_and_admin_compatibility(): void
+    {
+        $repo = app(\App\Repositories\Contracts\TicketRepositoryInterface::class);
+
+        // 1. Calling with invalid status ignores the status and does not crash
+        $tickets = $repo->getTicketsForUser($this->customer, ['status' => 'unknown_hack']);
+        $this->assertInstanceOf(\Illuminate\Contracts\Pagination\LengthAwarePaginator::class, $tickets);
+
+        // 2. Calling with date_from > date_to returns empty paginator safely
+        $tickets = $repo->getTicketsForUser($this->customer, ['date_from' => '2026-12-01', 'date_to' => '2026-11-01']);
+        $this->assertEquals(0, $tickets->total());
+
+        // 3. Calling with an integer as 2nd parameter (Admin controller legacy signature) works
+        $adminTickets = $repo->getTicketsForUser($this->adminUser, 15);
+        $this->assertInstanceOf(\Illuminate\Contracts\Pagination\LengthAwarePaginator::class, $adminTickets);
+    }
 }
 

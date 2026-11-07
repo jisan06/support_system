@@ -47,16 +47,53 @@ class TicketRepository extends BaseRepository implements TicketRepositoryInterfa
             $query->where('customer_id', $user->id);
         }
 
-        if (!empty($filters['status'])) {
-            $query->where('status', $filters['status']);
+        if (!empty($filters['status']) && is_string($filters['status']) && $filters['status'] !== 'all') {
+            $allowedStatuses = ['open', 'in_progress', 'resolved', 'closed'];
+            $statusVal = strtolower(trim($filters['status']));
+            if (in_array($statusVal, $allowedStatuses, true)) {
+                $query->where('status', $statusVal);
+            }
         }
 
-        if (!empty($filters['priority'])) {
-            $query->where('priority', $filters['priority']);
+        if (!empty($filters['priority']) && is_string($filters['priority']) && $filters['priority'] !== 'all') {
+            $allowedPriorities = ['low', 'medium', 'high', 'urgent'];
+            $priorityVal = strtolower(trim($filters['priority']));
+            if (in_array($priorityVal, $allowedPriorities, true)) {
+                $query->where('priority', $priorityVal);
+            }
         }
 
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
+        if (!empty($filters['department']) && is_string($filters['department'])) {
+            $query->where('department', trim($filters['department']));
+        }
+
+        $dateFrom = $filters['date_from'] ?? $filters['start_date'] ?? null;
+        $dateTo = $filters['date_to'] ?? $filters['end_date'] ?? null;
+
+        $validDateFrom = null;
+        if (!empty($dateFrom) && is_string($dateFrom) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom) && strtotime($dateFrom) !== false) {
+            $validDateFrom = $dateFrom;
+        }
+
+        $validDateTo = null;
+        if (!empty($dateTo) && is_string($dateTo) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo) && strtotime($dateTo) !== false) {
+            $validDateTo = $dateTo;
+        }
+
+        if ($validDateFrom && $validDateTo && $validDateFrom > $validDateTo) {
+            // Impossible date range (start date greater than end date): return zero records safely
+            $query->whereRaw('1 = 0');
+        } else {
+            if ($validDateFrom) {
+                $query->whereDate('created_at', '>=', $validDateFrom);
+            }
+            if ($validDateTo) {
+                $query->whereDate('created_at', '<=', $validDateTo);
+            }
+        }
+
+        if (!empty($filters['search']) && is_string($filters['search'])) {
+            $search = trim($filters['search']);
             $query->where(function ($q) use ($search) {
                 $q->where('ticket_number', 'like', "%{$search}%")
                   ->orWhere('subject', 'like', "%{$search}%");

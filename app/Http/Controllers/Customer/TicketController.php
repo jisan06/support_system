@@ -28,15 +28,39 @@ class TicketController extends Controller
 
     /**
      * Display a listing of tickets belonging to the authenticated customer.
-     * Supports pagination and filtering by status and priority.
+     * Supports pagination, keyword search, date range, and filtering by status, priority, and department.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->query(), [
+            'status'     => ['nullable', 'string', \Illuminate\Validation\Rule::in(['all', '', 'open', 'in_progress', 'resolved', 'closed'])],
+            'priority'   => ['nullable', 'string', \Illuminate\Validation\Rule::in(['all', '', 'low', 'medium', 'high', 'urgent'])],
+            'department' => ['nullable', 'string', 'max:100'],
+            'date_from'  => ['nullable', 'date_format:Y-m-d'],
+            'date_to'    => ['nullable', 'date_format:Y-m-d', 'after_or_equal:date_from'],
+            'search'     => ['nullable', 'string', 'max:100'],
+        ], [
+            'date_to.after_or_equal' => 'The end date must be a date after or equal to the start date.',
+            'date_from.date_format'  => 'The start date format must be YYYY-MM-DD.',
+            'date_to.date_format'    => 'The end date format must be YYYY-MM-DD.',
+            'status.in'              => 'The selected ticket status is invalid.',
+            'priority.in'            => 'The selected ticket priority is invalid.',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('customer.tickets.index')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
         $customer = $request->user();
         $filters = [
-            'status'   => $request->query('status'),
-            'priority' => $request->query('priority'),
-            'search'   => $request->query('search'),
+            'status'     => $request->query('status'),
+            'priority'   => $request->query('priority'),
+            'department' => $request->query('department'),
+            'date_from'  => $request->query('date_from'),
+            'date_to'    => $request->query('date_to'),
+            'search'     => $request->query('search'),
         ];
 
         $tickets = $this->ticketService->getTicketsForUser($customer, $filters, 10);
@@ -51,7 +75,29 @@ class TicketController extends Controller
             'closed'      => Ticket::where('customer_id', $customer->id)->where('status', 'closed')->count(),
         ];
 
-        return view('customer.tickets.index', compact('tickets', 'filters', 'statusCounts'));
+        $defaultDepartments = [
+            'Technical Support',
+            'Billing & Payments',
+            'Account & Access',
+            'General Inquiry',
+        ];
+        $customDepartments = Ticket::where('customer_id', $customer->id)
+            ->whereNotNull('department')
+            ->where('department', '!=', '')
+            ->distinct()
+            ->pluck('department')
+            ->toArray();
+        $departments = array_values(array_unique(array_merge($defaultDepartments, $customDepartments)));
+        sort($departments);
+
+        $priorities = [
+            'low'    => 'Low',
+            'medium' => 'Medium',
+            'high'   => 'High',
+            'urgent' => 'Urgent',
+        ];
+
+        return view('customer.tickets.index', compact('tickets', 'filters', 'statusCounts', 'departments', 'priorities'));
     }
 
     /**

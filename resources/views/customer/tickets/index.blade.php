@@ -48,8 +48,9 @@
         background: #ffffff;
         border: 1px solid #eef2f6;
         border-radius: 12px;
-        padding: 16px 20px;
+        padding: 18px 20px;
         margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(18, 38, 63, 0.02);
     }
     .ticket-list-card {
         background: #ffffff;
@@ -148,7 +149,7 @@
             </nav>
             <h3 class="fw-bold text-dark mb-1">My Support Tickets</h3>
             <p class="text-muted mb-0 font-size-14">
-                Track, search, and manage all your submitted support requests and status updates.
+                Track, search, and filter all your support tickets and communications.
             </p>
         </div>
         <div>
@@ -188,46 +189,103 @@
     </a>
 </div>
 
-{{-- Search & Detail Filters Bar --}}
+{{-- Filter Error Messages --}}
+@if ($errors->any())
+    <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-3 p-3" role="alert">
+        <div class="d-flex align-items-center mb-1">
+            <i class="bx bx-error-circle font-size-18 me-2 text-danger"></i>
+            <span class="fw-bold font-size-13">Please correct the following filter issues:</span>
+        </div>
+        <ul class="mb-0 ps-4 font-size-12">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+{{-- Comprehensive Search & Filter Controls --}}
 <div class="filter-card">
-    <form action="{{ route('customer.tickets.index') }}" method="GET" class="row g-2 align-items-center">
+    <form action="{{ route('customer.tickets.index') }}" method="GET">
+        {{-- Preserve active status tab filter if not explicitly overridden --}}
         @if(request('status'))
             <input type="hidden" name="status" value="{{ request('status') }}">
         @endif
 
-        <div class="col-md-5">
-            <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white border-end-0 text-muted">
-                    <i class="bx bx-search font-size-14"></i>
-                </span>
-                <input type="text"
-                    name="search"
-                    value="{{ request('search') }}"
-                    class="form-control form-control-sm border-start-0"
-                    placeholder="Search by ticket # or subject..."
-                >
+        <div class="row g-2 align-items-center">
+            {{-- Search by ticket number or subject --}}
+            <div class="col-12 col-md-4 col-lg-4">
+                <label class="form-label font-size-11 text-muted fw-semibold mb-1">Search</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0 text-muted">
+                        <i class="bx bx-search font-size-14"></i>
+                    </span>
+                    <input type="text"
+                        name="search"
+                        value="{{ old('search', request('search')) }}"
+                        class="form-control form-control-sm border-start-0 @error('search') is-invalid @enderror"
+                        placeholder="Ticket # or Subject..."
+                    >
+                </div>
             </div>
-        </div>
 
-        <div class="col-md-3">
-            <select name="priority" class="form-select form-select-sm">
-                <option value="">All Priorities</option>
-                <option value="low" {{ request('priority') === 'low' ? 'selected' : '' }}>Low</option>
-                <option value="medium" {{ request('priority') === 'medium' ? 'selected' : '' }}>Medium</option>
-                <option value="high" {{ request('priority') === 'high' ? 'selected' : '' }}>High</option>
-                <option value="urgent" {{ request('priority') === 'urgent' ? 'selected' : '' }}>Urgent</option>
-            </select>
-        </div>
+            {{-- Filter by Department --}}
+            <div class="col-6 col-md-3 col-lg-3">
+                <label class="form-label font-size-11 text-muted fw-semibold mb-1">Department</label>
+                <select name="department" class="form-select form-select-sm @error('department') is-invalid @enderror">
+                    <option value="">All Departments</option>
+                    @foreach($departments as $dept)
+                        <option value="{{ $dept }}" {{ old('department', request('department')) == $dept ? 'selected' : '' }}>
+                            {{ $dept }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-        <div class="col-md-4 d-flex gap-2 justify-content-md-end">
-            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3">
-                <i class="bx bx-filter-alt me-1"></i> Apply Filter
-            </button>
-            @if(request()->hasAny(['search', 'priority', 'status']))
-                <a href="{{ route('customer.tickets.index') }}" class="btn btn-sm btn-light border rounded-pill px-3 text-muted">
-                    <i class="bx bx-reset me-1"></i> Clear
-                </a>
-            @endif
+            {{-- Filter by Priority --}}
+            <div class="col-6 col-md-2 col-lg-2">
+                <label class="form-label font-size-11 text-muted fw-semibold mb-1">Priority</label>
+                <select name="priority" class="form-select form-select-sm @error('priority') is-invalid @enderror">
+                    <option value="">All Priorities</option>
+                    @foreach($priorities as $val => $label)
+                        <option value="{{ $val }}" {{ old('priority', request('priority')) === $val ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Date Range: From & To --}}
+            <div class="col-6 col-md-3 col-lg-3">
+                <label class="form-label font-size-11 text-muted fw-semibold mb-1">Date Range</label>
+                <div class="d-flex align-items-center gap-1">
+                    <input type="date"
+                        name="date_from"
+                        value="{{ old('date_from', request('date_from')) }}"
+                        class="form-control form-control-sm @error('date_from') is-invalid @enderror"
+                        title="From Date"
+                    >
+                    <span class="text-muted font-size-11">&ndash;</span>
+                    <input type="date"
+                        name="date_to"
+                        value="{{ old('date_to', request('date_to')) }}"
+                        class="form-control form-control-sm @error('date_to') is-invalid @enderror"
+                        title="To Date"
+                    >
+                </div>
+            </div>
+
+            {{-- Filter Actions --}}
+            <div class="col-12 d-flex justify-content-end gap-2 pt-2 border-top mt-2">
+                @if(request()->hasAny(['search', 'priority', 'status', 'department', 'date_from', 'date_to']))
+                    <a href="{{ route('customer.tickets.index') }}" class="btn btn-sm btn-light border rounded-pill px-3 text-muted">
+                        <i class="bx bx-reset me-1"></i> Clear Filters
+                    </a>
+                @endif
+                <button type="submit" class="btn btn-sm btn-primary rounded-pill px-4">
+                    <i class="bx bx-filter-alt me-1"></i> Apply Filters
+                </button>
+            </div>
         </div>
     </form>
 </div>
@@ -240,7 +298,7 @@
                 {{-- Left: Ticket Details --}}
                 <div class="flex-grow-1" style="min-width: 280px;">
                     <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                        <span class="fw-bold font-size-13 text-primary">#{{ $ticket->ticket_number }}</span>
+                        <span class="fw-bold font-size-13 text-primary font-monospace">#{{ $ticket->ticket_number }}</span>
 
                         @if($ticket->department)
                             <span class="badge bg-light text-secondary border font-size-11 fw-normal">
@@ -315,15 +373,15 @@
             </div>
             <h5 class="fw-bold text-dark mb-1">No Support Tickets Found</h5>
             <p class="text-muted font-size-14 mb-3" style="max-width: 440px; margin: 0 auto;">
-                @if(request()->hasAny(['search', 'status', 'priority']))
-                    We couldn't find any tickets matching your filter criteria. Try clearing your filters.
+                @if(request()->hasAny(['search', 'status', 'priority', 'department', 'date_from', 'date_to']))
+                    We couldn't find any tickets matching your filter criteria. Try adjusting or clearing your filters.
                 @else
                     You have not submitted any support tickets yet. Need help? Our dedicated support team is ready to assist.
                 @endif
             </p>
-            @if(request()->hasAny(['search', 'status', 'priority']))
+            @if(request()->hasAny(['search', 'status', 'priority', 'department', 'date_from', 'date_to']))
                 <a href="{{ route('customer.tickets.index') }}" class="btn btn-outline-secondary rounded-pill px-4 font-size-13">
-                    <i class="bx bx-reset me-1"></i> Clear Filters
+                    <i class="bx bx-reset me-1"></i> Clear All Filters
                 </a>
             @else
                 <a href="{{ route('customer.tickets.create') }}" class="btn btn-primary rounded-pill px-4 py-2 font-size-13 fw-semibold">
@@ -333,9 +391,9 @@
         </div>
     @endforelse
 
-    {{-- Pagination --}}
+    {{-- Pagination with Preserved Filters --}}
     @if($tickets->hasPages())
-        <div class="p-3 bg-white border-top d-flex justify-content-between align-items-center">
+        <div class="p-3 bg-white border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
             <span class="font-size-12 text-muted">
                 Showing {{ $tickets->firstItem() }} to {{ $tickets->lastItem() }} of {{ $tickets->total() }} tickets
             </span>
@@ -346,4 +404,3 @@
     @endif
 </div>
 @endsection
-
