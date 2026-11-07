@@ -57,6 +57,22 @@ class User extends Authenticatable
     /**
      * Scope query to internal admin/staff accounts.
      */
+    public function scopeAdmins(Builder $query): Builder
+    {
+        return $query->where('account_type', AccountType::ADMIN->value);
+    }
+
+    /**
+     * Scope query to customer accounts.
+     */
+    public function scopeCustomers(Builder $query): Builder
+    {
+        return $query->where('account_type', AccountType::CUSTOMER->value);
+    }
+
+    /**
+     * Scope query to internal admin/staff accounts.
+     */
     public function scopeIsAdmin(Builder $query): Builder
     {
         return $query->where('account_type', AccountType::ADMIN->value);
@@ -84,6 +100,22 @@ class User extends Authenticatable
     public function isCustomer(): bool
     {
         return $this->account_type === AccountType::CUSTOMER || $this->account_type === AccountType::CUSTOMER->value;
+    }
+
+    /**
+     * Get the dashboard route name for this user account.
+     */
+    public function dashboardRoute(): string
+    {
+        return $this->isCustomer() ? 'customer.dashboard' : 'admin.dashboard';
+    }
+
+    /**
+     * Get the dashboard URL for this user account.
+     */
+    public function dashboardUrl(): string
+    {
+        return route($this->dashboardRoute());
     }
 
     /**

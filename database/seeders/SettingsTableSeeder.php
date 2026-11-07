@@ -24,22 +24,22 @@ class SettingsTableSeeder extends Seeder
                 'id' => 1,
                 'group' => 'general',
                 'key' => 'site_name',
-                'value' => 'The Admin',
+                'value' => 'TicketFlow',
                 'created_by' => 1,
                 'created_at' => '2026-03-17 11:50:58',
-                'updated_at' => '2026-03-17 11:50:58',
+                'updated_at' => '2026-11-07 10:58:24',
             ),
             1 => 
             array (
                 'id' => 2,
                 'group' => 'general',
                 'key' => 'site_tagline',
-                'value' => 'Starter Admin',
+                'value' => '24/7 SUpport',
                 'created_by' => 1,
                 'created_at' => '2026-03-17 11:50:58',
-                'updated_at' => '2026-03-17 11:50:58',
+                'updated_at' => '2026-11-07 10:58:09',
             ),
-            2 =>
+            2 => 
             array (
                 'id' => 3,
                 'group' => 'general',
@@ -49,7 +49,7 @@ class SettingsTableSeeder extends Seeder
                 'created_at' => '2026-03-17 11:50:58',
                 'updated_at' => '2026-03-17 11:50:58',
             ),
-            3 =>
+            3 => 
             array (
                 'id' => 4,
                 'group' => 'general',
@@ -59,7 +59,7 @@ class SettingsTableSeeder extends Seeder
                 'created_at' => '2026-03-17 11:50:58',
                 'updated_at' => '2026-03-17 11:50:58',
             ),
-            4 =>
+            4 => 
             array (
                 'id' => 5,
                 'group' => 'general',
@@ -69,7 +69,7 @@ class SettingsTableSeeder extends Seeder
                 'created_at' => '2026-03-17 11:50:58',
                 'updated_at' => '2026-03-17 11:50:58',
             ),
-            5 =>
+            5 => 
             array (
                 'id' => 6,
                 'group' => 'general',
@@ -138,6 +138,16 @@ class SettingsTableSeeder extends Seeder
                 'created_by' => 1,
                 'created_at' => '2026-03-17 11:50:58',
                 'updated_at' => '2026-03-17 11:50:58',
+            ),
+            12 => 
+            array (
+                'id' => 13,
+                'group' => 'general',
+                'key' => 'auth_logo_variant',
+                'value' => 'dark',
+                'created_by' => 1,
+                'created_at' => '2026-11-07 10:58:09',
+                'updated_at' => '2026-11-07 10:58:09',
             ),
         ));
         

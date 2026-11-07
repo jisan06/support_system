@@ -67,13 +67,23 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // Enforce account_type: Admin portal login strictly permits internal admin/staff accounts
-        if (! Auth::user()->isAdmin()) {
+        // Enforce status and account type
+        $user = Auth::user();
+        if ($user->status !== 'Active') {
             Auth::guard('web')->logout();
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => 'Access denied. This login is for internal staff accounts only.',
+                'email' => 'Your account is inactive. Please contact support.',
+            ]);
+        }
+
+        if (! $user->isAdmin() && ! $user->isCustomer()) {
+            Auth::guard('web')->logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Access denied. Invalid account type.',
             ]);
         }
 

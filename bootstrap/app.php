@@ -36,10 +36,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'permission' => CheckPermission::class,
             'demo' => DemoMode::class,
+            'customer' => \App\Http\Middleware\EnsureCustomerAccount::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('login'));
-        $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
+        $middleware->redirectUsersTo(fn () => auth()->user()?->dashboardUrl() ?? route('login'));
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->renderable(function (AuthorizationException $e, $request) {

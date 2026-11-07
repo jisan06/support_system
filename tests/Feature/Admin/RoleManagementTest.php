@@ -4,13 +4,13 @@ namespace Tests\Feature\Admin;
 
 use App\Models\Role;
 use App\Models\RolePermission;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 use Tests\Traits\CreatesAdminUser;
 
 class RoleManagementTest extends TestCase
 {
-    use RefreshDatabase, CreatesAdminUser;
+    use DatabaseTransactions, CreatesAdminUser;
 
     // ─── Access Control ───
 

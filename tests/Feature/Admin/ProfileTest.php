@@ -3,13 +3,13 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 use Tests\Traits\CreatesAdminUser;
 
 class ProfileTest extends TestCase
 {
-    use RefreshDatabase, CreatesAdminUser;
+    use DatabaseTransactions, CreatesAdminUser;
 
     public function test_guest_cannot_access_profile(): void
     {

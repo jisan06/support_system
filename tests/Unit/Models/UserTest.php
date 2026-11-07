@@ -5,12 +5,12 @@ namespace Tests\Unit\Models;
 use App\Models\Role;
 use App\Models\RolePermission;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class UserTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_user_has_roles_relationship(): void
     {

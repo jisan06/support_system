@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TicketController;
+use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,7 +24,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return redirect()->route('admin.dashboard');
+    if (auth()->check()) {
+        return redirect()->route(auth()->user()->dashboardRoute());
+    }
+
+    return redirect()->route('login');
 });
 
 Route::get('lang/{locale}', function (string $locale) {
@@ -32,6 +37,19 @@ Route::get('lang/{locale}', function (string $locale) {
     }
     return redirect()->back();
 })->name('lang.switch');
+
+// Customer Dashboard (Customer Account Access Only)
+Route::middleware(['auth', 'customer'])
+    ->prefix('customer')
+    ->name('customer.')
+    ->group(function () {
+        Route::get('/', fn () => redirect()->route('customer.dashboard'));
+        Route::get('dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
+    });
+
+// Legacy portal redirect for backwards compatibility
+Route::middleware(['auth', 'customer'])
+    ->get('portal', fn () => redirect()->route('customer.dashboard'));
 
 Route::middleware(['auth', 'demo', 'permission'])
     ->prefix('admin')

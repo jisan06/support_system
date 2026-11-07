@@ -44,5 +44,19 @@ class TicketRepository extends BaseRepository implements TicketRepositoryInterfa
 
         return $query->latest('last_reply_at')->latest('id')->paginate($perPage);
     }
+
+    /**
+     * Get ticket summary counts for a customer (Total, Open, Resolved).
+     *
+     * @return array{total: int, open: int, resolved: int}
+     */
+    public function getCustomerTicketCounts(User $customer): array
+    {
+        return [
+            'total'    => $this->model->newQuery()->forCustomer($customer)->count(),
+            'open'     => $this->model->newQuery()->forCustomer($customer)->where('status', 'open')->count(),
+            'resolved' => $this->model->newQuery()->forCustomer($customer)->where('status', 'resolved')->count(),
+        ];
+    }
 }
 

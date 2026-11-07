@@ -13,7 +13,7 @@
 
 ## Project Context & Configurations
 - **Framework:** Laravel 12 on Laragon (Windows)
-- **Admin Login:** `/admin/login` (named route `login`).
+- **Login:** `/login` (named route `login`).
 - **Installation Bypass:**
   - `APP_INSTALLED=true` in `.env` bypasses the installer entirely without requiring `storage/installed`.
   - `APP_INSTALLED=false` activates the web installer wizard.

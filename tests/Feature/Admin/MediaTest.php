@@ -3,7 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\Media;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -11,7 +11,7 @@ use Tests\Traits\CreatesAdminUser;
 
 class MediaTest extends TestCase
 {
-    use RefreshDatabase, CreatesAdminUser;
+    use DatabaseTransactions, CreatesAdminUser;
 
     // ─── Access Control ───
 

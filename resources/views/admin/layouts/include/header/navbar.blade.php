@@ -24,7 +24,7 @@
             <div class="navbar-brand-box">
                 <a href="{{ route('admin.dashboard') }}" class="logo logo-dark">
                     <span class="logo-sm">
-                        <img src="{{ $smallLogoUrl ?? admin_asset('images/dark_logo.svg') }}" alt="{{ $siteName }}" height="22">
+                        <img src="{{ $smallLogoUrl ?? admin_asset('images/small_logo.svg') }}" alt="{{ $siteName }}" height="22">
                     </span>
                     <span class="logo-lg">
                         <img src="{{ $logoUrl ?? admin_asset('images/dark_logo.svg') }}" alt="{{ $siteName }}" height="17">

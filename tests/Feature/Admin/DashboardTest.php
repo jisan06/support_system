@@ -3,13 +3,13 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 use Tests\Traits\CreatesAdminUser;
 
 class DashboardTest extends TestCase
 {
-    use RefreshDatabase, CreatesAdminUser;
+    use DatabaseTransactions, CreatesAdminUser;
 
     public function test_dashboard_requires_authentication(): void
     {

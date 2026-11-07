@@ -4,12 +4,12 @@ namespace Tests\Unit\Models;
 
 use App\Models\Role;
 use App\Models\RolePermission;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class RoleTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_role_has_permissions_relationship(): void
     {

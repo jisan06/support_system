@@ -28,7 +28,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     public function getActiveCustomers()
     {
-        return $this->model->isCustomer()->where('status', 'Active')->select('id', 'name')->get();
+        return $this->model->newQuery()->where('account_type', User::TYPE_CUSTOMER)->where('status', 'Active')->select('id', 'name')->get();
     }
 
     /**

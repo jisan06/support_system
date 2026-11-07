@@ -27,6 +27,8 @@ class CustomerRequest extends FormRequest
             ? $this->route('customer')->id
             : $this->route('customer');
 
+        $isCreate = $this->isMethod('POST');
+
         return [
             'name' => [
                 'required',
@@ -38,10 +40,12 @@ class CustomerRequest extends FormRequest
                 'unique:users,email,' . $userId,
             ],
             'status' => ['required', 'in:Active,Inactive'],
-            'password' => $this->isMethod('POST')
+            'password' => $isCreate
                 ? array_merge(['required'], password_rules())
                 : array_merge(['nullable'], password_rules()),
-            'password_confirm' => ['required_with:password', 'same:password'],
+            'password_confirm' => $isCreate
+                ? ['required', 'same:password']
+                : ['nullable', 'required_with:password', 'same:password'],
             'avatar_media_id' => ['nullable', 'integer', 'exists:media,id'],
         ];
     }

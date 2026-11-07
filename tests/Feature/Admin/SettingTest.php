@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Admin;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 use Tests\Traits\CreatesAdminUser;
 
 class SettingTest extends TestCase
 {
-    use RefreshDatabase, CreatesAdminUser;
+    use DatabaseTransactions, CreatesAdminUser;
 
     // ─── Access Control ───
 

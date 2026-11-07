@@ -3,12 +3,12 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_login_screen_can_be_rendered(): void
     {
@@ -19,15 +19,27 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
-        $user = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $response = $this->post('/login', [
-            'email' => $user->email,
+            'email' => $admin->email,
             'password' => 'password',
         ]);
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('admin.dashboard'));
+
+        $this->post('/logout');
+
+        $customer = User::factory()->customer()->create();
+
+        $customerResponse = $this->post('/login', [
+            'email' => $customer->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $customerResponse->assertRedirect(route('customer.dashboard'));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
@@ -49,6 +61,6 @@ class AuthenticationTest extends TestCase
         $response = $this->actingAs($user)->get('/logout');
 
         $this->assertGuest();
-        $response->assertRedirect('/');
+        $response->assertRedirect(route('login'));
     }
 }

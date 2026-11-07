@@ -19,12 +19,12 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
 
     public function find($id)
     {
-        return $this->model->isCustomer()->findOrFail($id);
+        return $this->model->newQuery()->where('account_type', User::TYPE_CUSTOMER)->findOrFail($id);
     }
 
     public function getActive()
     {
-        return $this->model->isCustomer()->where('status', 'Active')->select('id', 'name', 'email')->get();
+        return $this->model->newQuery()->where('account_type', User::TYPE_CUSTOMER)->where('status', 'Active')->select('id', 'name', 'email')->get();
     }
 
     public function create(array $data)
@@ -36,7 +36,7 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
         $data['created_by'] = $created_by;
 
         $avatarMediaId = $data['avatar_media_id'] ?? null;
-        unset($data['avatar_media_id'], $data['role_ids']);
+        unset($data['avatar_media_id'], $data['role_ids'], $data['password_confirm']);
 
         $customer = $this->model->create($data);
 
@@ -50,7 +50,7 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
         $customer = $this->find($id);
 
         $avatarMediaId = $data['avatar_media_id'] ?? null;
-        unset($data['avatar_media_id'], $data['role_ids'], $data['account_type']);
+        unset($data['avatar_media_id'], $data['role_ids'], $data['account_type'], $data['password_confirm']);
 
         if (empty($data['password'])) {
             unset($data['password']);
@@ -65,27 +65,27 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
 
     public function restore($id)
     {
-        return $this->model->withTrashed()->isCustomer()->findOrFail($id)->restore();
+        return $this->model->withTrashed()->where('account_type', User::TYPE_CUSTOMER)->findOrFail($id)->restore();
     }
 
     public function forceDelete($id)
     {
-        return $this->model->withTrashed()->isCustomer()->findOrFail($id)->forceDelete();
+        return $this->model->withTrashed()->where('account_type', User::TYPE_CUSTOMER)->findOrFail($id)->forceDelete();
     }
 
     public function bulkDelete(array $ids): int
     {
-        return $this->model->isCustomer()->whereIn('id', $ids)->delete();
+        return $this->model->newQuery()->where('account_type', User::TYPE_CUSTOMER)->whereIn('id', $ids)->delete();
     }
 
     public function bulkRestore(array $ids): int
     {
-        return $this->model->withTrashed()->isCustomer()->whereIn('id', $ids)->restore();
+        return $this->model->withTrashed()->where('account_type', User::TYPE_CUSTOMER)->whereIn('id', $ids)->restore();
     }
 
     public function bulkForceDelete(array $ids): int
     {
-        return $this->model->withTrashed()->isCustomer()->whereIn('id', $ids)->forceDelete();
+        return $this->model->withTrashed()->where('account_type', User::TYPE_CUSTOMER)->whereIn('id', $ids)->forceDelete();
     }
 
     protected function syncAvatar(User $customer, $avatarMediaId): void
