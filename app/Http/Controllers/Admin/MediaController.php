@@ -24,7 +24,8 @@ class MediaController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Media::query()->latest();
+        $privateCollections = [config('ticket.attachments.collection', 'ticket_attachments')];
+        $query = Media::query()->whereNotIn('collection', $privateCollections)->latest();
 
         if ($request->filled('collection')) {
             $query->where('collection', $request->collection);
@@ -60,6 +61,7 @@ class MediaController extends Controller
         }
 
         $collections = Media::select('collection')
+            ->whereNotIn('collection', $privateCollections)
             ->distinct()
             ->orderBy('collection')
             ->pluck('collection');

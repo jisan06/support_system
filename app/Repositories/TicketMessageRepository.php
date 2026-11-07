@@ -32,6 +32,7 @@ class TicketMessageRepository extends BaseRepository implements TicketMessageRep
                     $query->select('id', 'name', 'email', 'account_type');
                 },
                 'user.media',
+                'media',
             ])
             ->orderBy('created_at', 'asc')
             ->paginate($perPage);

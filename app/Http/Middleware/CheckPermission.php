@@ -65,6 +65,7 @@ class CheckPermission
         'tickets.show'             => 'view_ticket',
         'tickets.reply'            => 'reply_ticket',
         'tickets.internal_note'    => 'internal_note_ticket',
+        'tickets.attachments.download' => 'view_ticket',
 
         // Media
         'media.index'          => 'view_media',

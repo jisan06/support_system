@@ -3,17 +3,19 @@
 namespace App\Models;
 
 use App\Enums\TicketMessageType;
+use App\Models\Traits\HasMedia;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class TicketMessage extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, HasMedia;
 
     public const TYPE_REPLY = TicketMessageType::REPLY->value;
     public const TYPE_INTERNAL_NOTE = TicketMessageType::INTERNAL_NOTE->value;
@@ -44,6 +46,14 @@ class TicketMessage extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Attachments associated with this ticket message.
+     */
+    public function attachments(): MorphMany
+    {
+        return $this->mediaByCollection(config('ticket.attachments.collection', 'ticket_attachments'));
     }
 
     /**

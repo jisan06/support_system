@@ -144,6 +144,37 @@
                             @endif
 
                             <div class="message-content text-break" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">{{ $msg->content }}</div>
+
+                            {{-- Attachments Section --}}
+                            @if($msg->media->isNotEmpty())
+                                <div class="mt-3 pt-2 border-top {{ $isInternal ? 'border-warning border-opacity-25' : 'border-light-subtle' }}">
+                                    <div class="text-muted small fw-semibold mb-2">
+                                        <i class="bx bx-paperclip me-1"></i> Attachments ({{ $msg->media->count() }}):
+                                        @if($isInternal)
+                                            <span class="badge bg-warning text-dark font-size-11 ms-1">
+                                                <i class="bx bx-lock-alt me-1"></i> Internal Only
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach($msg->media as $media)
+                                            @php
+                                                $formattedSize = $media->size >= 1048576
+                                                    ? round($media->size / 1048576, 2) . ' MB'
+                                                    : round($media->size / 1024, 1) . ' KB';
+                                            @endphp
+                                            <a href="{{ route('tickets.attachments.download', [$ticket->id, $msg->id, $media->id]) }}"
+                                               class="btn btn-sm {{ $isInternal ? 'btn-outline-warning text-dark' : 'btn-outline-secondary' }} d-inline-flex align-items-center"
+                                               title="Download {{ $media->file_name }}">
+                                                <i class="bx bx-file me-1"></i>
+                                                <span class="text-truncate" style="max-width: 220px;">{{ $media->file_name }}</span>
+                                                <span class="badge bg-light text-muted ms-2 font-size-11">{{ $formattedSize }}</span>
+                                                <i class="bx bx-download ms-2 text-primary font-size-14"></i>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @empty
@@ -179,13 +210,23 @@
                 <div class="tab-content" id="replyTabsContent">
                     {{-- Public Reply Form --}}
                     <div class="tab-pane fade show active" id="public-reply" role="tabpanel" aria-labelledby="public-reply-tab">
-                        <form action="{{ route('tickets.reply', $ticket->id) }}" method="POST">
+                        <form action="{{ route('tickets.reply', $ticket->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <p class="text-muted small mb-2">
                                 <i class="bx bx-globe me-1"></i> This message will be sent as a public response and visible to the customer.
                             </p>
                             <div class="mb-3">
                                 <textarea name="content" rows="4" class="form-control" placeholder="Write your public reply here..." required minlength="2"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">
+                                    <i class="bx bx-paperclip me-1"></i> Attachments <span class="text-muted font-size-11">(Max {{ config('ticket.attachments.max_files', 5) }} files, up to {{ round(config('ticket.attachments.max_size_kb', 10240) / 1024) }}MB each)</span>
+                                </label>
+                                <input type="file" name="attachments[]" class="form-control" multiple
+                                       accept="{{ implode(',', array_map(fn($ext) => '.' . $ext, config('ticket.attachments.allowed_extensions', ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'zip']))) }}">
+                                <div class="form-text text-muted font-size-12">
+                                    Allowed formats: {{ strtoupper(implode(', ', config('ticket.attachments.allowed_extensions', ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'zip']))) }}
+                                </div>
                             </div>
                             <div class="d-flex justify-content-end">
                                 <button type="submit" class="btn btn-primary">
@@ -197,13 +238,23 @@
 
                     {{-- Internal Note Form --}}
                     <div class="tab-pane fade" id="internal-note" role="tabpanel" aria-labelledby="internal-note-tab">
-                        <form action="{{ route('tickets.internal_note', $ticket->id) }}" method="POST">
+                        <form action="{{ route('tickets.internal_note', $ticket->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="alert alert-warning py-2 mb-3 font-size-13">
-                                <i class="bx bx-lock-alt me-1"></i> <strong>Confidential:</strong> Internal notes are strictly visible to staff/agents. Customers will never see this message.
+                                <i class="bx bx-lock-alt me-1"></i> <strong>Confidential:</strong> Internal notes and their attachments are strictly visible to staff/agents. Customers will never see them.
                             </div>
                             <div class="mb-3">
                                 <textarea name="content" rows="4" class="form-control bg-warning bg-opacity-10 border-warning" placeholder="Write your internal staff note here..." required minlength="2"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">
+                                    <i class="bx bx-paperclip me-1"></i> Note Attachments <span class="badge bg-warning text-dark font-size-11 ms-1"><i class="bx bx-lock-alt"></i> Internal Only</span>
+                                </label>
+                                <input type="file" name="attachments[]" class="form-control bg-warning bg-opacity-10 border-warning" multiple
+                                       accept="{{ implode(',', array_map(fn($ext) => '.' . $ext, config('ticket.attachments.allowed_extensions', ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'zip']))) }}">
+                                <div class="form-text text-muted font-size-12">
+                                    Attachments added here remain strictly confidential and internal to staff.
+                                </div>
                             </div>
                             <div class="d-flex justify-content-end">
                                 <button type="submit" class="btn btn-warning text-dark fw-semibold">
@@ -218,4 +269,3 @@
     </div>
 </div>
 @endsection
-

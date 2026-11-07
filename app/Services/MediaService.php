@@ -26,22 +26,25 @@ class MediaService extends BaseService
         string $mediableType,
         int $mediableId,
         string $collection = 'default',
-        int $sortOrder = 0
+        int $sortOrder = 0,
+        ?string $disk = null,
+        ?int $userId = null
     ) {
-        $driver = $this->driverManager->driver();
-        $directory = config('media.path_prefix') . '/' . $collection;
-        $path = $driver->store($file, $directory);
+        $disk = $disk ?? $this->driverManager->driver()->getDisk();
+        $directory = config('media.path_prefix', 'media') . '/' . $collection;
+        $path = $file->store($directory, $disk);
 
         return $this->repository->create([
             'mediable_type' => $mediableType,
             'mediable_id'   => $mediableId,
             'collection'    => $collection,
             'file_name'     => $file->getClientOriginalName(),
-            'disk'          => $driver->getDisk(),
+            'disk'          => $disk,
             'path'          => $path,
             'mime_type'     => $file->getMimeType(),
             'size'          => $file->getSize(),
             'sort_order'    => $sortOrder,
+            'created_by'    => $userId ?? auth()->id(),
         ]);
     }
 
@@ -51,7 +54,7 @@ class MediaService extends BaseService
     public function delete($id)
     {
         $media = $this->repository->find($id);
-        $this->driverManager->driver()->delete($media->path);
+        \Illuminate\Support\Facades\Storage::disk($media->disk)->delete($media->path);
 
         return $media->delete();
     }

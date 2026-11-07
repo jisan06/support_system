@@ -91,14 +91,15 @@
         rulesHtml += '</ul>';
 
         wrapper.innerHTML = barHtml + labelHtml + rulesHtml;
-        input.parentNode.insertBefore(wrapper, input.nextSibling);
+        var container = input.closest('.input-group') || input;
+        container.parentNode.insertBefore(wrapper, container.nextSibling);
 
         var fill = wrapper.querySelector('.strength-fill');
         var label = wrapper.querySelector('.strength-label');
         var ruleItems = wrapper.querySelectorAll('.strength-rules li');
 
-        input.addEventListener('input', function () {
-            var password = this.value;
+        function updateStrength() {
+            var password = input.value;
 
             if (!password) {
                 wrapper.classList.remove('active');
@@ -125,6 +126,10 @@
                     ruleItems[i].className = r.pass ? 'pass' : 'fail';
                 }
             });
+        }
+
+        ['input', 'change', 'keyup'].forEach(function (evt) {
+            input.addEventListener(evt, updateStrength);
         });
     }
 

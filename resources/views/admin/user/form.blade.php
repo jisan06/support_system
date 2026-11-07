@@ -80,10 +80,16 @@
                             </div>
                         </div>
                         <div class="col-sm-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label mb-0" for="password">{{ trans('user.password') }}</label>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-primary text-decoration-none fw-semibold" id="generatePasswordBtn">
+                                    <i class="bx bx-refresh me-1 font-size-14 align-middle"></i> Generate Password
+                                </button>
+                            </div>
                             <x-form.input-password
                                 name="password"
                                 :value="''"
-                                label="{{trans('user.password')}}"
+                                label=""
                                 placeholder="{{trans('user.password_placeholder')}}"
                                 required=""
                             />
@@ -126,6 +132,7 @@
 <script src="{{ asset('backend/assets/js/media-picker.js') }}"></script>
 <script>
 $(function() {
+    // Avatar Picker
     $('#avatarPickBtn').on('click', function() {
         MediaPicker.open(function(media) {
             $('#avatarMediaId').val(media.id);
@@ -142,6 +149,75 @@ $(function() {
 
     $('#avatarPreview').on('click', function() {
         $('#avatarPickBtn').trigger('click');
+    });
+
+    // Password Generator adhering strictly to config('password') rules
+    $('#generatePasswordBtn').on('click', function(e) {
+        e.preventDefault();
+        var rules = @json(config('password'));
+        var minLength = Math.max(parseInt(rules.min_length || 8), 12);
+
+        var uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        var lowercase = 'abcdefghijkmnopqrstuvwxyz';
+        var numbers = '23456789';
+        var symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        var chars = [];
+        var allPool = '';
+
+        if (rules.uppercase !== false) {
+            chars.push(uppercase.charAt(Math.floor(Math.random() * uppercase.length)));
+            allPool += uppercase;
+        }
+        if (rules.lowercase !== false) {
+            chars.push(lowercase.charAt(Math.floor(Math.random() * lowercase.length)));
+            allPool += lowercase;
+        }
+        if (rules.numbers !== false) {
+            chars.push(numbers.charAt(Math.floor(Math.random() * numbers.length)));
+            allPool += numbers;
+        }
+        if (rules.symbols !== false) {
+            chars.push(symbols.charAt(Math.floor(Math.random() * symbols.length)));
+            allPool += symbols;
+        }
+
+        if (!allPool) {
+            allPool = uppercase + lowercase + numbers + symbols;
+        }
+
+        while (chars.length < minLength) {
+            chars.push(allPool.charAt(Math.floor(Math.random() * allPool.length)));
+        }
+
+        // Fisher-Yates Shuffle
+        for (var i = chars.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = chars[i];
+            chars[i] = chars[j];
+            chars[j] = tmp;
+        }
+
+        var generatedPassword = chars.join('');
+
+        var passEl = document.getElementById('password');
+        var confirmEl = document.getElementById('password_confirm');
+
+        if (passEl) {
+            passEl.value = generatedPassword;
+            passEl.type = 'text';
+            passEl.dispatchEvent(new Event('input', { bubbles: true }));
+            passEl.dispatchEvent(new Event('change', { bubbles: true }));
+            $('.toggle-password-btn[data-target="#password"] i').removeClass('bx-show').addClass('bx-hide');
+        }
+
+        if (confirmEl) {
+            confirmEl.value = generatedPassword;
+            confirmEl.type = 'text';
+            confirmEl.dispatchEvent(new Event('input', { bubbles: true }));
+            confirmEl.dispatchEvent(new Event('change', { bubbles: true }));
+            $('.toggle-password-btn[data-target="#password_confirm"] i').removeClass('bx-show').addClass('bx-hide');
+        }
     });
 });
 </script>

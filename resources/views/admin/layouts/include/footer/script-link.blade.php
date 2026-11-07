@@ -44,5 +44,22 @@
         }
         $('.dataTable').on('draw.dt', initTooltips);
         initTooltips();
+
+        // Global Password Visibility Toggle
+        $(document).off('click', '.toggle-password-btn').on('click', '.toggle-password-btn', function (e) {
+            e.preventDefault();
+            var $btn = $(this);
+            var targetSelector = $btn.data('target');
+            var $input = targetSelector ? $(targetSelector) : $btn.closest('.input-group').find('input');
+            var $icon = $btn.find('i');
+
+            if ($input.attr('type') === 'password') {
+                $input.attr('type', 'text');
+                $icon.removeClass('bx-show').addClass('bx-hide');
+            } else {
+                $input.attr('type', 'password');
+                $icon.removeClass('bx-hide').addClass('bx-show');
+            }
+        });
     })
 </script>

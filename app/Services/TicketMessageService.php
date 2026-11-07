@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\TicketMessageType;
+use App\Models\Media;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
 use App\Models\User;
@@ -11,19 +12,26 @@ use App\Repositories\Contracts\TicketRepositoryInterface;
 use App\Services\Traits\SoftDeleteTrait;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 class TicketMessageService extends BaseService
 {
     use SoftDeleteTrait;
 
     protected TicketRepositoryInterface $ticketRepository;
+    protected MediaService $mediaService;
 
     public function __construct(
         TicketMessageRepositoryInterface $repository,
-        TicketRepositoryInterface $ticketRepository
+        TicketRepositoryInterface $ticketRepository,
+        MediaService $mediaService
     ) {
         parent::__construct($repository);
         $this->ticketRepository = $ticketRepository;
+        $this->mediaService = $mediaService;
     }
 
     /**
@@ -40,20 +48,26 @@ class TicketMessageService extends BaseService
     }
 
     /**
-     * Add a public reply to the ticket.
+     * Add a public reply to the ticket with optional attachments.
      *
+     * @param array<UploadedFile> $attachments
      * @throws AuthorizationException
+     * @throws Throwable
      */
-    public function addReply(Ticket $ticket, User $sender, string $content): TicketMessage
+    public function addReply(Ticket $ticket, User $sender, string $content, array $attachments = []): TicketMessage
     {
         $this->authorizeTicketAccess($ticket, $sender);
 
-        return $this->transaction(function () use ($ticket, $sender, $content) {
+        return $this->transaction(function () use ($ticket, $sender, $content, $attachments) {
             $message = $this->repository->createMessage($ticket, [
                 'user_id' => $sender->id,
                 'type'    => TicketMessageType::REPLY->value,
                 'content' => $content,
             ]);
+
+            if (!empty($attachments)) {
+                $this->storeAttachments($message, $attachments, $sender);
+            }
 
             $ticket->update(['last_reply_at' => now()]);
 
@@ -62,25 +76,109 @@ class TicketMessageService extends BaseService
     }
 
     /**
-     * Add an internal note to the ticket.
+     * Add an internal note to the ticket with optional attachments.
      * Customers are strictly prohibited from creating internal notes.
      *
+     * @param array<UploadedFile> $attachments
      * @throws AuthorizationException
+     * @throws Throwable
      */
-    public function addInternalNote(Ticket $ticket, User $sender, string $content): TicketMessage
+    public function addInternalNote(Ticket $ticket, User $sender, string $content, array $attachments = []): TicketMessage
     {
         // Enforce account_type: Only internal staff can add internal notes
         if (!$sender->isAdmin()) {
             throw new AuthorizationException('Customers are not permitted to create internal notes.');
         }
 
-        return $this->transaction(function () use ($ticket, $sender, $content) {
-            return $this->repository->createMessage($ticket, [
+        return $this->transaction(function () use ($ticket, $sender, $content, $attachments) {
+            $message = $this->repository->createMessage($ticket, [
                 'user_id' => $sender->id,
                 'type'    => TicketMessageType::INTERNAL_NOTE->value,
                 'content' => $content,
             ]);
+
+            if (!empty($attachments)) {
+                $this->storeAttachments($message, $attachments, $sender);
+            }
+
+            return $message;
         });
+    }
+
+    /**
+     * Securely store attachments for a ticket message on a non-public storage disk.
+     * Ensures clean rollback and file deletion on failure to avoid orphaned files.
+     *
+     * @param array<UploadedFile> $attachments
+     * @throws Throwable
+     */
+    protected function storeAttachments(TicketMessage $message, array $attachments, User $sender): void
+    {
+        $storedMedia = [];
+        $disk = config('ticket.attachments.disk', 'local');
+        $collection = config('ticket.attachments.collection', 'ticket_attachments');
+
+        try {
+            foreach ($attachments as $index => $file) {
+                if ($file instanceof UploadedFile && $file->isValid()) {
+                    $media = $this->mediaService->upload(
+                        $file,
+                        TicketMessage::class,
+                        $message->id,
+                        $collection,
+                        $index,
+                        $disk,
+                        $sender->id
+                    );
+                    $storedMedia[] = $media;
+                }
+            }
+        } catch (Throwable $e) {
+            // Delete any physical files stored during this failed attempt
+            foreach ($storedMedia as $media) {
+                Storage::disk($media->disk)->delete($media->path);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Securely download an attachment associated with a ticket message.
+     *
+     * @throws AuthorizationException
+     */
+    public function downloadAttachment(Ticket $ticket, TicketMessage $message, Media $media, User $user): StreamedResponse
+    {
+        // 1. Structural integrity check: message must belong to ticket
+        if ((int) $message->ticket_id !== (int) $ticket->id) {
+            throw new AuthorizationException('Message does not belong to the requested ticket.');
+        }
+
+        // 2. Structural integrity check: media must belong to message
+        if ($media->mediable_type !== TicketMessage::class || (int) $media->mediable_id !== (int) $message->id) {
+            throw new AuthorizationException('Attachment does not belong to the requested message.');
+        }
+
+        // 3. User authorization:
+        // Customers can ONLY download attachments from their OWN tickets AND NEVER from internal notes
+        if ($user->isCustomer()) {
+            if ((int) $ticket->customer_id !== (int) $user->id) {
+                throw new AuthorizationException('You are not authorized to access attachments from another customer\'s ticket.');
+            }
+
+            if ($message->isInternalNote()) {
+                throw new AuthorizationException('Customers are not permitted to access internal note attachments.');
+            }
+        }
+
+        // 4. File existence verification on disk
+        $disk = $media->disk;
+        if (!Storage::disk($disk)->exists($media->path)) {
+            abort(404, 'Attachment file not found.');
+        }
+
+        // 5. Secure streamed download response
+        return Storage::disk($disk)->download($media->path, $media->file_name);
     }
 
     /**
@@ -95,4 +193,3 @@ class TicketMessageService extends BaseService
         }
     }
 }
-
