@@ -21,9 +21,9 @@ interface TicketRepositoryInterface extends BaseRepositoryInterface
     public function getTicketsForUser(User $user, array|int $filters = [], int $perPage = 15): LengthAwarePaginator;
 
     /**
-     * Get ticket summary counts for a customer (Total, Open, Resolved).
+     * Get ticket summary counts for a customer (Total, Open, In Progress, Resolved, Closed).
      *
-     * @return array{total: int, open: int, resolved: int}
+     * @return array{total: int, open: int, in_progress: int, resolved: int, closed: int}
      */
     public function getCustomerTicketCounts(User $customer): array;
 }

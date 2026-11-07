@@ -129,18 +129,22 @@ class CustomerPortalTest extends TestCase
         $response1 = $this->actingAs($this->customer)->get(route('customer.dashboard'));
         $response1->assertStatus(200);
         $response1->assertViewHas('counts', [
-            'total'    => 3,
-            'open'     => 2,
-            'resolved' => 1,
+            'total'       => 3,
+            'open'        => 2,
+            'in_progress' => 0,
+            'resolved'    => 1,
+            'closed'      => 0,
         ]);
 
         // Customer 2 view
         $response2 = $this->actingAs($this->otherCustomer)->get(route('customer.dashboard'));
         $response2->assertStatus(200);
         $response2->assertViewHas('counts', [
-            'total'    => 5,
-            'open'     => 4,
-            'resolved' => 1,
+            'total'       => 5,
+            'open'        => 4,
+            'in_progress' => 0,
+            'resolved'    => 1,
+            'closed'      => 0,
         ]);
     }
 

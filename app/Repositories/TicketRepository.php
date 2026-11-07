@@ -104,16 +104,30 @@ class TicketRepository extends BaseRepository implements TicketRepositoryInterfa
     }
 
     /**
-     * Get ticket summary counts for a customer (Total, Open, Resolved).
+     * Get ticket summary counts for a customer (Total, Open, In Progress, Resolved, Closed).
+     * Uses a single aggregated database-level query for optimal performance.
      *
-     * @return array{total: int, open: int, resolved: int}
+     * @return array{total: int, open: int, in_progress: int, resolved: int, closed: int}
      */
     public function getCustomerTicketCounts(User $customer): array
     {
+        $counts = $this->model->newQuery()
+            ->forCustomer($customer)
+            ->selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN status = 'open' THEN 1 END) as `open`,
+                COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as `in_progress`,
+                COUNT(CASE WHEN status = 'resolved' THEN 1 END) as `resolved`,
+                COUNT(CASE WHEN status = 'closed' THEN 1 END) as `closed`
+            ")
+            ->first();
+
         return [
-            'total'    => $this->model->newQuery()->forCustomer($customer)->count(),
-            'open'     => $this->model->newQuery()->forCustomer($customer)->where('status', 'open')->count(),
-            'resolved' => $this->model->newQuery()->forCustomer($customer)->where('status', 'resolved')->count(),
+            'total'       => (int) ($counts->total ?? 0),
+            'open'        => (int) ($counts->open ?? 0),
+            'in_progress' => (int) ($counts->in_progress ?? 0),
+            'resolved'    => (int) ($counts->resolved ?? 0),
+            'closed'      => (int) ($counts->closed ?? 0),
         ];
     }
 }
