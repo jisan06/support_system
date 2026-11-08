@@ -113,5 +113,53 @@ class Ticket extends Model
     {
         return app(\App\Services\SlaService::class)->getOverallStatus($this);
     }
+
+    /**
+     * Convert a datetime to the configured business timezone.
+     */
+    public function toBusinessTimezone(?\Carbon\Carbon $date): ?\Carbon\Carbon
+    {
+        return to_business_timezone($date);
+    }
+
+    /**
+     * Get created_at in configured business timezone.
+     */
+    public function getCreatedAtBusinessAttribute(): ?\Carbon\Carbon
+    {
+        return to_business_timezone($this->created_at);
+    }
+
+    /**
+     * Get first_response_due_at in configured business timezone.
+     */
+    public function getFirstResponseDueAtBusinessAttribute(): ?\Carbon\Carbon
+    {
+        return to_business_timezone($this->first_response_due_at);
+    }
+
+    /**
+     * Get resolution_due_at in configured business timezone.
+     */
+    public function getResolutionDueAtBusinessAttribute(): ?\Carbon\Carbon
+    {
+        return to_business_timezone($this->resolution_due_at);
+    }
+
+    /**
+     * Get first_responded_at in configured business timezone.
+     */
+    public function getFirstRespondedAtBusinessAttribute(): ?\Carbon\Carbon
+    {
+        return to_business_timezone($this->first_responded_at);
+    }
+
+    /**
+     * Get resolved_at in configured business timezone.
+     */
+    public function getResolvedAtBusinessAttribute(): ?\Carbon\Carbon
+    {
+        return to_business_timezone($this->resolved_at);
+    }
 }
 

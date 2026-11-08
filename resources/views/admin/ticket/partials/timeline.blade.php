@@ -18,7 +18,7 @@
                             {{ $activity->description }}
                         </div>
                         <div class="text-muted small">
-                            {{ $activity->created_at->format('M d, Y h:i A') }}
+                            {{ format_datetime($activity->created_at) }}
                         </div>
                         @if(!empty($activity->properties) && $activity->properties->count())
                             <div class="mt-2">

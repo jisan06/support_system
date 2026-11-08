@@ -196,7 +196,7 @@
                                     </td>
                                     <td>{{ $import->uploader?->name ?? 'System' }}</td>
                                     <td class="text-muted font-size-12">
-                                        {{ $import->created_at->format('M d, Y H:i') }}
+                                        {{ format_datetime($import->created_at, 'M d, Y H:i') }}
                                     </td>
                                     <td>
                                         @php

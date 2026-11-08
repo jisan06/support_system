@@ -13,7 +13,7 @@ class BusinessHoursService
      */
     public function getTimezone(?string $override = null): string
     {
-        $tz = $override ?? setting('business_timezone', config('app.timezone', 'UTC'));
+        $tz = $override ?: setting('business_timezone') ?: setting('timezone') ?: config('app.timezone', 'UTC');
 
         if (!in_array($tz, DateTimeZone::listIdentifiers(), true)) {
             throw new InvalidArgumentException("Invalid business timezone [{$tz}].");

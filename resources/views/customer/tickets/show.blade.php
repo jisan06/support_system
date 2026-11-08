@@ -62,7 +62,7 @@
 
             <h4 class="fw-bold text-dark mb-1">{{ $ticket->subject }}</h4>
             <div class="font-size-12 text-muted">
-                <span><i class="bx bx-calendar me-1"></i>Created {{ $ticket->created_at->format('M d, Y \a\t h:i A') }}</span>
+                <span><i class="bx bx-calendar me-1"></i>Created {{ format_datetime($ticket->created_at, 'M d, Y \a\t h:i A') }}</span>
                 <span class="mx-2">&bull;</span>
                 <span><i class="bx bx-time me-1"></i>Last active {{ $ticket->last_reply_at ? $ticket->last_reply_at->diffForHumans() : $ticket->created_at->diffForHumans() }}</span>
             </div>
@@ -116,7 +116,7 @@
                                         Support Team
                                     </span>
                                 @endif
-                                <span>&bull; {{ $message->created_at->format('h:i A') }} ({{ $message->created_at->diffForHumans() }})</span>
+                                <span>&bull; {{ format_datetime($message->created_at, 'h:i A') }} ({{ $message->created_at->diffForHumans() }})</span>
                             </div>
 
                             {{-- Compact Chat Bubble (Tightly Wraps Content) --}}
@@ -265,7 +265,7 @@
 
             <div class="sidebar-prop-row">
                 <span class="sidebar-prop-label">Submitted</span>
-                <span class="sidebar-prop-val">{{ $ticket->created_at->format('M d, Y') }}</span>
+                <span class="sidebar-prop-val">{{ format_datetime($ticket->created_at, 'M d, Y') }}</span>
             </div>
 
             <div class="sidebar-prop-row">
@@ -308,28 +308,28 @@
             @if($ticket->first_response_due_at)
                 <div class="sidebar-prop-row">
                     <span class="sidebar-prop-label">First Response Due</span>
-                    <span class="sidebar-prop-val font-size-12">{{ $ticket->first_response_due_at->format('M d, Y h:i A') }}</span>
+                    <span class="sidebar-prop-val font-size-12">{{ format_datetime($ticket->first_response_due_at) }}</span>
                 </div>
             @endif
 
             @if($ticket->first_responded_at)
                 <div class="sidebar-prop-row">
                     <span class="sidebar-prop-label">First Responded</span>
-                    <span class="sidebar-prop-val font-size-12 text-success">{{ $ticket->first_responded_at->format('M d, Y h:i A') }}</span>
+                    <span class="sidebar-prop-val font-size-12 text-success">{{ format_datetime($ticket->first_responded_at) }}</span>
                 </div>
             @endif
 
             @if($ticket->resolution_due_at)
                 <div class="sidebar-prop-row">
                     <span class="sidebar-prop-label">Resolution Due</span>
-                    <span class="sidebar-prop-val font-size-12">{{ $ticket->resolution_due_at->format('M d, Y h:i A') }}</span>
+                    <span class="sidebar-prop-val font-size-12">{{ format_datetime($ticket->resolution_due_at) }}</span>
                 </div>
             @endif
 
             @if($ticket->resolved_at)
                 <div class="sidebar-prop-row">
                     <span class="sidebar-prop-label">Resolved Date</span>
-                    <span class="sidebar-prop-val font-size-12 text-success">{{ $ticket->resolved_at->format('M d, Y h:i A') }}</span>
+                    <span class="sidebar-prop-val font-size-12 text-success">{{ format_datetime($ticket->resolved_at) }}</span>
                 </div>
             @endif
         </div>

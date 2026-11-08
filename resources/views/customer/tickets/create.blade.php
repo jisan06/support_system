@@ -255,6 +255,61 @@
         </div>
 
         {{-- SLA / Response Guarantee Card --}}
+        @php
+            $rawDays = (string) setting('business_working_days', '1,2,3,4,5');
+            $daysMap = [
+                '1,2,3,4,5'     => 'Mon – Fri',
+                '0,1,2,3,4'     => 'Sun – Thu',
+                '1,2,3,4,5,6'   => 'Mon – Sat',
+                '0,1,2,3,4,5,6' => 'Every Day',
+            ];
+
+            if (isset($daysMap[$rawDays])) {
+                $daysLabel = $daysMap[$rawDays];
+            } else {
+                $dayNames = [0 => 'Sun', 1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat', 7 => 'Sun'];
+                $parts = array_filter(array_map('trim', explode(',', $rawDays)), 'strlen');
+                $parsedDays = array_map(fn($d) => $dayNames[(int)$d] ?? $d, $parts);
+                $daysLabel = !empty($parsedDays) ? implode(', ', $parsedDays) : 'Mon – Fri';
+            }
+
+            $startTime = setting('business_start_time', '09:00');
+            $endTime = setting('business_end_time', '17:00');
+            try {
+                $startFormatted = \Carbon\Carbon::parse($startTime)->format('g:i A');
+            } catch (\Throwable $e) {
+                $startFormatted = '9:00 AM';
+            }
+            try {
+                $endFormatted = \Carbon\Carbon::parse($endTime)->format('g:i A');
+            } catch (\Throwable $e) {
+                $endFormatted = '5:00 PM';
+            }
+
+            $urgentFr = (int) setting('sla_urgent_first_response', 60);
+            $highFr = (int) setting('sla_high_first_response', 120);
+
+            $formatMins = function(int $minutes): string {
+                if ($minutes < 60) {
+                    return $minutes . ' ' . ($minutes === 1 ? 'Min' : 'Mins');
+                }
+                if ($minutes % 60 === 0) {
+                    $h = $minutes / 60;
+                    return $h . ' ' . ($h === 1 ? 'Hour' : 'Hours');
+                }
+                return round($minutes / 60, 1) . ' Hours';
+            };
+
+            if ($urgentFr === $highFr) {
+                $firstResponseText = 'Within ' . $formatMins($urgentFr);
+            } elseif ($urgentFr % 60 === 0 && $highFr % 60 === 0) {
+                $firstResponseText = 'Within ' . ($urgentFr / 60) . '–' . ($highFr / 60) . ' Hours';
+            } else {
+                $firstResponseText = 'Within ' . $formatMins($urgentFr) . ' – ' . $formatMins($highFr);
+            }
+
+            $urgentText = $urgentFr > 0 ? 'Within ' . $formatMins($urgentFr) : 'High Priority Queue';
+        @endphp
         <div class="help-sidebar-card">
             <div class="d-flex align-items-center gap-2 mb-3">
                 <div class="help-sidebar-icon bg-primary bg-opacity-10 text-primary">
@@ -273,15 +328,15 @@
             <div class="p-3 rounded-3 bg-light border font-size-12 text-muted">
                 <div class="d-flex justify-content-between mb-1">
                     <span class="text-dark fw-medium">Hours:</span>
-                    <span>Mon &ndash; Fri, 9:00 AM &ndash; 6:00 PM</span>
+                    <span class="text-end">{{ $daysLabel }}, {{ $startFormatted }} &ndash; {{ $endFormatted }}</span>
                 </div>
                 <div class="d-flex justify-content-between mb-1">
                     <span class="text-dark fw-medium">First Response:</span>
-                    <span class="text-success fw-semibold">Within 1&ndash;2 Hours</span>
+                    <span class="text-success fw-semibold text-end">{{ $firstResponseText }}</span>
                 </div>
                 <div class="d-flex justify-content-between">
                     <span class="text-dark fw-medium">Urgent Issues:</span>
-                    <span class="text-danger fw-semibold">High Priority Queue</span>
+                    <span class="text-danger fw-semibold text-end">{{ $urgentText }}</span>
                 </div>
             </div>
         </div>

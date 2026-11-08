@@ -224,7 +224,7 @@
                     {{-- Metadata Footer --}}
                     <div class="d-flex flex-wrap align-items-center gap-3 font-size-12 text-muted">
                         <span>
-                            <i class="bx bx-calendar me-1"></i>Created {{ $ticket->created_at->format('M d, Y \a\t h:i A') }}
+                            <i class="bx bx-calendar me-1"></i>Created {{ format_datetime($ticket->created_at, 'M d, Y \a\t h:i A') }}
                         </span>
                         <span>
                             <i class="bx bx-time me-1"></i>Last activity: {{ $ticket->last_reply_at ? $ticket->last_reply_at->diffForHumans() : $ticket->created_at->diffForHumans() }}

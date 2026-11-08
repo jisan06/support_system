@@ -67,3 +67,58 @@ if (!function_exists('setting')) {
         return app(\App\Services\SettingService::class)->get($key, $default);
     }
 }
+
+if (!function_exists('business_timezone')) {
+    /**
+     * Get the configured business / display timezone.
+     *
+     * @return string
+     */
+    function business_timezone(): string
+    {
+        $tz = setting('business_timezone') ?: setting('timezone') ?: config('app.timezone', 'UTC');
+
+        return in_array($tz, \DateTimeZone::listIdentifiers(), true) ? $tz : config('app.timezone', 'UTC');
+    }
+}
+
+if (!function_exists('to_business_timezone')) {
+    /**
+     * Convert a Carbon/datetime to the configured business timezone.
+     *
+     * @param  \Carbon\Carbon|\DateTimeInterface|string|null  $date
+     * @return \Carbon\Carbon|null
+     */
+    function to_business_timezone($date): ?\Carbon\Carbon
+    {
+        if (!$date) {
+            return null;
+        }
+
+        if ($date instanceof \Carbon\Carbon) {
+            $carbon = $date->copy();
+        } elseif ($date instanceof \DateTimeInterface) {
+            $carbon = \Carbon\Carbon::instance($date);
+        } else {
+            $carbon = \Carbon\Carbon::parse($date, config('app.timezone', 'UTC'));
+        }
+
+        return $carbon->setTimezone(business_timezone());
+    }
+}
+
+if (!function_exists('format_datetime')) {
+    /**
+     * Format a Carbon/datetime in the configured business timezone.
+     *
+     * @param  \Carbon\Carbon|\DateTimeInterface|string|null  $date
+     * @param  string  $format
+     * @return string
+     */
+    function format_datetime($date, string $format = 'M d, Y h:i A'): string
+    {
+        $converted = to_business_timezone($date);
+
+        return $converted ? $converted->format($format) : '';
+    }
+}

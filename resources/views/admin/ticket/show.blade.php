@@ -247,7 +247,7 @@
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                         <span class="text-muted">Created</span>
-                        <span>{{ $ticket->created_at->format('M d, Y h:i A') }}</span>
+                        <span>{{ format_datetime($ticket->created_at) }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                         <span class="text-muted">SLA Status</span>
@@ -266,9 +266,9 @@
                         </div>
                         <div class="font-size-12 text-muted">
                             @if($ticket->first_responded_at)
-                                <i class="bx bx-check me-1 text-success"></i> Responded {{ $ticket->first_responded_at->format('M d, Y h:i A') }}
+                                <i class="bx bx-check me-1 text-success"></i> Responded {{ format_datetime($ticket->first_responded_at) }}
                             @elseif($ticket->first_response_due_at)
-                                <i class="bx bx-time-five me-1"></i> Due {{ $ticket->first_response_due_at->format('M d, Y h:i A') }}
+                                <i class="bx bx-time-five me-1"></i> Due {{ format_datetime($ticket->first_response_due_at) }}
                             @else
                                 <span>No target</span>
                             @endif
@@ -281,9 +281,9 @@
                         </div>
                         <div class="font-size-12 text-muted">
                             @if($ticket->resolved_at)
-                                <i class="bx bx-check me-1 text-success"></i> Resolved {{ $ticket->resolved_at->format('M d, Y h:i A') }}
+                                <i class="bx bx-check me-1 text-success"></i> Resolved {{ format_datetime($ticket->resolved_at) }}
                             @elseif($ticket->resolution_due_at)
-                                <i class="bx bx-time-five me-1"></i> Due {{ $ticket->resolution_due_at->format('M d, Y h:i A') }}
+                                <i class="bx bx-time-five me-1"></i> Due {{ format_datetime($ticket->resolution_due_at) }}
                             @else
                                 <span>No target</span>
                             @endif
@@ -299,7 +299,7 @@
                                 <li class="mb-2 pb-1 border-bottom">
                                     <div class="d-flex justify-content-between">
                                         <span class="fw-semibold text-danger">Level {{ $esc->level }}</span>
-                                        <small class="text-muted">{{ $esc->created_at->format('M d, H:i') }}</small>
+                                        <small class="text-muted">{{ format_datetime($esc->created_at, 'M d, H:i') }}</small>
                                     </div>
                                     <div class="text-muted">{{ ucwords(str_replace('_', ' ', $esc->trigger_reason)) }}</div>
                                     @if($esc->new_assigned_to && $esc->new_assigned_to !== $esc->previous_assigned_to)
@@ -392,7 +392,7 @@
                                         @endif
                                     </div>
                                     <span class="text-muted font-size-11">
-                                        <i class="bx bx-time-five me-1"></i>{{ $msg->created_at->format('M d, Y h:i A') }}
+                                        <i class="bx bx-time-five me-1"></i>{{ format_datetime($msg->created_at) }}
                                         <small>({{ $msg->created_at->diffForHumans() }})</small>
                                     </span>
                                 </div>

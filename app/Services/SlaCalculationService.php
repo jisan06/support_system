@@ -50,7 +50,7 @@ class SlaCalculationService
 
         // Convert start time to the business timezone
         $startCarbon = is_string($startTime)
-            ? Carbon::parse($startTime, $tz)
+            ? Carbon::parse($startTime, config('app.timezone', 'UTC'))->setTimezone($tz)
             : $startTime->copy()->setTimezone($tz);
 
         // If duration is 0, advance to valid working moment and return
