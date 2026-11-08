@@ -8,6 +8,10 @@
             <x-table.header
                 :title="trans_choice('menu.ticket', 2)"
                 icon="bx bx-support"
+                :tabs="[
+                    ['label' => 'All Tickets', 'route' => 'tickets.index', 'icon' => 'bx bx-list-ul'],
+                    ['label' => 'Import Tickets', 'route' => 'tickets.import.index', 'icon' => 'bx bx-upload', 'permission' => 'create_ticket'],
+                ]"
                 :add-button="['label'=> __('permission.create_ticket'), 'route'=>'tickets.create', 'icon'=>'fas fa-plus-circle', 'permission' => 'create_ticket']"
             />
 

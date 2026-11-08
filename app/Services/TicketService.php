@@ -65,14 +65,17 @@ class TicketService extends BaseService
         return $this->transaction(function () use ($data, $creator, $attachments, $mediaIds) {
             $ticketNumber = $this->generateTicketNumber();
 
+            $initialStatus = !empty($data['status']) ? strtolower(trim($data['status'])) : 'open';
+
             $ticket = $this->repository->create([
                 'ticket_number' => $ticketNumber,
                 'customer_id'   => $data['customer_id'],
                 'assigned_to'   => $data['assigned_to'] ?? null,
                 'subject'       => $data['subject'],
-                'status'        => 'open',
+                'status'        => $initialStatus,
                 'priority'      => $data['priority'] ?? 'medium',
                 'department'    => $data['department'] ?? null,
+                'resolved_at'   => $initialStatus === 'resolved' ? now() : null,
                 'last_reply_at' => now(),
             ]);
 

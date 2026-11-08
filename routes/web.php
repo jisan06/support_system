@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TicketController;
+use App\Http\Controllers\Admin\TicketImportController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\NotificationController as CustomerNotificationController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
@@ -85,6 +86,14 @@ Route::middleware(['auth', 'demo', 'permission'])
         Route::get('tickets', [TicketController::class, 'index'])->name('tickets.index');
         Route::get('tickets/create', [TicketController::class, 'create'])->name('tickets.create');
         Route::post('tickets', [TicketController::class, 'store'])->name('tickets.store');
+
+        // Ticket CSV Import
+        Route::get('tickets/import', [TicketImportController::class, 'index'])->name('tickets.import.index');
+        Route::post('tickets/import', [TicketImportController::class, 'store'])->name('tickets.import.store');
+        Route::get('tickets/import/template', [TicketImportController::class, 'downloadTemplate'])->name('tickets.import.template');
+        Route::get('tickets/import/{ticketImport}/errors', [TicketImportController::class, 'downloadErrors'])->name('tickets.import.errors');
+        Route::get('tickets/import/{ticketImport}/status', [TicketImportController::class, 'status'])->name('tickets.import.status');
+
         Route::get('tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
         Route::patch('tickets/{ticket}/status', [TicketController::class, 'updateStatus'])->name('tickets.update_status');
         Route::patch('tickets/{ticket}/priority', [TicketController::class, 'updatePriority'])->name('tickets.update_priority');

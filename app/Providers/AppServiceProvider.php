@@ -7,6 +7,7 @@ use App\Repositories\Contracts\ActivityLogRepositoryInterface;
 use App\Repositories\Contracts\MediaRepositoryInterface;
 use App\Repositories\Contracts\RoleRepositoryInterface;
 use App\Repositories\Contracts\SettingRepositoryInterface;
+use App\Repositories\Contracts\TicketImportRepositoryInterface;
 use App\Repositories\Contracts\TicketMessageRepositoryInterface;
 use App\Repositories\Contracts\TicketRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
@@ -14,6 +15,7 @@ use App\Repositories\ActivityLogRepository;
 use App\Repositories\MediaRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\SettingRepository;
+use App\Repositories\TicketImportRepository;
 use App\Repositories\TicketMessageRepository;
 use App\Repositories\TicketRepository;
 use App\Repositories\UserRepository;
@@ -34,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(SettingRepositoryInterface::class, SettingRepository::class);
         $this->app->bind(TicketRepositoryInterface::class, TicketRepository::class);
         $this->app->bind(TicketMessageRepositoryInterface::class, TicketMessageRepository::class);
+        $this->app->bind(TicketImportRepositoryInterface::class, TicketImportRepository::class);
         $this->app->singleton(MediaDriverManager::class);
     }
 

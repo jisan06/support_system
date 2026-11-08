@@ -119,6 +119,14 @@ use App\Services\BreadcrumbsManager;
         ['label' => trans('permission.create_ticket'), 'route' => null],
     ]);
 
+    // Tickets import
+    BreadcrumbsManager::for('tickets.import.index', [
+        ['label' => trans('menu.admin_dashboard', [], null) !== 'menu.admin_dashboard' ? trans('menu.admin_dashboard') : 'Admin Dashboard', 'route' => 'admin.dashboard'],
+        ['label' => trans('menu.support'), 'route' => null],
+        ['label' => trans_choice('menu.ticket', 2), 'route' => 'tickets.index'],
+        ['label' => 'Import Tickets', 'route' => null],
+    ]);
+
     // Tickets show (dynamic)
     BreadcrumbsManager::for('tickets.show', function ($ticket) {
         return [
