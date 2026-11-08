@@ -43,7 +43,11 @@
         border-radius: 14px;
         box-shadow: 0 2px 12px rgba(18, 38, 63, 0.03);
         overflow: hidden;
-        height: 100%;
+    }
+    .assistance-card {
+        background: linear-gradient(135deg, #f8faff 0%, #edf2f9 100%);
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
     }
     .dashboard-panel-header {
         padding: 18px 22px;
@@ -95,8 +99,8 @@
     <div class="dashboard-hero-card">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
-                <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 font-size-12 fw-medium mb-2 d-inline-block">
-                    <i class="bx bx-check-shield me-1"></i> Customer Support Hub
+                <span class="badge bg-white rounded-pill px-3 py-1 font-size-12 fw-semibold mb-2 d-inline-block shadow-sm" style="color: #1e40af !important; background-color: #ffffff !important;">
+                    <i class="bx bx-check-shield me-1" style="color: #1e40af;"></i> Customer Support Hub
                 </span>
                 <h3 class="fw-bold mb-1 text-white">Welcome back, {{ $customer->name }}!</h3>
                 <p class="mb-0 text-white-50 font-size-14" style="max-width: 650px;">
@@ -246,7 +250,7 @@
     @endif
 
     {{-- Main Content Grid: Recent Tickets & Notifications --}}
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4 align-items-start">
         {{-- Left: Recently Created or Updated Tickets --}}
         <div class="col-lg-7">
             <div class="dashboard-panel-card">
@@ -327,9 +331,9 @@
         </div>
 
         {{-- Right: Recent Notifications & Quick Help --}}
-        <div class="col-lg-5">
+        <div class="col-lg-5 d-flex flex-column gap-4">
             {{-- Recent Notifications Card --}}
-            <div class="dashboard-panel-card mb-4">
+            <div class="dashboard-panel-card">
                 <div class="dashboard-panel-header">
                     <div class="d-flex align-items-center gap-2">
                         <h5 class="fw-bold text-dark mb-0 font-size-15">Recent Alerts</h5>
@@ -375,7 +379,7 @@
             </div>
 
             {{-- Quick Help Box --}}
-            <div class="card border-0 shadow-sm p-4 text-center" style="background: linear-gradient(135deg, #f8faff 0%, #edf2f9 100%); border-radius: 14px; border: 1px solid #e2e8f0;">
+            <div class="card assistance-card border-0 shadow-sm p-4 text-center">
                 <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle mb-3" style="width: 50px; height: 50px; margin: 0 auto; font-size: 24px;">
                     <i class="bx bx-support"></i>
                 </div>

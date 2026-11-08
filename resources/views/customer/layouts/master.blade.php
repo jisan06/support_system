@@ -36,13 +36,16 @@
         }
         .customer-main-content {
             flex: 1 0 auto;
-            padding: 30px 0;
+            padding: 30px 0 60px 0;
         }
         .customer-footer {
             flex-shrink: 0;
             background-color: #ffffff;
             border-top: 1px solid #e9ecef;
-            padding: 15px 0;
+            padding: 20px 0;
+            margin-top: auto;
+            position: relative;
+            z-index: 10;
         }
         .stat-card {
             border: 1px solid #e9ecef;
