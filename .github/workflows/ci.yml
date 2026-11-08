@@ -46,6 +46,18 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
+      - name: Run Database Migrations
+        env:
+          APP_ENV: testing
+          CACHE_STORE: array
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: laravel_test
+          DB_USERNAME: root
+          DB_PASSWORD: password
+          run: php artisan migrate --force
+
       - name: Run All Tests
         env:
           APP_ENV: testing
