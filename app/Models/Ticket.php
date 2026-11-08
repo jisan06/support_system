@@ -34,7 +34,19 @@ class Ticket extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['ticket_number', 'customer_id', 'assigned_to', 'subject', 'status', 'priority', 'escalation_level'])
+            ->logOnly([
+                'ticket_number',
+                'customer_id',
+                'assigned_to',
+                'department',
+                'subject',
+                'status',
+                'priority',
+                'escalation_level',
+                'first_response_due_at',
+                'resolution_due_at',
+                'resolved_at',
+            ])
             ->logOnlyDirty()
             ->setDescriptionForEvent(fn (string $eventName) => "Ticket {$this->ticket_number} was {$eventName}")
             ->useLogName('ticket');

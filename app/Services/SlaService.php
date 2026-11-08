@@ -18,10 +18,22 @@ class SlaService
     }
 
     /**
+     * Get underlying calculation service instance.
+     */
+    public function getCalculationService(): SlaCalculationService
+    {
+        return $this->calculationService;
+    }
+
+    /**
      * Calculate and apply initial SLA deadlines to a ticket based on its priority.
      */
     public function applySlaToTicket(Ticket $ticket, ?Carbon $createdAt = null): Ticket
     {
+        if ($ticket->first_response_due_at !== null && $ticket->resolution_due_at !== null) {
+            return $ticket;
+        }
+
         $fromTime = $createdAt ?? $ticket->created_at ?? now();
 
         $firstResponseDue = $this->calculationService->calculateFirstResponseDeadline($ticket, $fromTime);

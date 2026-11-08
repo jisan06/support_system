@@ -66,20 +66,29 @@ class TicketService extends BaseService
             $ticketNumber = $this->generateTicketNumber();
 
             $initialStatus = !empty($data['status']) ? strtolower(trim($data['status'])) : 'open';
+            $priority = $data['priority'] ?? 'medium';
+            $now = now();
+
+            // Calculate initial SLA deadlines so they are recorded on the initial created activity event
+            $tempTicket = new Ticket(['priority' => $priority]);
+            $firstResponseDue = $this->slaService->getCalculationService()->calculateFirstResponseDeadline($tempTicket, $now);
+            $resolutionDue = $this->slaService->getCalculationService()->calculateResolutionDeadline($tempTicket, $now);
 
             $ticket = $this->repository->create([
-                'ticket_number' => $ticketNumber,
-                'customer_id'   => $data['customer_id'],
-                'assigned_to'   => $data['assigned_to'] ?? null,
-                'subject'       => $data['subject'],
-                'status'        => $initialStatus,
-                'priority'      => $data['priority'] ?? 'medium',
-                'department'    => $data['department'] ?? null,
-                'resolved_at'   => $initialStatus === 'resolved' ? now() : null,
-                'last_reply_at' => now(),
+                'ticket_number'         => $ticketNumber,
+                'customer_id'           => $data['customer_id'],
+                'assigned_to'           => $data['assigned_to'] ?? null,
+                'subject'               => $data['subject'],
+                'status'                => $initialStatus,
+                'priority'              => $priority,
+                'department'            => $data['department'] ?? null,
+                'first_response_due_at' => $firstResponseDue,
+                'resolution_due_at'     => $resolutionDue,
+                'resolved_at'           => $initialStatus === 'resolved' ? $now : null,
+                'last_reply_at'         => $now,
             ]);
 
-            // Apply SLA deadlines based on priority and business hours
+            // Ensure SLA deadlines are initialized (noop if already populated)
             $this->slaService->applySlaToTicket($ticket);
 
             // Create opening message and store any attachments / media (mark as initial creation)
