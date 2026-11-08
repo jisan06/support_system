@@ -184,10 +184,10 @@ class SettingsTableSeeder extends Seeder
                 'id' => 17,
                 'group' => 'sla',
                 'key' => 'business_end_time',
-                'value' => '17:00',
+                'value' => '18:00',
                 'created_by' => 1,
                 'created_at' => '2026-11-08 10:52:24',
-                'updated_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 11:48:10',
             ),
             17 => 
             array (
