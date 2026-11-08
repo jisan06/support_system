@@ -44,10 +44,29 @@
         box-shadow: 0 2px 12px rgba(18, 38, 63, 0.03);
         overflow: hidden;
     }
+    .customer-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        background-color: #ffffff !important;
+        color: #1e40af !important;
+        padding: 5px 14px;
+        border-radius: 50rem;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        line-height: 1.4;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .customer-hero-badge i,
+    .customer-hero-badge span {
+        color: #1e40af !important;
+    }
     .assistance-card {
         background: linear-gradient(135deg, #f8faff 0%, #edf2f9 100%);
         border-radius: 14px;
         border: 1px solid #e2e8f0;
+        margin-bottom: 0 !important;
     }
     .dashboard-panel-header {
         padding: 18px 22px;
@@ -99,9 +118,10 @@
     <div class="dashboard-hero-card">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
-                <span class="badge bg-white rounded-pill px-3 py-1 font-size-12 fw-semibold mb-2 d-inline-block shadow-sm" style="color: #1e40af !important; background-color: #ffffff !important;">
-                    <i class="bx bx-check-shield me-1" style="color: #1e40af;"></i> Customer Support Hub
-                </span>
+                <div class="customer-hero-badge">
+                    <i class="bx bx-check-shield me-1 font-size-14" style="color: #1e40af !important;"></i>
+                    <span style="color: #1e40af !important; font-weight: 700;">Customer Support Hub</span>
+                </div>
                 <h3 class="fw-bold mb-1 text-white">Welcome back, {{ $customer->name }}!</h3>
                 <p class="mb-0 text-white-50 font-size-14" style="max-width: 650px;">
                     Track ticket progress, view SLA guarantees, and get assistance from our dedicated support team in real-time.
