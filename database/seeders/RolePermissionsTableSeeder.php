@@ -25,7 +25,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_user',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             1 => 
             array (
@@ -33,7 +33,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'create_user',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             2 => 
             array (
@@ -41,7 +41,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'edit_user',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             3 => 
             array (
@@ -49,7 +49,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'delete_user',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             4 => 
             array (
@@ -57,7 +57,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_role',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             5 => 
             array (
@@ -65,7 +65,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'create_role',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             6 => 
             array (
@@ -73,7 +73,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'edit_role',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             7 => 
             array (
@@ -81,7 +81,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'delete_role',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             8 => 
             array (
@@ -89,7 +89,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_activity_log',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             9 => 
             array (
@@ -97,7 +97,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'delete_activity_log',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             10 => 
             array (
@@ -105,7 +105,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_backup',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             11 => 
             array (
@@ -113,7 +113,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'create_backup',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             12 => 
             array (
@@ -121,7 +121,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'restore_backup',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             13 => 
             array (
@@ -129,7 +129,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'delete_backup',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             14 => 
             array (
@@ -137,7 +137,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_system_monitoring',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             15 => 
             array (
@@ -145,7 +145,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_notification',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             16 => 
             array (
@@ -153,7 +153,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'delete_notification',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             17 => 
             array (
@@ -161,7 +161,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_setting_general',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             18 => 
             array (
@@ -169,7 +169,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'edit_setting_general',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             19 => 
             array (
@@ -177,7 +177,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_setting_seo',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             20 => 
             array (
@@ -185,7 +185,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'edit_setting_seo',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             21 => 
             array (
@@ -193,7 +193,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_setting_contact',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             22 => 
             array (
@@ -201,7 +201,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'edit_setting_contact',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             23 => 
             array (
@@ -209,7 +209,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_setting_email',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             24 => 
             array (
@@ -217,7 +217,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'edit_setting_email',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             25 => 
             array (
@@ -225,7 +225,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_media',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             26 => 
             array (
@@ -233,7 +233,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'create_media',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             27 => 
             array (
@@ -241,7 +241,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'delete_media',
                 'created_at' => '2026-03-17 11:48:37',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             28 => 
             array (
@@ -249,7 +249,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_customer',
                 'created_at' => '2026-11-07 10:44:14',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             29 => 
             array (
@@ -257,7 +257,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'create_customer',
                 'created_at' => '2026-11-07 10:44:14',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             30 => 
             array (
@@ -265,7 +265,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'edit_customer',
                 'created_at' => '2026-11-07 10:44:14',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             31 => 
             array (
@@ -273,7 +273,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'delete_customer',
                 'created_at' => '2026-11-07 10:44:14',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             32 => 
             array (
@@ -281,7 +281,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'view_ticket',
                 'created_at' => '2026-11-07 10:44:14',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             33 => 
             array (
@@ -289,7 +289,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'create_ticket',
                 'created_at' => '2026-11-07 10:44:14',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             34 => 
             array (
@@ -297,7 +297,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'reply_ticket',
                 'created_at' => '2026-11-07 10:44:14',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             35 => 
             array (
@@ -305,7 +305,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'internal_note_ticket',
                 'created_at' => '2026-11-07 10:44:14',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             36 => 
             array (
@@ -313,33 +313,25 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 1,
                 'slug' => 'edit_ticket',
                 'created_at' => '2026-11-08 06:05:29',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
             37 => 
-            array (
-                'id' => 436,
-                'role_id' => 1,
-                'slug' => 'receive_ticket_assignments',
-                'created_at' => '2026-11-08 06:14:25',
-                'updated_at' => '2026-11-08 06:14:25',
-            ),
-            38 => 
             array (
                 'id' => 437,
                 'role_id' => 1,
                 'slug' => 'view_setting_sla',
                 'created_at' => '2026-11-08 06:14:25',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
-            39 => 
+            38 => 
             array (
                 'id' => 438,
                 'role_id' => 1,
                 'slug' => 'edit_setting_sla',
                 'created_at' => '2026-11-08 06:14:25',
-                'updated_at' => '2026-11-08 06:14:25',
+                'updated_at' => '2026-11-08 11:39:33',
             ),
-            40 => 
+            39 => 
             array (
                 'id' => 476,
                 'role_id' => 164,
@@ -347,7 +339,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'created_at' => '2026-11-08 06:16:44',
                 'updated_at' => '2026-11-08 10:45:42',
             ),
-            41 => 
+            40 => 
             array (
                 'id' => 477,
                 'role_id' => 164,
@@ -355,7 +347,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'created_at' => '2026-11-08 06:16:44',
                 'updated_at' => '2026-11-08 10:45:42',
             ),
-            42 => 
+            41 => 
             array (
                 'id' => 478,
                 'role_id' => 164,
@@ -363,7 +355,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'created_at' => '2026-11-08 06:16:44',
                 'updated_at' => '2026-11-08 10:45:42',
             ),
-            43 => 
+            42 => 
             array (
                 'id' => 479,
                 'role_id' => 164,
@@ -371,7 +363,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'created_at' => '2026-11-08 06:16:44',
                 'updated_at' => '2026-11-08 10:45:42',
             ),
-            44 => 
+            43 => 
             array (
                 'id' => 480,
                 'role_id' => 164,
@@ -379,7 +371,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'created_at' => '2026-11-08 06:16:44',
                 'updated_at' => '2026-11-08 10:45:42',
             ),
-            45 => 
+            44 => 
             array (
                 'id' => 481,
                 'role_id' => 164,
