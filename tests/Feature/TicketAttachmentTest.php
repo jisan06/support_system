@@ -405,9 +405,11 @@ class TicketAttachmentTest extends TestCase
      */
     public function test_customer_cannot_download_internal_note_attachment(): void
     {
+        $staff = $this->createAdminUser(['view_ticket', 'internal_note_ticket']);
+
         $internalMessage = TicketMessage::create([
             'ticket_id' => $this->ticket->id,
-            'user_id'   => 1,
+            'user_id'   => $staff->id,
             'type'      => TicketMessageType::INTERNAL_NOTE,
             'content'   => 'Staff internal note with confidential attachment.',
         ]);
