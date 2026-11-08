@@ -149,6 +149,186 @@ class SettingsTableSeeder extends Seeder
                 'created_at' => '2026-11-07 10:58:09',
                 'updated_at' => '2026-11-07 10:58:09',
             ),
+            13 => 
+            array (
+                'id' => 14,
+                'group' => 'sla',
+                'key' => 'business_timezone',
+                'value' => 'Asia/Dhaka',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            14 => 
+            array (
+                'id' => 15,
+                'group' => 'sla',
+                'key' => 'business_working_days',
+                'value' => '0,1,2,3,4',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            15 => 
+            array (
+                'id' => 16,
+                'group' => 'sla',
+                'key' => 'business_start_time',
+                'value' => '09:00',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            16 => 
+            array (
+                'id' => 17,
+                'group' => 'sla',
+                'key' => 'business_end_time',
+                'value' => '17:00',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            17 => 
+            array (
+                'id' => 18,
+                'group' => 'sla',
+                'key' => 'business_holidays',
+                'value' => NULL,
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            18 => 
+            array (
+                'id' => 19,
+                'group' => 'sla',
+                'key' => 'sla_urgent_first_response',
+                'value' => '60',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            19 => 
+            array (
+                'id' => 20,
+                'group' => 'sla',
+                'key' => 'sla_urgent_resolution',
+                'value' => '240',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            20 => 
+            array (
+                'id' => 21,
+                'group' => 'sla',
+                'key' => 'sla_high_first_response',
+                'value' => '120',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            21 => 
+            array (
+                'id' => 22,
+                'group' => 'sla',
+                'key' => 'sla_high_resolution',
+                'value' => '480',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            22 => 
+            array (
+                'id' => 23,
+                'group' => 'sla',
+                'key' => 'sla_medium_first_response',
+                'value' => '240',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            23 => 
+            array (
+                'id' => 24,
+                'group' => 'sla',
+                'key' => 'sla_medium_resolution',
+                'value' => '1440',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            24 => 
+            array (
+                'id' => 25,
+                'group' => 'sla',
+                'key' => 'sla_low_first_response',
+                'value' => '480',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            25 => 
+            array (
+                'id' => 26,
+                'group' => 'sla',
+                'key' => 'sla_low_resolution',
+                'value' => '2880',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            26 => 
+            array (
+                'id' => 27,
+                'group' => 'sla',
+                'key' => 'sla_escalation_enabled',
+                'value' => '1',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            27 => 
+            array (
+                'id' => 28,
+                'group' => 'sla',
+                'key' => 'sla_escalation_level_1_action',
+                'value' => 'notify',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            28 => 
+            array (
+                'id' => 29,
+                'group' => 'sla',
+                'key' => 'sla_escalation_level_2_action',
+                'value' => 'notify_and_reassign',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            29 => 
+            array (
+                'id' => 30,
+                'group' => 'sla',
+                'key' => 'sla_escalation_level_1_minutes',
+                'value' => '0',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
+            30 => 
+            array (
+                'id' => 31,
+                'group' => 'sla',
+                'key' => 'sla_escalation_level_2_minutes',
+                'value' => '60',
+                'created_by' => 1,
+                'created_at' => '2026-11-08 10:52:24',
+                'updated_at' => '2026-11-08 10:52:24',
+            ),
         ));
         
         
