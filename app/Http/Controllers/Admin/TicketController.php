@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTicketRequest;
 use App\Services\TicketActivityService;
+use App\Services\TicketAssignmentService;
 use App\Http\Requests\TicketInternalNoteRequest;
 use App\Http\Requests\TicketReplyRequest;
 use App\Models\Media;
@@ -22,12 +23,19 @@ class TicketController extends Controller
 {
     protected TicketService $ticketService;
     protected TicketMessageService $messageService;
+    protected TicketActivityService $activityService;
+    protected TicketAssignmentService $assignmentService;
 
-    public function __construct(TicketService $ticketService, TicketMessageService $messageService, TicketActivityService $activityService)
-    {
+    public function __construct(
+        TicketService $ticketService,
+        TicketMessageService $messageService,
+        TicketActivityService $activityService,
+        TicketAssignmentService $assignmentService
+    ) {
         $this->ticketService = $ticketService;
         $this->messageService = $messageService;
         $this->activityService = $activityService;
+        $this->assignmentService = $assignmentService;
     }
 
     /**
@@ -51,7 +59,7 @@ class TicketController extends Controller
 
         $categories = $this->ticketService->getAllCategories();
         $customers = User::where('account_type', User::TYPE_CUSTOMER)->orderBy('name')->get(['id', 'name', 'email']);
-        $agents = User::where('account_type', User::TYPE_ADMIN)->where('status', 'Active')->orderBy('name')->get(['id', 'name', 'email']);
+        $agents = $this->assignmentService->getEligibleAgents();
 
         $statuses = [
             'open'                 => 'Open',
@@ -93,7 +101,7 @@ class TicketController extends Controller
     public function create(): View
     {
         $customers = User::where('account_type', User::TYPE_CUSTOMER)->where('status', 'Active')->orderBy('name')->get(['id', 'name', 'email']);
-        $agents = User::where('account_type', User::TYPE_ADMIN)->where('status', 'Active')->orderBy('name')->get(['id', 'name', 'email']);
+        $agents = $this->assignmentService->getEligibleAgents();
         $categories = $this->ticketService->getAvailableCategories();
 
         return view('admin.ticket.create', compact('customers', 'agents', 'categories'));
@@ -124,8 +132,10 @@ class TicketController extends Controller
         $messages = $this->messageService->getConversation($ticket, auth()->user(), 25);
         // Retrieve activity timeline (paginated)
         $activityTimeline = $this->activityService->getTimeline($ticket, auth()->user());
+        // Retrieve eligible agents for assignment
+        $eligibleAgents = $this->assignmentService->getEligibleAgents();
 
-        return view('admin.ticket.show', compact('ticket', 'messages', 'activityTimeline'));
+        return view('admin.ticket.show', compact('ticket', 'messages', 'activityTimeline', 'eligibleAgents'));
     }
 
     /**
@@ -198,13 +208,31 @@ class TicketController extends Controller
      */
     public function assign(Request $request, Ticket $ticket): RedirectResponse
     {
+        if ($request->input('assigned_to') === '' || $request->input('assigned_to') === '0') {
+            $request->merge(['assigned_to' => null]);
+        }
+
         $validated = $request->validate([
             'assigned_to' => 'nullable|integer|exists:users,id',
         ]);
 
-        $ticket->update(['assigned_to' => $validated['assigned_to']]);
+        $assigneeId = !empty($validated['assigned_to']) ? (int) $validated['assigned_to'] : null;
+
+        try {
+            $this->assignmentService->manualAssign($ticket, $assigneeId);
+        } catch (\InvalidArgumentException $e) {
+            return redirect()->route('tickets.show', $ticket->id)
+                ->withErrors(['assigned_to' => $e->getMessage()]);
+        } catch (\RuntimeException $e) {
+            return redirect()->route('tickets.show', $ticket->id)
+                ->withErrors(['assigned_to' => $e->getMessage()]);
+        }
+
+        $message = $assigneeId === null
+            ? 'Ticket unassigned successfully.'
+            : 'Ticket assignment updated successfully.';
 
         return redirect()->route('tickets.show', $ticket->id)
-            ->with('success', 'Ticket assignment updated successfully.');
+            ->with('success', $message);
     }
 }

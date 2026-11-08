@@ -491,6 +491,7 @@ class TicketImportService
                                 'priority'    => $priority,
                                 'department'  => $category,
                                 'status'      => $status,
+                                'auto_assign' => false,
                             ], $uploader);
                         });
 

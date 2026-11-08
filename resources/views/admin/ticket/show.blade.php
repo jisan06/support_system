@@ -208,21 +208,42 @@
                         <span class="text-muted">Customer Email</span>
                         <span>{{ $ticket->customer?->email ?? '-' }}</span>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                        <span class="text-muted">Assigned To</span>
-                        <div class="d-flex align-items-center gap-2">
-                            @if($ticket->assignedTo)
-                                @php
-                                    $assigneeAvatar = $ticket->assignedTo->getFirstMediaUrl('avatar');
-                                @endphp
-                                @if($assigneeAvatar)
-                                    <img src="{{ $assigneeAvatar }}" alt="{{ $ticket->assignedTo->name }}" class="rounded-circle" style="width: 22px; height: 22px; object-fit: cover;">
+                    <li class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted">Assigned To</span>
+                            <div class="d-flex align-items-center gap-2">
+                                @if($ticket->assignedTo)
+                                    @php
+                                        $assigneeAvatar = $ticket->assignedTo->getFirstMediaUrl('avatar');
+                                    @endphp
+                                    @if($assigneeAvatar)
+                                        <img src="{{ $assigneeAvatar }}" alt="{{ $ticket->assignedTo->name }}" class="rounded-circle" style="width: 22px; height: 22px; object-fit: cover;">
+                                    @endif
+                                    <span class="fw-semibold">{{ $ticket->assignedTo->name }}</span>
+                                @else
+                                    <span class="badge bg-light text-muted">Unassigned</span>
                                 @endif
-                                <span>{{ $ticket->assignedTo->name }}</span>
-                            @else
-                                <span class="text-muted">Unassigned</span>
-                            @endif
+                            </div>
                         </div>
+                        @if(auth()->check() && auth()->user()->hasPermissionTo('edit_ticket'))
+                            <form action="{{ route('tickets.assign', $ticket->id) }}" method="POST" class="mt-2">
+                                @csrf
+                                @method('PATCH')
+                                <div class="input-group input-group-sm">
+                                    <select name="assigned_to" class="form-select form-select-sm font-size-12">
+                                        <option value="">-- Unassigned --</option>
+                                        @foreach($eligibleAgents ?? [] as $agent)
+                                            <option value="{{ $agent->id }}" {{ (string)$ticket->assigned_to === (string)$agent->id ? 'selected' : '' }}>
+                                                {{ $agent->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="bx bx-check"></i> Assign
+                                    </button>
+                                </div>
+                            </form>
+                        @endif
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                         <span class="text-muted">Created</span>

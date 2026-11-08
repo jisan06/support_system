@@ -20,6 +20,7 @@ return [
     "edit_ticket" => "Edit Ticket",
     "reply_ticket" => "Reply Ticket",
     "internal_note_ticket" => "Internal Note",
+    "receive_ticket_assignments" => "Receive Ticket Assignments",
 
     "view_role" => "View Role",
     "create_role" => "Create Role",

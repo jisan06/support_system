@@ -15,15 +15,18 @@ class TicketService extends BaseService
 
     protected TicketMessageService $messageService;
     protected SlaService $slaService;
+    protected TicketAssignmentService $assignmentService;
 
     public function __construct(
         TicketRepositoryInterface $repository,
         TicketMessageService $messageService,
-        SlaService $slaService
+        SlaService $slaService,
+        TicketAssignmentService $assignmentService
     ) {
         parent::__construct($repository);
         $this->messageService = $messageService;
         $this->slaService = $slaService;
+        $this->assignmentService = $assignmentService;
     }
 
     public function findForUser(int|string $id, User $user): Ticket
@@ -74,10 +77,12 @@ class TicketService extends BaseService
             $firstResponseDue = $this->slaService->getCalculationService()->calculateFirstResponseDeadline($tempTicket, $now);
             $resolutionDue = $this->slaService->getCalculationService()->calculateResolutionDeadline($tempTicket, $now);
 
+            $assignedTo = !empty($data['assigned_to']) ? (int) $data['assigned_to'] : null;
+
             $ticket = $this->repository->create([
                 'ticket_number'         => $ticketNumber,
                 'customer_id'           => $data['customer_id'],
-                'assigned_to'           => $data['assigned_to'] ?? null,
+                'assigned_to'           => $assignedTo,
                 'subject'               => $data['subject'],
                 'status'                => $initialStatus,
                 'priority'              => $priority,
@@ -90,6 +95,11 @@ class TicketService extends BaseService
 
             // Ensure SLA deadlines are initialized (noop if already populated)
             $this->slaService->applySlaToTicket($ticket);
+
+            // Auto-assign to least active eligible agent if unassigned and not explicitly disabled
+            if (empty($assignedTo) && ($data['auto_assign'] ?? true)) {
+                $this->assignmentService->autoAssign($ticket);
+            }
 
             // Create opening message and store any attachments / media (mark as initial creation)
             $mediaIds = !empty($mediaIds) ? $mediaIds : ($data['media_ids'] ?? []);
