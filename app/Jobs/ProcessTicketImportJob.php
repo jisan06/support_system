@@ -67,19 +67,22 @@ class ProcessTicketImportJob implements ShouldQueue
     {
         $ticketImport = TicketImport::find($this->importId);
         if ($ticketImport && !$ticketImport->isCompleted()) {
+            $reason = $exception ? $exception->getMessage() : 'Unknown error';
             $errors = $ticketImport->errors ?? [];
             $errors[] = [
                 'row'     => 0,
                 'email'   => '',
                 'subject' => '',
                 'type'    => 'System Error',
-                'reason'  => 'Import job failed: ' . ($exception ? $exception->getMessage() : 'Unknown error'),
+                'reason'  => 'Import job failed: ' . $reason,
             ];
 
             $ticketImport->update([
                 'status' => 'failed',
                 'errors' => array_slice($errors, 0, 50),
             ]);
+
+            app(TicketImportService::class)->logFailedActivity($ticketImport, 'Job failed: ' . $reason);
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\Ticket;
 use App\Models\TicketImport;
 use App\Models\User;
@@ -11,6 +12,7 @@ use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -53,6 +55,8 @@ class TicketImportService
             'status'          => 'pending',
             'errors'          => [],
         ]);
+
+        $this->logInitiatedActivity($import, $user);
 
         \App\Jobs\ProcessTicketImportJob::dispatch($import->id);
 
@@ -122,6 +126,7 @@ class TicketImportService
                     ],
                 ],
             ]);
+            $this->logFailedActivity($ticketImport, 'Import file not found on disk.');
             return;
         }
 
@@ -139,6 +144,7 @@ class TicketImportService
                     ],
                 ],
             ]);
+            $this->logFailedActivity($ticketImport, 'Unable to open CSV file for reading.');
             return;
         }
 
@@ -159,6 +165,7 @@ class TicketImportService
                         ],
                     ],
                 ]);
+                $this->logFailedActivity($ticketImport, 'CSV file is empty or missing headers.');
                 return;
             }
 
@@ -173,6 +180,7 @@ class TicketImportService
 
             if (!empty($missing)) {
                 fclose($handle);
+                $reason = 'Missing required header column(s): ' . implode(', ', $missing) . '.';
                 $ticketImport->update([
                     'status' => 'failed',
                     'errors' => [
@@ -181,10 +189,11 @@ class TicketImportService
                             'email'   => '',
                             'subject' => '',
                             'type'    => 'Header Error',
-                            'reason'  => 'Missing required header column(s): ' . implode(', ', $missing) . '. Supported headers: customer_email, subject, description, priority, category, status, assigned_agent.',
+                            'reason'  => $reason . ' Supported headers: customer_email, subject, description, priority, category, status, assigned_agent.',
                         ],
                     ],
                 ]);
+                $this->logFailedActivity($ticketImport, $reason);
                 return;
             }
 
@@ -526,6 +535,8 @@ class TicketImportService
                 'duplicate_rows'  => $duplicateCount,
                 'errors'          => array_slice($errors, 0, 50),
             ]);
+
+            $this->logCompletedActivity($ticketImport);
         } catch (\Throwable $e) {
             if (is_resource($handle)) {
                 fclose($handle);
@@ -543,6 +554,8 @@ class TicketImportService
                 'status' => 'failed',
                 'errors' => array_slice($errors, 0, 50),
             ]);
+
+            $this->logFailedActivity($ticketImport, 'Import failed: ' . $e->getMessage());
 
             throw $e;
         }
@@ -780,6 +793,127 @@ class TicketImportService
                 'duplicate_rows'  => $duplicate,
                 'errors'          => array_slice($errors, 0, 50),
             ]);
+        }
+    }
+
+    /**
+     * Record import initiation activity log.
+     */
+    protected function logInitiatedActivity(TicketImport $import, User $user): void
+    {
+        $this->logActivitySafely(function () use ($import, $user) {
+            activity('ticket_import')
+                ->causedBy($user)
+                ->performedOn($import)
+                ->event('initiated')
+                ->withProperties([
+                    'import_id'  => $import->id,
+                    'file_name'  => $import->file_name,
+                    'total_rows' => $import->total_rows,
+                ])
+                ->log("Ticket CSV import initiated for file '{$import->file_name}' ({$import->total_rows} rows)");
+        });
+    }
+
+    /**
+     * Record import completion activity log with final counts.
+     * Prevents duplicate completion activity during retries.
+     */
+    public function logCompletedActivity(TicketImport $ticketImport): void
+    {
+        $this->logActivitySafely(function () use ($ticketImport) {
+            $alreadyLogged = ActivityLog::where('log_name', 'ticket_import')
+                ->where('subject_type', TicketImport::class)
+                ->where('subject_id', $ticketImport->id)
+                ->where('event', 'completed')
+                ->exists();
+
+            if ($alreadyLogged) {
+                return;
+            }
+
+            $activity = activity('ticket_import')
+                ->performedOn($ticketImport)
+                ->event('completed')
+                ->withProperties([
+                    'import_id'       => $ticketImport->id,
+                    'total_rows'      => $ticketImport->total_rows,
+                    'successful_rows' => $ticketImport->successful_rows,
+                    'duplicate_rows'  => $ticketImport->duplicate_rows,
+                    'failed_rows'     => $ticketImport->failed_rows,
+                ]);
+
+            if (auth()->check()) {
+                $activity->causedBy(auth()->user());
+            }
+
+            $activity->log("Ticket CSV import #{$ticketImport->id} completed ({$ticketImport->successful_rows} successful, {$ticketImport->duplicate_rows} duplicates, {$ticketImport->failed_rows} failed)");
+        });
+    }
+
+    /**
+     * Record import failure activity log with safe sanitized summary.
+     * Prevents duplicate failure activity during retries.
+     */
+    public function logFailedActivity(TicketImport $ticketImport, string $reason): void
+    {
+        $this->logActivitySafely(function () use ($ticketImport, $reason) {
+            $alreadyLogged = ActivityLog::where('log_name', 'ticket_import')
+                ->where('subject_type', TicketImport::class)
+                ->where('subject_id', $ticketImport->id)
+                ->where('event', 'failed')
+                ->exists();
+
+            if ($alreadyLogged) {
+                return;
+            }
+
+            $sanitizedReason = $this->sanitizeFailureReason($reason);
+            $processedRows = (int) $ticketImport->processed_rows;
+            $totalRows = (int) $ticketImport->total_rows;
+            $remainingRows = max(0, $totalRows - $processedRows);
+
+            $activity = activity('ticket_import')
+                ->performedOn($ticketImport)
+                ->event('failed')
+                ->withProperties([
+                    'import_id'      => $ticketImport->id,
+                    'failure_reason' => $sanitizedReason,
+                    'processed_rows' => $processedRows,
+                    'remaining_rows' => $remainingRows,
+                    'total_rows'     => $totalRows,
+                ]);
+
+            if (auth()->check()) {
+                $activity->causedBy(auth()->user());
+            }
+
+            $activity->log("Ticket CSV import #{$ticketImport->id} failed: {$sanitizedReason}");
+        });
+    }
+
+    /**
+     * Sanitize failure reason to prevent leaking server paths, SQL traces, or credentials.
+     */
+    protected function sanitizeFailureReason(string $reason): string
+    {
+        // Strip absolute Windows and Unix file paths
+        $sanitized = preg_replace('/[A-Za-z]:\\\\[^\s,:]+/', '[file_path]', $reason);
+        $sanitized = preg_replace('/\/[^\s,:]+\/[^\s,:]+/', '[file_path]', $sanitized);
+        $sanitized = trim(preg_replace('/\s+/', ' ', $sanitized));
+
+        return Str::limit($sanitized, 250);
+    }
+
+    /**
+     * Safely execute activity logging so logging failures never break core import execution.
+     */
+    protected function logActivitySafely(callable $callback): void
+    {
+        try {
+            $callback();
+        } catch (\Throwable $e) {
+            Log::warning("Failed to record ticket import activity log: " . $e->getMessage());
         }
     }
 }

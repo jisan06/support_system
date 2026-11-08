@@ -68,5 +68,13 @@ class TicketImport extends Model
             default      => 'bg-secondary',
         };
     }
+
+    /**
+     * Activity logs recorded for this import.
+     */
+    public function activities(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(\App\Models\ActivityLog::class, 'subject');
+    }
 }
 
