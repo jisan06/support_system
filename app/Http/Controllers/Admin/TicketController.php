@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTicketRequest;
+use App\Services\TicketActivityService;
 use App\Http\Requests\TicketInternalNoteRequest;
 use App\Http\Requests\TicketReplyRequest;
 use App\Models\Media;
@@ -22,10 +23,11 @@ class TicketController extends Controller
     protected TicketService $ticketService;
     protected TicketMessageService $messageService;
 
-    public function __construct(TicketService $ticketService, TicketMessageService $messageService)
+    public function __construct(TicketService $ticketService, TicketMessageService $messageService, TicketActivityService $activityService)
     {
         $this->ticketService = $ticketService;
         $this->messageService = $messageService;
+        $this->activityService = $activityService;
     }
 
     /**
@@ -119,8 +121,10 @@ class TicketController extends Controller
     {
         $ticket->load(['customer', 'customer.media', 'assignedTo', 'assignedTo.media']);
         $messages = $this->messageService->getConversation($ticket, auth()->user(), 25);
+        // Retrieve activity timeline (paginated)
+        $activityTimeline = $this->activityService->getTimeline($ticket, auth()->user());
 
-        return view('admin.ticket.show', compact('ticket', 'messages'));
+        return view('admin.ticket.show', compact('ticket', 'messages', 'activityTimeline'));
     }
 
     /**
