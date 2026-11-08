@@ -345,7 +345,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 164,
                 'slug' => 'view_customer',
                 'created_at' => '2026-11-08 06:16:44',
-                'updated_at' => '2026-11-08 06:16:44',
+                'updated_at' => '2026-11-08 10:45:42',
             ),
             41 => 
             array (
@@ -353,7 +353,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 164,
                 'slug' => 'view_ticket',
                 'created_at' => '2026-11-08 06:16:44',
-                'updated_at' => '2026-11-08 06:16:44',
+                'updated_at' => '2026-11-08 10:45:42',
             ),
             42 => 
             array (
@@ -361,7 +361,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 164,
                 'slug' => 'edit_ticket',
                 'created_at' => '2026-11-08 06:16:44',
-                'updated_at' => '2026-11-08 06:16:44',
+                'updated_at' => '2026-11-08 10:45:42',
             ),
             43 => 
             array (
@@ -369,7 +369,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 164,
                 'slug' => 'reply_ticket',
                 'created_at' => '2026-11-08 06:16:44',
-                'updated_at' => '2026-11-08 06:16:44',
+                'updated_at' => '2026-11-08 10:45:42',
             ),
             44 => 
             array (
@@ -377,7 +377,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 164,
                 'slug' => 'internal_note_ticket',
                 'created_at' => '2026-11-08 06:16:44',
-                'updated_at' => '2026-11-08 06:16:44',
+                'updated_at' => '2026-11-08 10:45:42',
             ),
             45 => 
             array (
@@ -385,23 +385,7 @@ class RolePermissionsTableSeeder extends Seeder
                 'role_id' => 164,
                 'slug' => 'receive_ticket_assignments',
                 'created_at' => '2026-11-08 06:16:44',
-                'updated_at' => '2026-11-08 06:16:44',
-            ),
-            46 => 
-            array (
-                'id' => 482,
-                'role_id' => 164,
-                'slug' => 'view_setting_sla',
-                'created_at' => '2026-11-08 06:16:44',
-                'updated_at' => '2026-11-08 06:16:44',
-            ),
-            47 => 
-            array (
-                'id' => 483,
-                'role_id' => 164,
-                'slug' => 'edit_setting_sla',
-                'created_at' => '2026-11-08 06:16:44',
-                'updated_at' => '2026-11-08 06:16:44',
+                'updated_at' => '2026-11-08 10:45:42',
             ),
         ));
         
