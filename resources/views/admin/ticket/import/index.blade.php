@@ -129,7 +129,7 @@
                                         <tr>
                                             <td><code>status</code></td>
                                             <td><span class="badge bg-secondary">Optional</span></td>
-                                            <td><code>open</code>, <code>in_progress</code>, <code>resolved</code>, <code>closed</code> (default: <code>open</code>).</td>
+                                            <td><code>open</code>, <code>in_progress</code>, <code>waiting_for_customer</code>, <code>resolved</code>, <code>closed</code> (default: <code>open</code>).</td>
                                         </tr>
                                         <tr>
                                             <td><code>assigned_agent</code></td>

@@ -87,7 +87,7 @@ class Ticket extends Model
      */
     public function scopeActive(Builder $query): Builder
     {
-        return $query->whereIn('status', ['open', 'in_progress']);
+        return $query->whereIn('status', ['open', 'in_progress', 'waiting_for_customer']);
     }
 
     /**

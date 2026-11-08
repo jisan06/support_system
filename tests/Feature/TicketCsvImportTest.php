@@ -281,13 +281,14 @@ class TicketCsvImportTest extends TestCase
     }
 
     /**
-     * Test 7: Status compatibility - unsupported statuses like waiting_for_customer are rejected.
+     * Test 7: Status compatibility - unsupported statuses are rejected and waiting_for_customer is accepted.
      */
-    public function test_unsupported_status_like_waiting_for_customer_is_rejected(): void
+    public function test_unsupported_status_is_rejected_and_waiting_for_customer_is_accepted(): void
     {
-        $file = $this->createCsvFile('unsupported_status.csv', [
+        $file = $this->createCsvFile('status_compat.csv', [
             ['customer_email', 'subject', 'description', 'priority', 'category', 'status', 'assigned_agent'],
             [$this->customer1->email, 'Waiting Status Ticket', 'Description text.', 'low', '', 'waiting_for_customer', ''],
+            [$this->customer1->email, 'Archived Status Ticket', 'Description text.', 'low', '', 'archived', ''],
         ]);
 
         $import = app(TicketImportService::class)->initiateImport($file, $this->admin);
@@ -295,12 +296,14 @@ class TicketCsvImportTest extends TestCase
 
         $import->refresh();
         $this->assertEquals('completed', $import->status);
-        $this->assertEquals(0, $import->successful_rows);
+        $this->assertEquals(1, $import->successful_rows);
         $this->assertEquals(1, $import->failed_rows);
 
+        $this->assertEquals('waiting_for_customer', Ticket::where('subject', 'Waiting Status Ticket')->first()?->status);
+
         $errorCsv = Storage::disk('local')->get("imports/tickets/errors_{$import->id}.csv");
-        $this->assertStringContainsString('Invalid status [waiting_for_customer]', $errorCsv);
-        $this->assertStringContainsString('Allowed: open, in_progress, resolved, closed', $errorCsv);
+        $this->assertStringContainsString('Invalid status [archived]', $errorCsv);
+        $this->assertStringContainsString('Allowed: open, in_progress, waiting_for_customer, resolved, closed', $errorCsv);
     }
 
     /**

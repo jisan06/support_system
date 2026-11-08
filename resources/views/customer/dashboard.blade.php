@@ -289,11 +289,12 @@
                             @foreach($recentTickets as $ticket)
                                 @php
                                     $statusBadgeClass = match($ticket->status) {
-                                        'open'        => 'bg-warning text-dark',
-                                        'in_progress' => 'bg-info text-white',
-                                        'resolved'    => 'bg-success text-white',
-                                        'closed'      => 'bg-secondary text-white',
-                                        default       => 'bg-light text-dark',
+                                        'open'                 => 'bg-warning text-dark',
+                                        'in_progress'          => 'bg-info text-white',
+                                        'waiting_for_customer' => 'bg-primary text-white',
+                                        'resolved'             => 'bg-success text-white',
+                                        'closed'               => 'bg-secondary text-white',
+                                        default                => 'bg-light text-dark',
                                     };
                                     $priorityBadgeClass = match($ticket->priority) {
                                         'urgent' => 'text-danger fw-bold',

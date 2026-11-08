@@ -426,6 +426,7 @@
                                             @php
                                                 $sColor = match($rTicket->status) {
                                                     'open' => 'warning', 'in_progress' => 'info',
+                                                    'waiting_for_customer' => 'primary',
                                                     'resolved' => 'success', 'closed' => 'secondary',
                                                     default => 'light'
                                                 };

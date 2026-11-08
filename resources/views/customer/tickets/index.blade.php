@@ -89,6 +89,11 @@
         color: #d97706;
         border: 1px solid #fde68a;
     }
+    .status-waiting_for_customer {
+        background-color: #f5f3ff;
+        color: #7c3aed;
+        border: 1px solid #ddd6fe;
+    }
     .status-resolved {
         background-color: #f0fdf4;
         color: #16a34a;
@@ -176,6 +181,11 @@
        class="status-tab {{ request('status') === 'in_progress' ? 'active' : '' }}">
         <span>In Progress</span>
         <span class="badge-count">{{ $statusCounts['in_progress'] ?? 0 }}</span>
+    </a>
+    <a href="{{ route('customer.tickets.index', array_merge(request()->except('page'), ['status' => 'waiting_for_customer'])) }}"
+       class="status-tab {{ request('status') === 'waiting_for_customer' ? 'active' : '' }}">
+        <span>Waiting for You</span>
+        <span class="badge-count">{{ $statusCounts['waiting_for_customer'] ?? 0 }}</span>
     </a>
     <a href="{{ route('customer.tickets.index', array_merge(request()->except('page'), ['status' => 'resolved'])) }}"
        class="status-tab {{ request('status') === 'resolved' ? 'active' : '' }}">

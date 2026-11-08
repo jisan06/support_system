@@ -198,7 +198,7 @@ class TicketImportService
             }
 
             $validCategories = $this->ticketService->getAvailableCategories();
-            $validStatuses = ['open', 'in_progress', 'resolved', 'closed'];
+            $validStatuses = ['open', 'in_progress', 'waiting_for_customer', 'resolved', 'closed'];
             $validPriorities = ['low', 'medium', 'high', 'urgent'];
 
             $uploader = $ticketImport->uploader ?? User::where('account_type', User::TYPE_ADMIN)->first();
@@ -376,7 +376,7 @@ class TicketImportService
                     $category = $matchedCategory;
                 }
 
-                // 6. Validate Status (strictly open, in_progress, resolved, closed)
+                // 6. Validate Status (strictly open, in_progress, waiting_for_customer, resolved, closed)
                 $status = !empty($statusRaw) ? $statusRaw : 'open';
                 if (!in_array($status, $validStatuses, true)) {
                     $failedCount++;

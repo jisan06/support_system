@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
             $table->string('subject');
-            $table->enum('status', ['open', 'in_progress', 'resolved', 'closed'])->default('open')->index();
+            $table->enum('status', ['open', 'in_progress', 'waiting_for_customer', 'resolved', 'closed'])->default('open')->index();
             $table->enum('priority', ['low', 'medium', 'high', 'urgent'])->default('medium')->index();
             $table->string('department', 100)->nullable();
             $table->timestamp('last_reply_at')->nullable()->index();

@@ -48,7 +48,7 @@ class TicketRepository extends BaseRepository implements TicketRepositoryInterfa
         }
 
         if (!empty($filters['status']) && is_string($filters['status']) && $filters['status'] !== 'all') {
-            $allowedStatuses = ['open', 'in_progress', 'resolved', 'closed'];
+            $allowedStatuses = ['open', 'in_progress', 'waiting_for_customer', 'resolved', 'closed'];
             $statusVal = strtolower(trim($filters['status']));
             if (in_array($statusVal, $allowedStatuses, true)) {
                 $query->where('status', $statusVal);

@@ -157,12 +157,27 @@
                             $statusBadge = match($ticket->status) {
                                 'open' => 'bg-info',
                                 'in_progress' => 'bg-warning',
+                                'waiting_for_customer' => 'bg-primary',
                                 'resolved' => 'bg-success',
                                 'closed' => 'bg-secondary',
                                 default => 'bg-primary'
                             };
                         @endphp
-                        <span class="badge {{ $statusBadge }} text-uppercase">{{ str_replace('_', ' ', $ticket->status) }}</span>
+                        @if(auth()->check() && auth()->user()->hasPermissionTo('edit_ticket'))
+                            <form action="{{ route('tickets.update_status', $ticket->id) }}" method="POST" class="d-inline-flex align-items-center gap-1 mb-0">
+                                @csrf
+                                @method('PATCH')
+                                <select name="status" class="form-select form-select-sm py-0 px-2 font-size-11" style="width: auto; height: 26px;" onchange="this.form.submit()">
+                                    <option value="open" {{ $ticket->status === 'open' ? 'selected' : '' }}>Open</option>
+                                    <option value="in_progress" {{ $ticket->status === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                    <option value="waiting_for_customer" {{ $ticket->status === 'waiting_for_customer' ? 'selected' : '' }}>Waiting for Customer</option>
+                                    <option value="resolved" {{ $ticket->status === 'resolved' ? 'selected' : '' }}>Resolved</option>
+                                    <option value="closed" {{ $ticket->status === 'closed' ? 'selected' : '' }}>Closed</option>
+                                </select>
+                            </form>
+                        @else
+                            <span class="badge {{ $statusBadge }} text-uppercase">{{ str_replace('_', ' ', $ticket->status) }}</span>
+                        @endif
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                         <span class="text-muted">Priority</span>

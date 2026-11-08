@@ -276,6 +276,7 @@
     }
     .pill-open { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
     .pill-in_progress { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .pill-waiting_for_customer { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
     .pill-resolved { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
     .pill-closed { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
 

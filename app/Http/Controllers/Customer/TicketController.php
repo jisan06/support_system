@@ -33,7 +33,7 @@ class TicketController extends Controller
     public function index(Request $request): View|RedirectResponse
     {
         $validator = \Illuminate\Support\Facades\Validator::make($request->query(), [
-            'status'     => ['nullable', 'string', \Illuminate\Validation\Rule::in(['all', '', 'open', 'in_progress', 'resolved', 'closed'])],
+            'status'     => ['nullable', 'string', \Illuminate\Validation\Rule::in(['all', '', 'open', 'in_progress', 'waiting_for_customer', 'resolved', 'closed'])],
             'priority'   => ['nullable', 'string', \Illuminate\Validation\Rule::in(['all', '', 'low', 'medium', 'high', 'urgent'])],
             'department' => ['nullable', 'string', 'max:100'],
             'date_from'  => ['nullable', 'date_format:Y-m-d'],
@@ -68,11 +68,12 @@ class TicketController extends Controller
 
         // Status counts for customer filter pills/tabs
         $statusCounts = [
-            'all'         => Ticket::where('customer_id', $customer->id)->count(),
-            'open'        => Ticket::where('customer_id', $customer->id)->where('status', 'open')->count(),
-            'in_progress' => Ticket::where('customer_id', $customer->id)->where('status', 'in_progress')->count(),
-            'resolved'    => Ticket::where('customer_id', $customer->id)->where('status', 'resolved')->count(),
-            'closed'      => Ticket::where('customer_id', $customer->id)->where('status', 'closed')->count(),
+            'all'                  => Ticket::where('customer_id', $customer->id)->count(),
+            'open'                 => Ticket::where('customer_id', $customer->id)->where('status', 'open')->count(),
+            'in_progress'          => Ticket::where('customer_id', $customer->id)->where('status', 'in_progress')->count(),
+            'waiting_for_customer' => Ticket::where('customer_id', $customer->id)->where('status', 'waiting_for_customer')->count(),
+            'resolved'             => Ticket::where('customer_id', $customer->id)->where('status', 'resolved')->count(),
+            'closed'               => Ticket::where('customer_id', $customer->id)->where('status', 'closed')->count(),
         ];
 
         $defaultDepartments = [

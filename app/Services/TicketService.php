@@ -128,10 +128,11 @@ class TicketService extends BaseService
         }
 
         $statusLabels = [
-            'open'        => 'Open',
-            'in_progress' => 'In Progress',
-            'resolved'    => 'Resolved',
-            'closed'      => 'Closed',
+            'open'                 => 'Open',
+            'in_progress'          => 'In Progress',
+            'waiting_for_customer' => 'Waiting for Customer',
+            'resolved'             => 'Resolved',
+            'closed'               => 'Closed',
         ];
 
         $label = $statusLabels[$newStatus] ?? ucfirst($newStatus);

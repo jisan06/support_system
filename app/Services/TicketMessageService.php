@@ -258,14 +258,38 @@ class TicketMessageService extends BaseService
         }
 
         // 5. Secure streamed response: view inline in browser for images/PDFs, download for other files
+        $size = Storage::disk($disk)->size($media->path);
+
         if (str_starts_with($media->mime_type, 'image/') || $media->mime_type === 'application/pdf') {
-            return Storage::disk($disk)->response($media->path, $media->file_name, [
-                'Content-Type' => $media->mime_type,
+            return response()->stream(function () use ($disk, $media) {
+                while (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                $stream = Storage::disk($disk)->readStream($media->path);
+                fpassthru($stream);
+                if (is_resource($stream)) {
+                    fclose($stream);
+                }
+            }, 200, [
+                'Content-Type'        => $media->mime_type,
+                'Content-Length'      => (string) $size,
                 'Content-Disposition' => 'inline; filename="' . $media->file_name . '"',
             ]);
         }
 
-        return Storage::disk($disk)->download($media->path, $media->file_name);
+        return response()->streamDownload(function () use ($disk, $media) {
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+            $stream = Storage::disk($disk)->readStream($media->path);
+            fpassthru($stream);
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        }, $media->file_name, [
+            'Content-Type'   => $media->mime_type,
+            'Content-Length' => (string) $size,
+        ]);
     }
 
     /**

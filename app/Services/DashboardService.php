@@ -189,13 +189,14 @@ class DashboardService
             COUNT(*) as total,
             COUNT(CASE WHEN status = 'open' THEN 1 END) as `open`,
             COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as in_progress,
+            COUNT(CASE WHEN status = 'waiting_for_customer' THEN 1 END) as waiting_for_customer,
             COUNT(CASE WHEN status = 'resolved' THEN 1 END) as resolved,
             COUNT(CASE WHEN status = 'closed' THEN 1 END) as closed,
             COUNT(CASE WHEN assigned_to IS NULL THEN 1 END) as unassigned
         ")->first();
 
         // SLA calculation using existing SlaService
-        $activeTickets = (clone $query)->whereIn('status', ['open', 'in_progress'])
+        $activeTickets = (clone $query)->whereIn('status', ['open', 'in_progress', 'waiting_for_customer'])
             ->where(function ($q) {
                 $q->whereNotNull('first_response_due_at')
                   ->orWhereNotNull('resolution_due_at');
@@ -215,14 +216,15 @@ class DashboardService
         }
 
         return [
-            'total'           => (int) ($stats->total ?? 0),
-            'open'            => (int) ($stats->open ?? 0),
-            'in_progress'     => (int) ($stats->in_progress ?? 0),
-            'resolved'        => (int) ($stats->resolved ?? 0),
-            'closed'          => (int) ($stats->closed ?? 0),
-            'unassigned'      => (int) ($stats->unassigned ?? 0),
-            'sla_approaching' => $slaApproaching,
-            'sla_breached'    => $slaBreached,
+            'total'                => (int) ($stats->total ?? 0),
+            'open'                 => (int) ($stats->open ?? 0),
+            'in_progress'          => (int) ($stats->in_progress ?? 0),
+            'waiting_for_customer' => (int) ($stats->waiting_for_customer ?? 0),
+            'resolved'             => (int) ($stats->resolved ?? 0),
+            'closed'               => (int) ($stats->closed ?? 0),
+            'unassigned'           => (int) ($stats->unassigned ?? 0),
+            'sla_approaching'      => $slaApproaching,
+            'sla_breached'         => $slaBreached,
         ];
     }
 
@@ -246,10 +248,11 @@ class DashboardService
             ->toArray();
 
         $volumeByStatus = [
-            'open'        => ['label' => 'Open', 'count' => $statusCounts['open'] ?? 0, 'color' => 'warning', 'percentage' => $total > 0 ? round((($statusCounts['open'] ?? 0) / $total) * 100) : 0],
-            'in_progress' => ['label' => 'In Progress', 'count' => $statusCounts['in_progress'] ?? 0, 'color' => 'info', 'percentage' => $total > 0 ? round((($statusCounts['in_progress'] ?? 0) / $total) * 100) : 0],
-            'resolved'    => ['label' => 'Resolved', 'count' => $statusCounts['resolved'] ?? 0, 'color' => 'success', 'percentage' => $total > 0 ? round((($statusCounts['resolved'] ?? 0) / $total) * 100) : 0],
-            'closed'      => ['label' => 'Closed', 'count' => $statusCounts['closed'] ?? 0, 'color' => 'secondary', 'percentage' => $total > 0 ? round((($statusCounts['closed'] ?? 0) / $total) * 100) : 0],
+            'open'                 => ['label' => 'Open', 'count' => $statusCounts['open'] ?? 0, 'color' => 'warning', 'percentage' => $total > 0 ? round((($statusCounts['open'] ?? 0) / $total) * 100) : 0],
+            'in_progress'          => ['label' => 'In Progress', 'count' => $statusCounts['in_progress'] ?? 0, 'color' => 'info', 'percentage' => $total > 0 ? round((($statusCounts['in_progress'] ?? 0) / $total) * 100) : 0],
+            'waiting_for_customer' => ['label' => 'Waiting for Customer', 'count' => $statusCounts['waiting_for_customer'] ?? 0, 'color' => 'purple', 'percentage' => $total > 0 ? round((($statusCounts['waiting_for_customer'] ?? 0) / $total) * 100) : 0],
+            'resolved'             => ['label' => 'Resolved', 'count' => $statusCounts['resolved'] ?? 0, 'color' => 'success', 'percentage' => $total > 0 ? round((($statusCounts['resolved'] ?? 0) / $total) * 100) : 0],
+            'closed'               => ['label' => 'Closed', 'count' => $statusCounts['closed'] ?? 0, 'color' => 'secondary', 'percentage' => $total > 0 ? round((($statusCounts['closed'] ?? 0) / $total) * 100) : 0],
         ];
 
         // 2. Priority volume breakdown
@@ -287,7 +290,7 @@ class DashboardService
                     if ($from && $to) $q->whereBetween('created_at', [$from, $to]);
                 },
                 'assignedTickets as open_assigned' => function ($q) use ($from, $to) {
-                    $q->whereIn('status', ['open', 'in_progress']);
+                    $q->whereIn('status', ['open', 'in_progress', 'waiting_for_customer']);
                     if ($from && $to) $q->whereBetween('created_at', [$from, $to]);
                 },
                 'assignedTickets as resolved_assigned' => function ($q) use ($from, $to) {

@@ -54,10 +54,11 @@ class TicketController extends Controller
         $agents = User::where('account_type', User::TYPE_ADMIN)->where('status', 'Active')->orderBy('name')->get(['id', 'name', 'email']);
 
         $statuses = [
-            'open'        => 'Open',
-            'in_progress' => 'In Progress',
-            'resolved'    => 'Resolved',
-            'closed'      => 'Closed',
+            'open'                 => 'Open',
+            'in_progress'          => 'In Progress',
+            'waiting_for_customer' => 'Waiting for Customer',
+            'resolved'             => 'Resolved',
+            'closed'               => 'Closed',
         ];
 
         $priorities = [
@@ -168,7 +169,7 @@ class TicketController extends Controller
     public function updateStatus(Request $request, Ticket $ticket): RedirectResponse
     {
         $validated = $request->validate([
-            'status' => 'required|in:open,in_progress,resolved,closed',
+            'status' => 'required|in:open,in_progress,waiting_for_customer,resolved,closed',
         ]);
 
         $this->ticketService->updateStatus($ticket, $validated['status']);

@@ -48,7 +48,7 @@ class CustomerDashboardService
 
         // 4. SLA Overview: approaching breach and breached active tickets
         $activeSlaTickets = $customer->tickets()
-            ->whereIn('status', ['open', 'in_progress'])
+            ->whereIn('status', ['open', 'in_progress', 'waiting_for_customer'])
             ->where(function ($query) {
                 $query->whereNotNull('first_response_due_at')
                       ->orWhereNotNull('resolution_due_at');

@@ -17,6 +17,7 @@ return [
 
     "view_ticket" => "View Ticket",
     "create_ticket" => "Create Ticket",
+    "edit_ticket" => "Edit Ticket",
     "reply_ticket" => "Reply Ticket",
     "internal_note_ticket" => "Internal Note",
 

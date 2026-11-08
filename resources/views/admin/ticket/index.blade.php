@@ -200,6 +200,7 @@
                                             $statusBadge = match($ticket->status) {
                                                 'open' => 'bg-info',
                                                 'in_progress' => 'bg-warning',
+                                                'waiting_for_customer' => 'bg-primary',
                                                 'resolved' => 'bg-success',
                                                 'closed' => 'bg-secondary',
                                                 default => 'bg-primary'
