@@ -15,8 +15,9 @@ if (!function_exists('notify')) {
      * @param  string      $message
      * @param  string      $type    info|success|warning|danger
      * @param  string|null $url     Optional link
+     * @param  array       $extra   Optional additional metadata
      */
-    function notify($user, string $title, string $message, string $type = 'info', ?string $url = null): void
+    function notify($user, string $title, string $message, string $type = 'info', ?string $url = null, array $extra = []): void
     {
         $users = $user instanceof \Illuminate\Database\Eloquent\Collection
             ? $user
@@ -24,7 +25,7 @@ if (!function_exists('notify')) {
 
         \Illuminate\Support\Facades\Notification::send(
             $users,
-            new \App\Notifications\GeneralNotification($title, $message, $type, $url)
+            new \App\Notifications\GeneralNotification($title, $message, $type, $url, $extra)
         );
 
         // Broadcast real-time event to each user

@@ -37,6 +37,19 @@ class NotificationController extends Controller
         return ResponseHelper::success([], __('notification.marked_as_read'));
     }
 
+    /**
+     * Open a notification: marks as read and redirects to destination URL.
+     */
+    public function open(string $id)
+    {
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
+
+        $targetUrl = $notification->data['url'] ?? route('notifications.index');
+
+        return redirect()->to($targetUrl);
+    }
+
     public function markAllAsRead()
     {
         $this->service->markAllAsRead();

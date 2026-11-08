@@ -105,6 +105,11 @@ class TicketService extends BaseService
             $mediaIds = !empty($mediaIds) ? $mediaIds : ($data['media_ids'] ?? []);
             $this->messageService->addReply($ticket, $creator, $data['description'], $attachments, $mediaIds, isInitial: true);
 
+            // Notify authorized admin users when a customer creates a new ticket
+            if ($creator->isCustomer()) {
+                $this->notifyAdminsOnNewTicket($ticket, $creator);
+            }
+
             return $ticket;
         });
     }
@@ -168,6 +173,30 @@ class TicketService extends BaseService
             $type,
             route('customer.tickets.show', $ticket)
         );
+    }
+
+    /**
+     * Notify authorized admin users when a customer creates a new ticket.
+     */
+    public function notifyAdminsOnNewTicket(Ticket $ticket, User $customer): void
+    {
+        $recipients = User::where('account_type', User::TYPE_ADMIN)
+            ->where('status', 'Active')
+            ->whereHas('roles.permissions', function ($q) {
+                $q->where('slug', 'view_ticket');
+            })
+            ->get();
+
+        if ($recipients->isEmpty()) {
+            return;
+        }
+
+        $customerName = $customer->name ?? 'Customer';
+        $title = 'New Ticket Created';
+        $message = "Ticket #{$ticket->ticket_number} created by {$customerName}.";
+        $url = route('tickets.show', $ticket->id);
+
+        notify($recipients, $title, $message, 'info', $url, ['ticket_id' => $ticket->id]);
     }
 
     /**

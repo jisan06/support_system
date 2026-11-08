@@ -13,7 +13,8 @@ class GeneralNotification extends Notification
         protected string $title,
         protected string $message,
         protected string $type = 'info',
-        protected ?string $url = null
+        protected ?string $url = null,
+        protected array $extra = []
     ) {}
 
     public function via($notifiable): array
@@ -23,11 +24,11 @@ class GeneralNotification extends Notification
 
     public function toDatabase($notifiable): array
     {
-        return [
+        return array_merge([
             'title'   => $this->title,
             'message' => $this->message,
             'type'    => $this->type,
             'url'     => $this->url,
-        ];
+        ], $this->extra);
     }
 }

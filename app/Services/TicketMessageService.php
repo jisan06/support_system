@@ -13,6 +13,7 @@ use App\Services\Traits\SoftDeleteTrait;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
@@ -97,11 +98,82 @@ class TicketMessageService extends BaseService
                             route('customer.tickets.show', $ticket)
                         );
                     }
+
+                    // Global acknowledgment: mark all unread Admin-side notifications for this ticket as read for all internal users
+                    $this->markAdminTicketNotificationsAsRead($ticket);
+                }
+
+                // Notify authorized Admin-side users when a Customer posts a public reply
+                if ($sender->isCustomer()) {
+                    $this->notifyAdminsOnCustomerReply($ticket, $sender);
                 }
             }
 
             return $message;
         });
+    }
+
+    /**
+     * Mark all unread Admin-side notifications for a specific ticket as read for all internal users.
+     * Performs a global acknowledgment across all admin users when an agent sends a public reply.
+     */
+    public function markAdminTicketNotificationsAsRead(Ticket $ticket): int
+    {
+        $adminIds = User::where('account_type', User::TYPE_ADMIN)->pluck('id');
+
+        if ($adminIds->isEmpty()) {
+            return 0;
+        }
+
+        $now = now();
+        $adminUrl = route('tickets.show', $ticket->id);
+
+        return DB::table('notifications')
+            ->where('notifiable_type', User::class)
+            ->whereIn('notifiable_id', $adminIds)
+            ->whereNull('read_at')
+            ->where(function ($query) use ($ticket, $adminUrl) {
+                $query->where('data->ticket_id', $ticket->id)
+                    ->orWhere('data->url', $adminUrl)
+                    ->orWhere('data', 'like', '%"ticket_id":' . $ticket->id . '%')
+                    ->orWhere(function ($sub) use ($ticket) {
+                        $sub->where('data', 'like', '%/admin/tickets/' . $ticket->id . '%')
+                            ->where(function ($titleSub) {
+                                $titleSub->where('data->title', 'New Ticket Created')
+                                    ->orWhere('data->title', 'New Customer Reply')
+                                    ->orWhere('data', 'like', '%New Ticket Created%')
+                                    ->orWhere('data', 'like', '%New Customer Reply%');
+                            });
+                    });
+            })
+            ->update([
+                'read_at'    => $now,
+                'updated_at' => $now,
+            ]);
+    }
+
+    /**
+     * Notify authorized admin users when a customer sends a public reply on a ticket.
+     */
+    public function notifyAdminsOnCustomerReply(Ticket $ticket, User $customer): void
+    {
+        $recipients = User::where('account_type', User::TYPE_ADMIN)
+            ->where('status', 'Active')
+            ->whereHas('roles.permissions', function ($q) {
+                $q->where('slug', 'view_ticket');
+            })
+            ->get();
+
+        if ($recipients->isEmpty()) {
+            return;
+        }
+
+        $customerName = $customer->name ?? 'Customer';
+        $title = 'New Customer Reply';
+        $message = "Customer {$customerName} replied to ticket #{$ticket->ticket_number}.";
+        $url = route('tickets.show', $ticket->id);
+
+        notify($recipients, $title, $message, 'info', $url, ['ticket_id' => $ticket->id]);
     }
 
     /**
@@ -249,6 +321,10 @@ class TicketMessageService extends BaseService
             if ($message->isInternalNote()) {
                 throw new AuthorizationException('Customers are not permitted to access internal note attachments.');
             }
+        } elseif ($user->isAdmin()) {
+            if ($message->isInternalNote() && !$user->hasPermissionTo('internal_note_ticket')) {
+                throw new AuthorizationException('You are not authorized to access internal note attachments.');
+            }
         }
 
         // 4. File existence verification on disk
@@ -259,21 +335,25 @@ class TicketMessageService extends BaseService
 
         // 5. Secure streamed response: view inline in browser for images/PDFs, download for other files
         $size = Storage::disk($disk)->size($media->path);
+        $mimeType = $media->mime_type ?: (Storage::disk($disk)->mimeType($media->path) ?: 'application/octet-stream');
 
-        if (str_starts_with($media->mime_type, 'image/') || $media->mime_type === 'application/pdf') {
+        if (str_starts_with($mimeType, 'image/') || $mimeType === 'application/pdf') {
             return response()->stream(function () use ($disk, $media) {
                 while (ob_get_level() > 0) {
                     ob_end_clean();
                 }
                 $stream = Storage::disk($disk)->readStream($media->path);
-                fpassthru($stream);
                 if (is_resource($stream)) {
+                    fpassthru($stream);
                     fclose($stream);
                 }
             }, 200, [
-                'Content-Type'        => $media->mime_type,
+                'Content-Type'        => $mimeType,
                 'Content-Length'      => (string) $size,
-                'Content-Disposition' => 'inline; filename="' . $media->file_name . '"',
+                'Content-Disposition' => 'inline; filename="' . addslashes($media->file_name) . '"',
+                'Cache-Control'       => 'private, no-cache, no-store, must-revalidate',
+                'Pragma'              => 'no-cache',
+                'Expires'             => '0',
             ]);
         }
 
@@ -282,13 +362,16 @@ class TicketMessageService extends BaseService
                 ob_end_clean();
             }
             $stream = Storage::disk($disk)->readStream($media->path);
-            fpassthru($stream);
             if (is_resource($stream)) {
+                fpassthru($stream);
                 fclose($stream);
             }
         }, $media->file_name, [
-            'Content-Type'   => $media->mime_type,
+            'Content-Type'   => $mimeType,
             'Content-Length' => (string) $size,
+            'Cache-Control'  => 'private, no-cache, no-store, must-revalidate',
+            'Pragma'         => 'no-cache',
+            'Expires'        => '0',
         ]);
     }
 

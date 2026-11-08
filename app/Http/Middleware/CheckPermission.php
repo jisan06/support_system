@@ -113,6 +113,7 @@ class CheckPermission
         // Notifications
         'notifications.index'          => 'view_notification',
         'notifications.poll'           => 'view_notification',
+        'notifications.open'           => 'view_notification',
         'notifications.mark_read'      => 'view_notification',
         'notifications.mark_all_read'  => 'view_notification',
         'notifications.destroy'        => 'delete_notification',

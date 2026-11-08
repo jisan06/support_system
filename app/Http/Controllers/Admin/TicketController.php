@@ -168,9 +168,9 @@ class TicketController extends Controller
     /**
      * Securely download an attachment associated with a ticket message.
      */
-    public function downloadAttachment(Ticket $ticket, TicketMessage $message, Media $media): StreamedResponse
+    public function downloadAttachment(Request $request, Ticket $ticket, TicketMessage $message, Media $media): StreamedResponse
     {
-        return $this->messageService->downloadAttachment($ticket, $message, $media, auth()->user());
+        return $this->messageService->downloadAttachment($ticket, $message, $media, $request->user() ?? auth()->user());
     }
 
     /**

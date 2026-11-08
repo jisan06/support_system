@@ -416,7 +416,7 @@
                                                         ? round($media->size / 1048576, 2) . ' MB'
                                                         : round($media->size / 1024, 1) . ' KB';
                                                     $isImage = str_starts_with($media->mime_type, 'image/');
-                                                    $downloadUrl = route('tickets.attachments.download', [$ticket->id, $msg->id, $media->id]);
+                                                    $downloadUrl = route('tickets.attachments.show', [$ticket->id, $msg->id, $media->id]);
                                                 @endphp
                                                 <a href="{{ $downloadUrl }}"
                                                    target="_blank"

@@ -142,6 +142,7 @@ Route::middleware(['auth', 'demo', 'permission'])
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::get('notifications/poll', [NotificationController::class, 'poll'])->name('notifications.poll');
+        Route::get('notifications/{notification}/open', [NotificationController::class, 'open'])->name('notifications.open');
         Route::patch('notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark_read');
         Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark_all_read');
         Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');

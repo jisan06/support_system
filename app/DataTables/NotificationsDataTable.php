@@ -22,7 +22,8 @@ class NotificationsDataTable extends DataTable
                 $title = e($row->data['title'] ?? '');
                 $url = $row->data['url'] ?? null;
                 $bold = is_null($row->read_at) ? '<strong>' . $title . '</strong>' : $title;
-                return $url ? '<a href="' . e($url) . '">' . $bold . '</a>' : $bold;
+                $openUrl = $url ? route('notifications.open', $row->id) : null;
+                return $openUrl ? '<a href="' . e($openUrl) . '">' . $bold . '</a>' : $bold;
             })
             ->addColumn('message', function ($row) {
                 return e($row->data['message'] ?? '');
