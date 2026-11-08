@@ -18,57 +18,9 @@
     <link href="{{ admin_asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ admin_asset('css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ admin_asset('css/app.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ admin_asset('css/customer.css') }}?v={{ file_exists(public_path('backend/assets/css/customer.css')) ? filemtime(public_path('backend/assets/css/customer.css')) : '1.0' }}" rel="stylesheet" type="text/css" />
 
     @stack('styles')
-
-    <style>
-        body {
-            background-color: #f8f9fa;
-            color: #495057;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .customer-navbar {
-            background-color: #ffffff;
-            border-bottom: 1px solid #e9ecef;
-        }
-        .customer-main-content {
-            flex: 1 0 auto;
-            padding: 30px 0 60px 0;
-            width: 100%;
-        }
-        .customer-footer {
-            flex-shrink: 0;
-            background-color: #ffffff;
-            border-top: 1px solid #e9ecef;
-            padding: 24px 0;
-            margin-top: auto;
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            clear: both;
-        }
-        .stat-card {
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-    </style>
 </head>
 <body>
 

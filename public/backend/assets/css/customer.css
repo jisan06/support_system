@@ -1,0 +1,964 @@
+/**
+ * Customer Portal Stylesheet
+ * Contains all shared and module-specific styles for the customer portal:
+ * Layout, Dashboard, Tickets (Index, Create, Show), Notifications, and Profile.
+ */
+
+/* ==========================================================================
+   1. Global Customer Layout & Base Shell
+   ========================================================================== */
+body {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.customer-navbar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.customer-main-content {
+    flex: 1 0 auto;
+    padding: 30px 0 60px 0;
+    width: 100%;
+}
+
+.customer-footer {
+    flex-shrink: 0;
+    background-color: #ffffff;
+    border-top: 1px solid #e9ecef;
+    padding: 24px 0;
+    margin-top: auto;
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    clear: both;
+}
+
+.stat-card {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+/* ==========================================================================
+   2. Customer Dashboard
+   ========================================================================== */
+.dashboard-hero-card {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    border-radius: 14px;
+    color: #ffffff;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
+}
+
+.stat-card-modern {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    text-decoration: none !important;
+    display: block;
+    height: 100%;
+    box-shadow: 0 2px 8px rgba(18, 38, 63, 0.02);
+}
+
+.stat-card-modern:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(18, 38, 63, 0.08);
+    border-color: #cbd5e1;
+}
+
+.stat-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.dashboard-panel-card {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(18, 38, 63, 0.03);
+    overflow: hidden;
+}
+
+.customer-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: #ffffff !important;
+    color: #1e40af !important;
+    padding: 5px 14px;
+    border-radius: 50rem;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.customer-hero-badge i,
+.customer-hero-badge span {
+    color: #1e40af !important;
+}
+
+.assistance-card {
+    background: linear-gradient(135deg, #f8faff 0%, #edf2f9 100%);
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 0 !important;
+}
+
+.dashboard-panel-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: #fafbfd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dashboard-panel-body {
+    padding: 20px 22px;
+}
+
+.ticket-row-item {
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid #f1f5f9;
+    margin-bottom: 10px;
+    background-color: #ffffff;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.ticket-row-item:last-child {
+    margin-bottom: 0;
+}
+
+.ticket-row-item:hover {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.notification-item-card {
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #f1f5f9;
+    margin-bottom: 10px;
+    transition: background-color 0.15s ease;
+}
+
+.notification-item-card:last-child {
+    margin-bottom: 0;
+}
+
+.notification-item-card.unread {
+    background-color: #f8fbff;
+    border-left: 3px solid #2563eb;
+}
+
+/* ==========================================================================
+   3. Customer Tickets - Index & Listing
+   ========================================================================== */
+.customer-page-header {
+    background: linear-gradient(135deg, #f8faff 0%, #edf2f9 100%);
+    border-radius: 14px;
+    padding: 24px 28px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+}
+
+.status-tab {
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    color: #475569;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-tab:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.status-tab.active {
+    background: #3b82f6;
+    color: #ffffff;
+    border-color: #3b82f6;
+}
+
+.status-tab.active .badge-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
+.badge-count {
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.filter-card {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(18, 38, 63, 0.02);
+}
+
+.ticket-list-card {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(18, 38, 63, 0.03);
+    overflow: hidden;
+}
+
+.ticket-row {
+    padding: 18px 24px;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.15s ease;
+}
+
+.ticket-row:last-child {
+    border-bottom: none;
+}
+
+.ticket-row:hover {
+    background-color: #f8fafc;
+}
+
+.status-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+}
+
+.status-open {
+    background-color: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+}
+
+.status-in_progress {
+    background-color: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
+}
+
+.status-waiting_for_customer {
+    background-color: #f5f3ff;
+    color: #7c3aed;
+    border: 1px solid #ddd6fe;
+}
+
+.status-resolved {
+    background-color: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+}
+
+.status-closed {
+    background-color: #f8fafc;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
+
+.priority-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+}
+
+.priority-dot-sm {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+.empty-state {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.empty-state-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin-bottom: 16px;
+}
+
+/* ==========================================================================
+   4. Customer Tickets - Create
+   ========================================================================== */
+.customer-ticket-header {
+    background: linear-gradient(135deg, #f8faff 0%, #edf2f9 100%);
+    border-radius: 14px;
+    padding: 24px 28px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+}
+
+.form-card {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(18, 38, 63, 0.04);
+    overflow: hidden;
+}
+
+.form-control-modern {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #1e293b;
+    background-color: #ffffff;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-control-modern:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    background-color: #ffffff;
+    outline: none;
+}
+
+.form-label-modern {
+    font-weight: 600;
+    font-size: 13.5px;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+.form-hint {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+.priority-pill-group {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+@media (max-width: 576px) {
+    .priority-pill-group {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.priority-pill-label {
+    margin-bottom: 0;
+    cursor: pointer;
+    display: block;
+}
+
+.priority-pill-card {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 9px 8px;
+    text-align: center;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.priority-pill-card:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.priority-pill-label input:checked + .priority-pill-card {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.priority-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.modern-dropzone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    background-color: #f8fafc;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modern-dropzone:hover, .modern-dropzone.dragover {
+    border-color: #3b82f6;
+    background-color: #f0f7ff;
+}
+
+.dropzone-icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #e0f2fe;
+    color: #0284c7;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 8px;
+    transition: transform 0.2s ease;
+}
+
+.modern-dropzone:hover .dropzone-icon-circle {
+    transform: translateY(-2px);
+}
+
+.file-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12.5px;
+    color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.help-sidebar-card {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(18, 38, 63, 0.04);
+    padding: 20px;
+    margin-bottom: 18px;
+}
+
+.help-sidebar-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.help-tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #475569;
+}
+
+.help-tip-item:last-child {
+    margin-bottom: 0;
+}
+
+.help-tip-bullet {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: #3b82f6;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* ==========================================================================
+   5. Customer Tickets - Show (Conversation & Chat Details)
+   ========================================================================== */
+.ticket-header-card {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 12px rgba(18, 38, 63, 0.03);
+    margin-bottom: 20px;
+}
+
+.chat-card {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(18, 38, 63, 0.03);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-card-header {
+    padding: 14px 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-card-body {
+    padding: 20px;
+    background-color: #f8fafc;
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.chat-row {
+    display: flex;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.chat-row-agent {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.chat-row-customer {
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.chat-avatar-wrap {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.chat-avatar-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-avatar-agent {
+    background: #e0f2fe;
+    color: #0284c7;
+    margin-right: 10px;
+}
+
+.chat-avatar-customer {
+    background: #2563eb;
+    color: #ffffff;
+    margin-left: 10px;
+}
+
+.chat-bubble-col {
+    max-width: 72%;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 768px) {
+    .chat-bubble-col {
+        max-width: 86%;
+    }
+}
+
+.chat-row-agent .chat-bubble-col {
+    align-items: flex-start;
+}
+
+.chat-row-customer .chat-bubble-col {
+    align-items: flex-end;
+}
+
+.chat-meta-bar {
+    font-size: 11.5px;
+    color: #64748b;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.chat-row-customer .chat-meta-bar {
+    flex-direction: row-reverse;
+}
+
+.chat-bubble-box {
+    display: inline-block;
+    width: fit-content;
+    max-width: 100%;
+    padding: 10px 15px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    position: relative;
+}
+
+.chat-message-text {
+    white-space: pre-line;
+    word-break: break-word;
+    margin-bottom: 0;
+}
+
+.chat-bubble-agent {
+    background: #ffffff;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px 14px 14px 14px;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+}
+
+.chat-bubble-customer {
+    background: #2563eb;
+    color: #ffffff;
+    border-radius: 14px 4px 14px 14px;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.18);
+}
+
+.chat-attachment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+.chat-bubble-agent .chat-attachment-list {
+    border-top: 1px solid #f1f5f9;
+}
+
+.chat-bubble-customer .chat-attachment-list {
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.attachment-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    max-width: 100%;
+}
+
+.chat-bubble-agent .attachment-pill {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+}
+
+.chat-bubble-agent .attachment-pill:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+
+.chat-bubble-customer .attachment-pill {
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+}
+
+.chat-bubble-customer .attachment-pill:hover {
+    background: rgba(255, 255, 255, 0.26);
+    color: #ffffff;
+}
+
+.chat-composer-box {
+    background: #ffffff;
+    border-top: 1px solid #f1f5f9;
+    padding: 16px 20px;
+}
+
+.chat-textarea-modern {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    color: #1e293b;
+    transition: all 0.2s ease;
+    resize: vertical;
+    min-height: 72px;
+}
+
+.chat-textarea-modern:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    outline: none;
+}
+
+.sidebar-card-clean {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 12px rgba(18, 38, 63, 0.03);
+    margin-bottom: 18px;
+}
+
+.sidebar-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #0f172a;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.sidebar-prop-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    font-size: 12.5px;
+}
+
+.sidebar-prop-row:not(:last-child) {
+    border-bottom: 1px solid #f8fafc;
+}
+
+.sidebar-prop-label {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.sidebar-prop-val {
+    color: #1e293b;
+    font-weight: 600;
+    text-align: right;
+}
+
+.pill-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.pill-open { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.pill-in_progress { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.pill-waiting_for_customer { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+.pill-resolved { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.pill-closed { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+
+.priority-dot-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+/* ==========================================================================
+   6. Customer Notifications
+   ========================================================================== */
+.notif-hero-card {
+    background: linear-gradient(135deg, #f8faff 0%, #eef2f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+}
+
+.notif-card {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 8px rgba(18, 38, 63, 0.02);
+}
+
+.notif-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 14px rgba(18, 38, 63, 0.06);
+}
+
+.notif-card.is-unread {
+    background: #f8fbff;
+    border-left: 4px solid #2563eb;
+}
+
+.notif-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.notif-filter-pill {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.15s ease-in-out;
+}
+
+/* ==========================================================================
+   7. Customer Profile
+   ========================================================================== */
+.profile-hero-card {
+    background: linear-gradient(135deg, #f8faff 0%, #eef2f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+}
+
+.profile-panel-card {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(18, 38, 63, 0.04);
+    overflow: hidden;
+}
+
+.profile-panel-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: #fafbfd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.profile-panel-body {
+    padding: 24px;
+}
+
+.form-control-modern.is-invalid {
+    border-color: #dc3545;
+    background-color: #fff8f8;
+}
+
+.avatar-preview-box {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-fallback-box {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+}
+
+.meta-stat-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px dashed #e2e8f0;
+    font-size: 13.5px;
+}
+
+.meta-stat-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.section-divider {
+    border-top: 1px solid #f1f5f9;
+    margin: 28px 0;
+}
+

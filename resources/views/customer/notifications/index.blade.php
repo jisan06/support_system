@@ -1,55 +1,6 @@
 @extends('customer.layouts.master')
 @section('title', 'Ticket Notifications')
 
-@push('styles')
-<style>
-    .notif-hero-card {
-        background: linear-gradient(135deg, #f8faff 0%, #eef2f9 100%);
-        border: 1px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 24px 28px;
-        margin-bottom: 24px;
-    }
-    .notif-card {
-        background: #ffffff;
-        border: 1px solid #eef2f6;
-        border-radius: 12px;
-        padding: 18px 22px;
-        margin-bottom: 12px;
-        transition: all 0.2s ease-in-out;
-        box-shadow: 0 2px 8px rgba(18, 38, 63, 0.02);
-    }
-    .notif-card:hover {
-        border-color: #cbd5e1;
-        box-shadow: 0 4px 14px rgba(18, 38, 63, 0.06);
-    }
-    .notif-card.is-unread {
-        background: #f8fbff;
-        border-left: 4px solid #2563eb;
-    }
-    .notif-icon-box {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        flex-shrink: 0;
-    }
-    .notif-filter-pill {
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 500;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        transition: all 0.15s ease-in-out;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="customer-notifications-container">
 
