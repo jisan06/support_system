@@ -31,10 +31,27 @@ class TicketMessage extends Model
 
     public function getActivitylogOptions(): LogOptions
     {
+        $isInternal = $this->isInternalNote()
+            || ($this->getRawOriginal('type') === TicketMessageType::INTERNAL_NOTE->value)
+            || ($this->getRawOriginal('type') === TicketMessageType::INTERNAL_NOTE);
+
+        $logAttributes = ['ticket_id', 'user_id', 'type'];
+
+        // Only log content for public replies.
+        // Confidential internal notes must NEVER store raw content in activity_log.properties.
+        if (!$isInternal) {
+            $logAttributes[] = 'content';
+        }
+
         return LogOptions::defaults()
-            ->logOnly(['ticket_id', 'user_id', 'type', 'content'])
+            ->logOnly($logAttributes)
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn (string $eventName) => "Ticket message was {$eventName}")
+            ->setDescriptionForEvent(function (string $eventName) use ($isInternal) {
+                if ($isInternal) {
+                    return "Ticket internal note was {$eventName}";
+                }
+                return "Ticket reply was {$eventName}";
+            })
             ->useLogName('ticket_message');
     }
 
